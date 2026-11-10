@@ -135,7 +135,12 @@ node short.js 0 <end of last hook sentence + 0.4> "<HEADLINE LINE 1>" "<LINE 2>"
   - 3D headline, 2–3 words, that adds a hook beyond the title.
   - Nothing covering faces.
   - Must read at 320×180. Check the small version.
-  - **Real photos only from the owner.** The owner wants real-photo thumbnails (2026-11-10). If `photos/` holds an owner-uploaded image whose name matches today's topic, build the thumbnail around it in the style of `examples/nvidia/spy.html`: cutout with `thumb/cutout.py`, white sticker outline, dramatic coloured background, 2–3 word 3D headline, and a data badge (e.g. a stock ▼%).
+  - **Real photos only from the owner.** The owner wants real-photo thumbnails (2026-11-10). If `photos/` holds an owner-uploaded image whose name matches today's topic, build the thumbnail around it in the style of `examples/spacex/catch.html` (best) or `examples/nvidia/spy.html`. **Quality bar:**
+    - Cut out with `thumb/cutout.py`, then ALWAYS refine with `thumb/refine_cutout.py`. A low-res mask gives lumpy edges, and the owner called that "low quality".
+    - Thin 6 px white outline, a warm rim-light glow and a soft shadow.
+    - Keep the person big (head about 45% of the frame height) and sharp; the background art is softly blurred for depth.
+    - No emoji when a real photo is used.
+    - Also use dramatic coloured background, 2–3 word 3D headline, and a data badge (e.g. a stock ▼%).
     - Never edit faces, and never add tears or a new expression.
     - Accused or unknown people stay silhouettes.
   - **Never download photos of real people from the web** (hard rule).
