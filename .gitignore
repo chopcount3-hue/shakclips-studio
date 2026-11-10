@@ -3,3 +3,4 @@ work/
 scenes/
 pv/
 node_modules/
+__pycache__/
