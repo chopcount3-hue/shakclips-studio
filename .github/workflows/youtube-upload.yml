@@ -1,0 +1,26 @@
+# Backup uploader (YouTube Data API). OFF by default so it never duplicates the vidIQ uploads.
+# Turn on: repo Settings → Secrets and variables → Actions → Variables: UPLOAD_VIA_ACTIONS = true,
+# plus Secrets YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN (see tools/youtube/SETUP.md).
+name: YouTube upload (backup)
+on:
+  workflow_dispatch:
+  push:
+    branches: [media]
+    paths: ['daily/upload.json']
+jobs:
+  upload:
+    if: ${{ vars.UPLOAD_VIA_ACTIONS == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: media }
+      - uses: actions/checkout@v4
+        with: { ref: main, path: studio }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install google-api-python-client==2.151.0 google-auth==2.36.0
+      - run: python studio/tools/youtube/yt_upload.py daily/upload.json
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
