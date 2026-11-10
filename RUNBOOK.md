@@ -45,11 +45,17 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - `explainer-video-direction`: step 6.
 - `video-editing-polish`: steps 7 to 9.
 - `youtube-thumbnail-design`: step 10. Its checklist must pass before upload.
+- `youtube-content-calendar`: step 2 (the `## Calendar` section of `topics.md`) and the monthly plan.
+- `youtube-community-engagement`: pinned comment, posts and polls, end screens, playlists (owner tasks listed in the wrap-up).
+- `youtube-monetization-revenue`: the Sunday YPP pace check and ad-safe rules for every topic.
+- `youtube-repurposing-distribution`: cross-posting only with the owner's approval per platform; never TikTok workarounds.
+- `youtube-channel-branding-audit`: first week of Feb, May, Aug and Nov, and before applying to YPP.
 
 If a skill disagrees with this runbook, the runbook's hard rules win.
 
 ## 2. Pick today's topic (owner: "automate by yourself daily trending topics"; weekday format mix from the Goal section)
-- If `topics.md` has an unchecked line under **Queue**, use it first (the owner may add topics there).
+- First look under `## Calendar` in `topics.md` for an unchecked line dated today's UTC run date (format in `youtube-content-calendar`). If its topic is AUTO, pick a trending story, using any `hint=`. Leave past-dated unchecked lines alone and note them in log.md.
+- Otherwise, if `topics.md` has an unchecked line under **Queue**, use it (the owner may add topics there).
 - Otherwise pick **one story that is trending in the US today**. Find it with WebSearch (news of the last 24–72 h, plus `youtube-free-research` for what's getting views). Pick a story that is:
   - Big: tech/business drama, science, space, weird-but-true news, viral moments, or a history story tied to today's date.
   - Explainable in 8–10 minutes with a clear story arc (hook → what happened → reactions → what's next). On evergreen days (Tue/Thu/Sat) pick a story or question people search for all year; check demand with `youtube-free-research`.
