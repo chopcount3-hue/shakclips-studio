@@ -1,0 +1,4 @@
+const { chromium } = require('playwright');
+(async () => { const b = await chromium.launch(); const p = await b.newPage(); await p.goto('file://' + __dirname + '/index.html'); await p.evaluate(() => window.ready);
+  const r = await p.evaluate(() => ({ cues: window.getCues(), total: window.TOTAL_DUR, storyEnd: STORY_END, sec: { plan: S(18), fish: S(27), bribe: S(36), silence: S(44), round2: S(51), america: S(57), capone: S(59), fall: S(64), alcatraz: S(69), death: S(70), callback: S(71), title: E(8) + 0.1 }, shots: SHOTS.map(s => s.a) }));
+  require('fs').writeFileSync('cues.json', JSON.stringify(r)); console.log(r.cues.length, r.total, JSON.stringify(r.sec)); const types = {}; r.cues.forEach(c => types[c[1]] = (types[c[1]] || 0) + 1); console.log(JSON.stringify(types)); await b.close(); })();

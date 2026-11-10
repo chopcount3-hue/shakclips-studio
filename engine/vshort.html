@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000;width:1080px;height:1920px;overflow:hidden}#c{display:none}#v{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><canvas id="v" width="1080" height="1920"></canvas>
+<script src="timing.js"></script><script src="core.js"></script><script src="extra.js"></script><script src="shots.js"></script>
+<script>
+// Vertical Short wrapper: draws the 16:9 story frame into a 1080x1920 layout with a hook headline and word-by-word captions.
+(() => {
+  const V = document.getElementById('v'), Z = V.getContext('2d'), SRC = document.getElementById('c');
+  const FF = (w, s) => `${w} ${s}px "Inter Display", Inter, sans-serif`;
+  const cfg = { t0: 0, t1: 30, headline: ['', ''], endText: 'FULL STORY ON THE CHANNEL' };
+  window.setShort = o => Object.assign(cfg, o);
+  function wrap(words, maxW, size) { Z.font = FF(900, size); const lines = [[]]; let w = 0; for (const wd of words) { const ww = Z.measureText(wd.t + ' ').width; if (w + ww > maxW && lines[lines.length - 1].length) { lines.push([]); w = 0; } lines[lines.length - 1].push(wd); w += ww; } return lines; }
+  function sentenceAt(t) { const T = window.TIMING.times; for (let i = 0; i < T.length; i++) if (t >= T[i][0] - 0.05 && t <= T[i][1] + 0.25) return i; return -1; }
+  function headline(lines, y) {
+    Z.save(); Z.textAlign = 'center'; Z.textBaseline = 'middle'; Z.lineJoin = 'round';
+    lines.forEach((s, i) => { if (!s) return; const size = i === 0 ? 92 : 108; Z.font = FF(900, size); const yy = y + i * 122;
+      Z.lineWidth = size * 0.36; Z.strokeStyle = '#fff'; Z.strokeText(s, 540, yy);
+      for (let d = 10; d > 0; d -= 2) { Z.lineWidth = size * 0.18; Z.strokeStyle = '#14100f'; Z.strokeText(s, 540 + d * 0.4, yy + d); }
+      Z.lineWidth = size * 0.18; Z.strokeStyle = '#14100f'; Z.strokeText(s, 540, yy);
+      const g = Z.createLinearGradient(0, yy - size / 2, 0, yy + size / 2); if (i === 0) { g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#cfe3ff'); } else { g.addColorStop(0, '#fff3a0'); g.addColorStop(0.5, '#ffd23a'); g.addColorStop(1, '#ff9d1c'); }
+      Z.fillStyle = g; Z.fillText(s, 540, yy); });
+    Z.restore();
+  }
+  window.renderV = function (lt) {
+    const t = cfg.t0 + lt, end = cfg.t1 - cfg.t0;
+    window.renderFrame(Math.min(t, cfg.t1));
+    const bg = Z.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, '#0b1740'); bg.addColorStop(0.5, '#132a6b'); bg.addColorStop(1, '#0b1740'); Z.fillStyle = bg; Z.fillRect(0, 0, 1080, 1920);
+    // story frame: the full 16:9 frame (keeps every on-screen label)
+    const fy = 590, fh = 608; Z.save(); Z.shadowColor = 'rgba(0,0,0,0.6)'; Z.shadowBlur = 40; Z.fillStyle = '#000'; Z.fillRect(0, fy, 1080, fh); Z.restore();
+    Z.drawImage(SRC, 0, 0, 1920, 1080, 0, fy, 1080, fh);
+    Z.fillStyle = '#fff'; Z.fillRect(0, fy - 8, 1080, 8); Z.fillRect(0, fy + fh, 1080, 8);
+    headline(cfg.headline, 330);
+    // captions
+    const si = sentenceAt(t);
+    if (si >= 0 && lt < end) {
+      const [a, b] = window.TIMING.times[si], txt = window.TIMING.sentences[si];
+      const words = txt.split(/\s+/).filter(Boolean); let acc = 0; const tot = words.reduce((s, w) => s + w.length + 1, 0);
+      const W2 = words.map(w => { const s0 = a + (b - a) * acc / tot; acc += w.length + 1; return { t: w, s: s0 }; });
+      const all = wrap(W2, 940, 74); let cur = 0; all.forEach((ln, i) => { if (ln[0].s <= t) cur = i; });
+      const page = Math.floor(cur / 3), lines = all.slice(page * 3, page * 3 + 3);
+      Z.save(); Z.textBaseline = 'middle'; Z.lineJoin = 'round'; Z.font = FF(900, 74);
+      lines.forEach((ln, li) => { const lw = ln.reduce((s, w) => s + Z.measureText(w.t + ' ').width, 0); let x = 540 - lw / 2; const y = 1380 + li * 96;
+        ln.forEach(w => { const on = t >= w.s; Z.lineWidth = 16; Z.strokeStyle = '#000'; Z.strokeText(w.t, x, y); Z.fillStyle = on ? '#ffd23a' : '#ffffff'; Z.fillText(w.t, x, y); x += Z.measureText(w.t + ' ').width; }); });
+      Z.restore();
+    }
+    // progress bar
+    Z.fillStyle = 'rgba(255,255,255,0.25)'; Z.fillRect(0, 1912, 1080, 8); Z.fillStyle = '#ffd23a'; Z.fillRect(0, 1912, 1080 * Math.min(1, lt / (end + 1.8)), 8);
+    // end tag
+    if (lt >= end - 0.2) {
+      const k = Math.min(1, (lt - end + 0.2) / 0.3); Z.save(); Z.globalAlpha = k; Z.fillStyle = 'rgba(5,10,30,0.72)'; Z.fillRect(0, 0, 1080, 1920);
+      Z.translate(540, 960); Z.scale(0.8 + 0.2 * k, 0.8 + 0.2 * k); Z.textAlign = 'center'; Z.textBaseline = 'middle';
+      Z.font = FF(900, 70); Z.lineWidth = 14; Z.strokeStyle = '#000'; Z.lineJoin = 'round';
+      const parts = cfg.endText.split('|'); parts.forEach((p, i) => { Z.strokeText(p, 0, -60 + i * 90); Z.fillStyle = i === parts.length - 1 ? '#ffd23a' : '#fff'; Z.fillText(p, 0, -60 + i * 90); });
+      Z.beginPath(); Z.moveTo(-60, 120); Z.lineTo(60, 120); Z.lineTo(0, 200); Z.closePath(); Z.fillStyle = '#E8343A'; Z.fill(); Z.restore();
+    }
+  };
+})();
+</script></body></html>

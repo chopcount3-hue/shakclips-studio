@@ -1,0 +1,80 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<img id="tr" src="trump_cut.png" style="display:none"><img id="es" src="elsayed_cut.png" style="display:none">
+<script>
+const W = 1920, H = 1080, cv = document.getElementById('c'), X = cv.getContext('2d');
+const INK = '#14100f';
+const F = (w, s) => `${w} ${s}px "Inter Display", Inter, sans-serif`;
+function R(seed) { let a = seed | 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function layer() { const c = document.createElement('canvas'); c.width = W; c.height = H; return [c, c.getContext('2d')]; }
+function lg(ctx, x0, y0, x1, y1, stops) { const g = ctx.createLinearGradient(x0, y0, x1, y1); stops.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+function rg(ctx, x, y, r0, r1, stops) { const g = ctx.createRadialGradient(x, y, r0, x, y, r1); stops.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+function sticker(c, r, col) {
+  const [s, sx] = layer(); sx.drawImage(c, 0, 0); sx.globalCompositeOperation = 'source-in'; sx.fillStyle = col; sx.fillRect(0, 0, W, H);
+  X.save(); X.globalAlpha = 0.55; X.filter = 'blur(18px)'; X.drawImage(s, 16, 24); X.restore();
+  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; X.drawImage(s, Math.cos(a) * r, Math.sin(a) * r); }
+  X.drawImage(c, 0, 0);
+}
+function text3d(str, x, y, size, rot, fill, ext) {
+  X.save(); X.translate(x, y); X.rotate(rot); X.font = F(900, size); X.textAlign = 'center'; X.textBaseline = 'middle'; X.lineJoin = 'round';
+  X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 40; X.shadowOffsetY = 18; X.lineWidth = size * 0.42; X.strokeStyle = '#fff'; X.strokeText(str, 0, 0); X.shadowColor = 'transparent';
+  for (let d = 18; d > 0; d -= 2) { X.lineWidth = size * 0.2; X.strokeStyle = INK; X.strokeText(str, d * 0.5, d); X.fillStyle = ext; X.fillText(str, d * 0.5, d); }
+  X.lineWidth = size * 0.2; X.strokeStyle = INK; X.strokeText(str, 0, 0); X.fillStyle = fill; X.fillText(str, 0, 0); X.restore();
+}
+function tag(str, x, y, rot, bg, fg, size) {
+  X.save(); X.translate(x, y); X.rotate(rot); X.font = F(900, size); const w = X.measureText(str).width + size * 0.9, h = size * 1.45;
+  X.shadowColor = 'rgba(0,0,0,0.5)'; X.shadowBlur = 20; X.shadowOffsetY = 10; X.beginPath(); X.roundRect(-w / 2, -h / 2, w, h, 16); X.fillStyle = bg; X.fill(); X.shadowColor = 'transparent';
+  X.lineWidth = 9; X.strokeStyle = '#fff'; X.stroke(); X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillStyle = fg; X.fillText(str, 0, 4); X.restore();
+}
+function crackPts(seed) { const r = R(seed), p = []; let x = 1010, y = -20; p.push([x, y]); while (y < H + 20) { y += 50 + r() * 60; x += (r() - 0.5) * 120 - 8; p.push([x, y]); } return p; }
+
+window.draw = async () => {
+  await document.fonts.load('900 64px "Inter Display"');
+  for (const id of ['tr', 'es']) { const im = document.getElementById(id); if (!im.complete) await new Promise(r => im.onload = r); }
+  const pts = crackPts(7);
+  const split = (ctx) => { ctx.beginPath(); ctx.moveTo(-10, -10); pts.forEach(p => ctx.lineTo(p[0], p[1])); ctx.lineTo(-10, H + 10); ctx.closePath(); };
+  // RIGHT: bright victory side
+  X.fillStyle = lg(X, 1000, 0, W, H, [[0, '#1d5fd6'], [0.6, '#3d8cff'], [1, '#7cc0ff']]); X.fillRect(0, 0, W, H);
+  X.save(); X.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2; X.beginPath(); X.moveTo(1450, 380); X.arc(1450, 380, 2200, a, a + 0.08); X.closePath(); X.fillStyle = rg(X, 1450, 380, 0, 1300, [[0, 'rgba(255,235,170,0.42)'], [1, 'rgba(255,235,170,0)']]); X.fill(); }
+  X.fillStyle = rg(X, 1450, 380, 0, 650, [[0, 'rgba(255,245,200,0.85)'], [0.35, 'rgba(255,210,120,0.35)'], [1, 'rgba(255,190,90,0)']]); X.fillRect(0, 0, W, H);
+  X.restore();
+  { const r = R(3), cols = ['#ffd23a', '#ffffff', '#ff5a50', '#8cf0b0']; for (let i = 0; i < 50; i++) { const x = 1050 + r() * 870, y = r() * H; X.save(); X.translate(x, y); X.rotate(r() * 6); X.fillStyle = cols[i % 4]; X.fillRect(-8, -14, 16, 28); X.restore(); } }
+  // LEFT: dark stormy downfall side
+  X.save(); split(X); X.clip();
+  X.fillStyle = lg(X, 0, 0, 900, H, [[0, '#05070f'], [0.55, '#151a2e'], [1, '#3a0d10']]); X.fillRect(0, 0, W, H);
+  X.fillStyle = rg(X, 420, 360, 0, 700, [[0, 'rgba(120,150,210,0.35)'], [1, 'rgba(120,150,210,0)']]); X.fillRect(0, 0, W, H);
+  // falling red chart behind him
+  X.strokeStyle = 'rgba(255,60,50,0.55)'; X.lineWidth = 14; X.lineJoin = 'miter'; X.beginPath(); [[0, 160], [140, 120], [240, 260], [360, 220], [470, 430], [560, 380], [700, 640], [800, 600], [960, 900]].forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.stroke();
+  // rain behind
+  { const r = R(11); X.strokeStyle = 'rgba(190,210,255,0.22)'; X.lineWidth = 3; for (let i = 0; i < 160; i++) { const x = r() * 1100, y = r() * H, l = 40 + r() * 60; X.beginPath(); X.moveTo(x, y); X.lineTo(x - l * 0.25, y + l); X.stroke(); } }
+  X.restore();
+  // Trump: cold, dark grade (photo itself untouched)
+  const [tc, tx] = layer(); const tim = document.getElementById('tr'); const ts = 0.93, tX = 10, tY = 70;
+  tx.filter = 'saturate(0.72) brightness(1.0) contrast(1.12)'; tx.drawImage(tim, tX, tY, tim.width * ts, tim.height * ts); tx.filter = 'none';
+  tx.globalCompositeOperation = 'source-atop'; tx.fillStyle = 'rgba(40,70,140,0.22)'; tx.fillRect(0, 0, W, H);
+  tx.fillStyle = lg(tx, 0, 0, 900, 0, [[0, 'rgba(0,0,10,0.30)'], [0.45, 'rgba(0,0,10,0)'], [1, 'rgba(0,0,10,0.15)']]); tx.fillRect(0, 0, W, H);
+  tx.fillStyle = lg(tx, 0, 700, 0, H, [[0, 'rgba(0,0,10,0)'], [1, 'rgba(0,0,10,0.55)']]); tx.fillRect(0, 0, W, H);
+  // El-Sayed: warm, bright grade
+  const [ec, ex] = layer(); const eim = document.getElementById('es'); const es = 0.74, eX = 960, eY = 150;
+  ex.filter = 'saturate(1.12) brightness(1.06) contrast(1.06)'; ex.drawImage(eim, eX, eY, eim.width * es, eim.height * es); ex.filter = 'none';
+  ex.globalCompositeOperation = 'source-atop'; ex.fillStyle = 'rgba(255,190,90,0.10)'; ex.fillRect(0, 0, W, H);
+  sticker(ec, 11, '#fff');
+  // crack between the two worlds
+  X.save(); X.shadowColor = '#ffffff'; X.shadowBlur = 40; X.strokeStyle = '#fff'; X.lineWidth = 16; X.lineJoin = 'miter'; X.beginPath(); pts.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.stroke(); X.restore();
+  X.strokeStyle = INK; X.lineWidth = 5; X.beginPath(); pts.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.stroke();
+  sticker(tc, 11, '#fff');
+  // rain in front of him, very light
+  X.save(); split(X); X.clip(); { const r = R(23); X.strokeStyle = 'rgba(210,225,255,0.16)'; X.lineWidth = 2.5; for (let i = 0; i < 90; i++) { const x = r() * 1050, y = r() * H, l = 50 + r() * 70; X.beginPath(); X.moveTo(x, y); X.lineTo(x - l * 0.25, y + l); X.stroke(); } } X.restore();
+  // red crash arrow between them
+  X.save(); X.translate(880, 170); X.rotate(0.42);
+  const arrow = () => { X.beginPath(); X.moveTo(-42, -120); X.lineTo(42, -120); X.lineTo(42, 230); X.lineTo(105, 230); X.lineTo(0, 380); X.lineTo(-105, 230); X.lineTo(-42, 230); X.closePath(); };
+  X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 30; X.shadowOffsetY = 14; arrow(); X.lineWidth = 34; X.strokeStyle = '#fff'; X.lineJoin = 'round'; X.stroke(); X.shadowColor = 'transparent';
+  arrow(); X.fillStyle = lg(X, 0, -120, 0, 380, [[0, '#ff7a6a'], [0.5, '#e8251c'], [1, '#9e0c08']]); X.fill(); X.lineWidth = 9; X.strokeStyle = INK; X.stroke();
+  X.restore();
+  // headline + badge
+  text3d('DOWNFALL', 610, 905, 186, -0.04, lg(X, 0, -100, 0, 100, [[0, '#ff8070'], [0.5, '#ff2b1f'], [1, '#a80d08']]), '#3a0604');
+  tag('FIRST EVER', 1660, 120, 0.05, lg(X, 0, -50, 0, 50, [[0, '#fff3a0'], [1, '#ffb11a']]), '#14100f', 66);
+  X.fillStyle = rg(X, W / 2, H / 2, 560, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0.45)']]); X.fillRect(0, 0, W, H);
+};
+</script></body></html>
