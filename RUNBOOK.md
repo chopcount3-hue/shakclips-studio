@@ -88,7 +88,7 @@ If a skill disagrees with this runbook, the runbook's hard rules win.
 
 ## 5. Voice
 ```bash
-cd $P && ./voice.sh am_michael 1.0       # the owner's chosen voice; 1.0 gives about 141 wpm
+cd $P && ./voice.sh am_michael 1.0       # the owner's chosen voice (re-confirmed 2026-11-11 over 3 alternatives: keep it); 1.0 gives about 141 wpm
 ```
 QA (redo if it fails): 138–160 wpm; span count equals sentence count; no clipped words; peak 0.89. Never use atempo.
 
