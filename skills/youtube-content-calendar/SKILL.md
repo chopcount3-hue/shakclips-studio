@@ -67,7 +67,7 @@ Skip any tentpole whose only angle is a tragedy with victims. The runbook bans o
 5. Every Sunday (5 min), swap any slot that the week's news has made stale.
 
 ## topics.md calendar template
-The current runbook uses the **first unchecked line under `## Queue`, whatever its date**, so dated lines must never go under Queue. Put them in a new `## Calendar` section above Queue. The current runbook ignores that section until the owner adds the rule below.
+The runbook reads `## Calendar` first: an unchecked line dated today's UTC run date wins; otherwise it falls back to `## Queue`, then a trending pick. Dated lines never go under Queue.
 ```markdown
 ## Calendar
 <!-- One line per UTC run date. Fields are split by " | "; an optional angle follows " — ". -->
@@ -80,8 +80,6 @@ The current runbook uses the **first unchecked line under `## Queue`, whatever i
 - Parser regex: `^- \[( |x)\] (\d{4}-\d{2}-\d{2}) \| (Mon|Tue|Wed|Thu|Fri|Sat|Sun) \| (trending|history|whatif|top5) \| ([^|]+?)(?: \| ([^—]+?))?(?: — (.+))?$`
 - Keys: `series=`, `hint=`, `poll=yes` (the #1 is set by the Monday poll), `tentpole=<event>`.
 - When a video is done, tick the line and move it to `## Done` in the runbook's format: `- [x] topic — <date>, "<long title>" / "<Short title>"`.
-- Rule for the owner to paste into RUNBOOK step 2 (this skill never edits the runbook):
-  > First look under `## Calendar` for an unchecked line dated today's UTC run date. Its format must match the weekday mix. If the topic is AUTO, pick a trending story, using any hint. Otherwise use `## Queue`, then a trending pick. Leave past-dated unchecked lines alone and note them in log.md.
 - Checks before saving: the weekday matches the date, the format matches the weekday, there is one line per date, the topic is not already in `log.md`, and every history or what-if topic has 2+ independent sources.
 
 ## Sources
