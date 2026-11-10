@@ -5,8 +5,7 @@ set -e
 STUDIO=$(cd "$(dirname "$0")" && pwd); REPO=$(git -C "$STUDIO" remote get-url origin | sed -E 's#.*github.com[:/]##; s#\.git$##')
 mkdir -p /home/claude/untrusted /home/claude/tts
 if [ ! -x /home/claude/tts/espeak/bin/espeak-ng ]; then
-  if gh release download tools-v1 -R "$REPO" -p 'espeak-ng-prebuilt.tar.gz' -D /home/claude/untrusted --clobber 2>/dev/null \
-     || curl -fsSL -o /home/claude/untrusted/espeak-ng-prebuilt.tar.gz "https://github.com/$REPO/releases/download/tools-v1/espeak-ng-prebuilt.tar.gz"; then
+  if git -C "$STUDIO" fetch -q --depth 1 origin tools 2>/dev/null && git -C "$STUDIO" show FETCH_HEAD:tools/espeak-ng-prebuilt.tar.gz > /home/claude/untrusted/espeak-ng-prebuilt.tar.gz; then
     tar -xzf /home/claude/untrusted/espeak-ng-prebuilt.tar.gz -C /home/claude/tts
   else
     git clone -q --depth 1 https://github.com/espeak-ng/espeak-ng.git /home/claude/untrusted/espeak-ng

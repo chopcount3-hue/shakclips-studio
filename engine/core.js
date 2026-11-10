@@ -96,7 +96,8 @@ function person(id, o) {
   else { poly([[-42, shY], [42, shY], [32, hipY + 6], [-32, hipY + 6]]); shape(c.suit); }
   if (c.stripes) { ctx.save(); ellipse(0, (hipY + shY) / 2 + 6, 60, 80); ctx.clip(); for (let x = -60; x <= 60; x += 16) line(x, shY - 10, x, hipY + 20, 2.5, 'rgba(255,255,255,0.45)'); ctx.restore(); ellipse(0, (hipY + shY) / 2 + 6, 64, 84); shape(null); }
   if (c.coat) { line(0, shY + 6, 0, hipY + 4, 4, shade(c.suit, -0.35)); }
-  if (c.body !== 'dress') { poly([[-15, shY + 2], [15, shY + 2], [0, shY + 40]]); shape('#fff', INK, 4); poly([[-6, shY + 10], [6, shY + 10], [9, shY + 64], [0, shY + 74], [-9, shY + 64]]); shape(c.tie, INK, 3.5); }
+  if (c.tee && c.body !== 'dress') { poly([[-22, shY + 1], [22, shY + 1], [14, hipY - 4], [-14, hipY - 4]]); shape(c.tee, null); ctx.beginPath(); ctx.arc(0, shY + 2, 16, 0, Math.PI); shape(null, INK, 4); line(-24, shY + 2, -12, hipY + 2, 4, shade(c.suit, 0.25)); line(24, shY + 2, 12, hipY + 2, 4, shade(c.suit, 0.25)); line(16, shY + 30, 16, hipY - 6, 3, '#9a9aa2'); }
+  else if (c.body !== 'dress') { poly([[-15, shY + 2], [15, shY + 2], [0, shY + 40]]); shape('#fff', INK, 4); poly([[-6, shY + 10], [6, shY + 10], [9, shY + 64], [0, shY + 74], [-9, shY + 64]]); shape(c.tie, INK, 3.5); }
   // arms (shoulder at y=shY+8)
   const armCol = c.body === 'dress' ? c.skin : c.suit;
   const hL = limb(-40, shY + 8, p.aL[0], p.aL[1], 70, 68, armCol, 18);

@@ -17,18 +17,29 @@ The channel owner chose **fully automatic publishing** on 2026-11-10: "upload vi
 
 ## 1. Setup (about 5–8 min)
 ```bash
-cd /home/claude && git clone https://github.com/$REPO.git shakclips-studio   # the session's attached repo
+REPO=chopcount3-hue/shakclips-studio
+cd /home/claude && git clone --depth 1 https://github.com/$REPO.git shakclips-studio
 cd shakclips-studio && ./setup.sh            # espeak-ng + Kokoro voice; prints SETUP OK
 export STUDIO=/home/claude/shakclips-studio
 ```
 Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`.
 
-## 2. Pick the topic
-- Take the first `- [ ]` line under **Queue** in `topics.md`.
-- If the queue is empty:
-  - Use `youtube-free-research` to pick an evergreen, non-political history, true-story or "weird fact" topic in the style of the reference channels.
-  - Send the owner a notification that the topic list is empty.
-- Slug: lowercase-with-dashes. Run `P=$(./new_project.sh <slug>)`.
+## 2. Pick today's trending topic (owner's instruction: "automate by yourself daily trending topics")
+- If `topics.md` has an unchecked line under **Queue**, use it first (the owner may add topics there).
+- Otherwise pick **one story that is trending in the US today**. Find it with WebSearch (news of the last 24–72 h, plus `youtube-free-research` for what's getting views). Pick a story that is:
+  - Big: tech/business drama, science, space, weird-but-true news, viral moments, or a history story tied to today's date.
+  - Explainable in 3–5 minutes with a clear story arc (hook → what happened → reactions → what's next).
+  - Verifiable: at least 2 independent reputable outlets cover every key claim.
+- **Skip** stories that are:
+  - About private individuals, minors, or ongoing tragedies with victims (shootings, disasters with deaths).
+  - Medical advice, or election voting procedures.
+  - Rumours that no reputable outlet has reported.
+- Don't repeat a topic already in `log.md` unless there is major new news.
+- **Real people in a scandal:**
+  - Say "alleged" or "reportedly" for anything not proven or admitted, and give each side's response.
+  - Never state a crime as fact unless there is a conviction.
+  - Alleged spies and other accused private-ish people are silhouettes with a "?", never a drawn likeness.
+- Slug: lowercase-with-dashes. Run `P=$(./new_project.sh <slug>)`. Add the topic to `topics.md` under Done when finished.
 
 ## 3. Research (WebSearch / WebFetch)
 - Gather the story beats, dates, names and numbers. Keep each source's URL and what it supports. Those notes become the description's RESEARCH & SOURCES section.
@@ -112,13 +123,14 @@ node short.js 0 <end of last hook sentence + 0.4> "<HEADLINE LINE 1>" "<LINE 2>"
 - Save everything to `$P/upload.json`.
 
 ## 12. Host the files on GitHub (vidIQ needs public HTTPS links)
+GitHub releases are not allowed from these sessions. Use the `media` branch instead: an orphan branch force-pushed each day with only that day's files. Keep each file under 100 MB.
 ```bash
-TAG=daily-$(date -u +%Y-%m-%d)
-gh release create $TAG -R $REPO --title "$TAG" --notes "Shak Clips daily upload files" \
-  $P/ShakClips_<Slug>.mp4 $P/ShakClips_<Slug>_SHORT.mp4 $P/thumb/<thumb>.jpg
-# public URL: https://github.com/$REPO/releases/download/$TAG/<file>
+D=$(date -u +%Y-%m-%d); M=/home/claude/media; rm -rf $M && mkdir -p $M/daily && cd $M && git init -q -b media
+git remote add origin https://github.com/$REPO.git
+cp $P/ShakClips_<Slug>.mp4 $P/ShakClips_<Slug>_SHORT.mp4 $P/thumb/<thumb>.jpg daily/
+git add -A && git -c user.name="Shak Clips Studio" -c user.email="chopcount3-hue@users.noreply.github.com" commit -qm "media $D" && git push -f origin media
+# public URL (the shell can't open it, but vidIQ can): https://raw.githubusercontent.com/$REPO/media/daily/<file>
 ```
-If `gh` is not authorised, push the files with git instead: commit to the `media` branch, then use `https://github.com/$REPO/raw/media/<path>`. Files must stay under 100 MB for this route.
 
 ## 13. Upload and schedule with vidIQ (all free, 0 credits)
 1. Call `vidiq_social_account_list` with `platform: YOUTUBE`. Confirm `UCKDebyppwGYG3UpxWGrd3FQ` has `canPublish: true`. If not, notify the owner to reconnect, and stop before publishing.
@@ -140,5 +152,5 @@ If `gh` is not authorised, push the files with git instead: commit to the `media
 ## 14. Wrap up
 - In `topics.md`, tick the topic (`- [x] … — <date>, <titles>`) and move it under **Done**.
 - Append the run to `log.md`: date, topic, titles, durations, LUFS, postIds, any problems.
-- Commit and push to `main`. After the status shows the videos uploaded, delete the release (`gh release delete $TAG -R $REPO --yes --cleanup-tag`) so the repo stays small.
+- Commit and push to `main` (`git fetch origin main && git rebase origin/main` first). The `media` branch is replaced the next day, so it never grows.
 - Send the owner a short notification: today's two titles, "goes live 3:30 AM IST", and any problem.

@@ -1,6 +1,6 @@
 # Shak Clips topic queue
 
-One topic per line under **Queue**. Each day the run takes the first unchecked line and ticks it. Add notes after a dash if a topic needs an angle, e.g. `- [ ] The Great Emu War — focus on the soldiers losing`.
+The daily run picks a trending topic by itself (the owner's choice). Anything added under **Queue** is used first, one per day. Add notes after a dash if a topic needs an angle, e.g. `- [ ] The Great Emu War — focus on the soldiers losing`.
 
 ## Queue
 
