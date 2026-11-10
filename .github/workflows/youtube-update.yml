@@ -1,0 +1,28 @@
+# Free thumbnail / title / description changes for videos already on the channel.
+# Runs when daily/updates.json changes on the media branch, or by hand (Actions → YouTube update → Run workflow).
+# Needs repo secrets YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN (see tools/youtube/SETUP.md).
+name: YouTube update (thumbnails & metadata)
+on:
+  workflow_dispatch:
+  push:
+    branches: [media]
+    paths: ['daily/updates.json']
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: media }
+      - uses: actions/checkout@v4
+        with: { ref: main, path: studio }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install google-api-python-client==2.151.0 google-auth==2.36.0
+      - name: Apply updates
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          if [ -z "$YT_REFRESH_TOKEN" ]; then echo "Secrets not set yet — see tools/youtube/SETUP.md"; exit 0; fi
+          python studio/tools/youtube/yt_update.py daily/updates.json

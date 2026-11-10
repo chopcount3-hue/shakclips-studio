@@ -195,6 +195,13 @@ Also write `daily/upload.json` into the media commit (the list format is in `too
 8. Call `vidiq_social_post_status` until each destination is uploaded or scheduled. A refused custom thumbnail means the channel isn't verified: note it and continue.
 9. If publishAt is already in the past (late run), publish immediately (omit publishAt) and log it.
 
+## 13b. Free fixes to live videos (thumbnail, title)
+If a thumbnail or title on an already-published video needs changing:
+1. Add `{"videoId", "thumbnail": "daily/<file>.jpg", "title"?, "description"?}` to `daily/updates.json` on the `media` branch, and commit the image beside it.
+2. The **YouTube update** GitHub workflow applies it for free.
+
+vidIQ's update tools cost credits, so don't use them for this.
+
 ## 14. Wrap up
 - In `topics.md`, tick the topic (`- [x] … — <date>, <titles>`) and move it under **Done**.
 - Append the run to `log.md`: date, topic, titles, durations, LUFS, postIds, any problems.

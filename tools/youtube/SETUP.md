@@ -1,4 +1,8 @@
-# Backup YouTube uploader (GitHub Actions + YouTube Data API)
+# YouTube automation through GitHub Actions (YouTube Data API)
+
+Two workflows:
+- **YouTube update**: free thumbnail, title and description changes for videos already on the channel. It works right after setup, with no audit needed.
+- **YouTube upload (backup)**: uploads new videos. YouTube keeps API uploads private until Google audits the project, so vidIQ stays the main uploader.
 
 vidIQ is the main uploader. This is a backup that needs no vidIQ. It's free (10,000 API units a day; one upload uses about 1,600).
 
@@ -10,7 +14,7 @@ vidIQ is the main uploader. This is a backup that needs no vidIQ. It's free (10,
 3. Go to Credentials → Create credentials → OAuth client ID → **Web application**. Add the redirect URI `https://developers.google.com/oauthplayground`. Copy the Client ID and Client secret.
 4. Open https://developers.google.com/oauthplayground:
    - Click ⚙️ → "Use your own OAuth credentials" and paste the ID and secret.
-   - In Step 1, enter the scopes `https://www.googleapis.com/auth/youtube.upload` and `https://www.googleapis.com/auth/youtube`, then click Authorize and sign in with the channel's Google account.
+   - In Step 1, enter the scopes `https://www.googleapis.com/auth/youtube`, then click Authorize and sign in with the channel's Google account.
    - Click "Exchange authorization code for tokens" and copy the **refresh token**.
 5. In GitHub, open the shakclips-studio repo → Settings → Secrets and variables → Actions:
    - Add the secrets `YT_CLIENT_ID`, `YT_CLIENT_SECRET` and `YT_REFRESH_TOKEN`.
