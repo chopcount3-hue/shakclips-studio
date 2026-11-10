@@ -167,6 +167,7 @@ git add -A && git -c user.name="Shak Clips Studio" -c user.email="chopcount3-hue
 5. **Short:** create a separate draft the same way, with the Short's title and description, no thumbnail, and the same publishAt.
 6. Check each draft's `ready: true`. Fix any refused destination with `vidiq_social_post_draft_update`.
 7. Call `vidiq_social_post_publish` with each draft's postId and revision. This schedules the upload under the owner's standing approval.
+   - **The publishAt is required** (US peak time, 5 PM New York). Before publishing, confirm the draft destination shows `scheduledFor` = `<YYYY-MM-DD>T22:00:00Z`. After publishing, `vidiq_social_post_status` must show it scheduled, not completed. Don't publish without a time unless the run is late (rule 9).
 8. Call `vidiq_social_post_status` until each destination is uploaded or scheduled. A refused custom thumbnail means the channel isn't verified: note it and continue.
 9. If publishAt is already in the past (late run), publish immediately (omit publishAt) and log it.
 
