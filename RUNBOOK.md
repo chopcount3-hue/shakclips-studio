@@ -127,7 +127,11 @@ node short.js 0 <end of last hook sentence + 0.4> "<HEADLINE LINE 1>" "<LINE 2>"
   - 3D headline, 2–3 words, that adds a hook beyond the title.
   - Nothing covering faces.
   - Must read at 320×180. Check the small version.
-  - **Original art only.** No photos of real people or press images, even if they were supplied earlier, because of the copyright risk. Real people appear as the engine's cartoon figures; alleged or unknown people appear as silhouettes.
+  - **Real photos only from the owner.** The owner wants real-photo thumbnails (2026-11-10). If `photos/` holds an owner-uploaded image whose name matches today's topic, build the thumbnail around it in the style of `examples/nvidia/spy.html`: cutout with `thumb/cutout.py`, white sticker outline, dramatic coloured background, 2–3 word 3D headline, and a data badge (e.g. a stock ▼%).
+    - Never edit faces, and never add tears or a new expression.
+    - Accused or unknown people stay silhouettes.
+  - **Never download photos of real people from the web** (hard rule).
+  - Without an owner photo, make the cartoon art as close to real as the engine allows: cinematic lighting, metallic and glass shading, depth blur, big expressive faces and high contrast. Objects and places should look solid and detailed, not flat.
   - Don't use the same layout as yesterday's thumbnail (check `log.md`).
 
 ## 11. Title, description, tags
