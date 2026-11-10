@@ -40,7 +40,13 @@ cd /home/claude && git clone --depth 1 https://github.com/$REPO.git shakclips-st
 cd shakclips-studio && ./setup.sh            # espeak-ng + Kokoro voice; prints SETUP OK
 export STUDIO=/home/claude/shakclips-studio
 ```
-Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`.
+Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`. Then read the repo's own skills in `skills/`, and follow them as part of this runbook:
+- `youtube-retention-scriptwriting`: step 4.
+- `explainer-video-direction`: step 6.
+- `video-editing-polish`: steps 7 to 9.
+- `youtube-thumbnail-design`: step 10. Its checklist must pass before upload.
+
+If a skill disagrees with this runbook, the runbook's hard rules win.
 
 ## 2. Pick today's topic (owner: "automate by yourself daily trending topics"; weekday format mix from the Goal section)
 - If `topics.md` has an unchecked line under **Queue**, use it first (the owner may add topics there).
