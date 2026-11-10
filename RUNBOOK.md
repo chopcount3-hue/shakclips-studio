@@ -4,6 +4,24 @@ Each day this run makes one long video and one Short for **Shak clips 3d** (YouT
 
 The channel owner chose **fully automatic publishing** on 2026-11-10: "upload videos everyday at same time", answered "Fully automatic" when asked whether to approve each video. That standing instruction is the approval for the vidIQ publish step below. Nobody is watching the run, so don't ask questions. Decide, write each decision in `log.md`, and carry on.
 
+## Goal: get into the YouTube Partner Program (ads money) before 31 Jan 2027
+Researched 2026-11-10 (sources are in the Animation project doc `claude/shak-clips-monetization-plan.md`):
+- **Bar to join (ads):** 1,000 subscribers plus either 4,000 qualified watch hours from public long videos in 12 months, or 10M qualified Shorts views in 90 days.
+- **From 1 Feb 2027 it doubles for new applicants:** 8,000 hours or 20M Shorts views. An application sent by 31 Jan 2027 23:59 UTC is reportedly judged on the old bar.
+- **Shorts views never count toward watch hours.** Long videos are what earn the 4,000 hours. Shorts bring subscribers.
+- **YouTube's "inauthentic content" policy** (formerly "repetitious") denies monetization to mass-produced, templated AI videos without an original perspective. Reviewers look at the channel's main theme, most-viewed and newest videos, top watch-time videos, titles, thumbnails, descriptions and the About section. So every daily video must look and feel made by a person, not by a template:
+  1. **Original perspective:** each long video has at least 2 "Shak's take" moments. The narrator gives an opinion, a lesson, a "the part nobody talks about" angle, or a comparison. Keep it fair and evidence-based, never partisan. Never just read the news out loud.
+  2. **Vary the format by weekday (UTC date of the run):**
+     - Mon / Wed / Fri / Sun: trending story explained.
+     - Tue: a true story from history (con, heist, disaster survived, weird law).
+     - Thu: "What if…?" or science explained.
+     - Sat: a top-5 countdown (e.g. "5 Craziest Cons in History").
+     - Evergreen videos keep getting search views for months, which is where watch hours pile up.
+  3. **Vary the build:** different cold open, palette, music mode, title shape and thumbnail layout from the previous day. Never reuse yesterday's thumbnail layout or yesterday's opening line pattern.
+  4. **No third-party photos or footage, anywhere, including thumbnails.** Copyright claims can block monetization. Original engine art only.
+- **Advertiser-friendly:** no swearing, gore or sexual detail. Scandals stay factual, and thumbnails and titles must match what the video shows.
+- **Growth:** every Short is the long video's hook and says "full story on the channel". Long videos end with the end card. Put each video in a playlist by format, which the owner sets up in YouTube Studio.
+
 ## 0. Hard rules (never break)
 - **Accuracy:** every on-screen fact and every narrated claim needs 2 or more independent sources. If a number can't be verified, leave it out or hide it on screen. On quote cards, use only real quotes with the speaker's name.
 - **Real people:**
@@ -24,11 +42,11 @@ export STUDIO=/home/claude/shakclips-studio
 ```
 Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`.
 
-## 2. Pick today's trending topic (owner's instruction: "automate by yourself daily trending topics")
+## 2. Pick today's topic (owner: "automate by yourself daily trending topics"; weekday format mix from the Goal section)
 - If `topics.md` has an unchecked line under **Queue**, use it first (the owner may add topics there).
 - Otherwise pick **one story that is trending in the US today**. Find it with WebSearch (news of the last 24–72 h, plus `youtube-free-research` for what's getting views). Pick a story that is:
   - Big: tech/business drama, science, space, weird-but-true news, viral moments, or a history story tied to today's date.
-  - Explainable in 3–5 minutes with a clear story arc (hook → what happened → reactions → what's next).
+  - Explainable in 8–10 minutes with a clear story arc (hook → what happened → reactions → what's next). On evergreen days (Tue/Thu/Sat) pick a story or question people search for all year; check demand with `youtube-free-research`.
   - Verifiable: at least 2 independent reputable outlets cover every key claim.
 - **Skip** stories that are:
   - About private individuals, minors, or ongoing tragedies with victims (shootings, disasters with deaths).
@@ -46,7 +64,8 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - For current events, search first. Don't rely on memory.
 
 ## 4. Script → `$P/script.json`
-- **Length:** 3–5 minutes (450–750 words, 146–160 wpm).
+- **Length:** 8–10 minutes (1,150–1,450 words at about 141–150 wpm). Long videos are what count toward the 4,000 watch hours, and 8+ minutes allows mid-roll ads once monetized. Keep it tight: no padding, a new beat every 2.5–4 s, an open loop at the end of every section.
+- **Shak's take:** 2–3 short opinion or lesson moments, clearly framed as the channel's view ("Here's what I think is the real story…").
 - **Structure:** follow the Animation project's format doc and `examples/*/script.json`:
   - **Hook (first 30–40 s):** ends on the core question.
   - **Body:** 4–6 sections, each with a short title-card name.
@@ -57,9 +76,9 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 
 ## 5. Voice
 ```bash
-cd $P && ./voice.sh am_michael 0.96      # the owner's chosen voice and speed
+cd $P && ./voice.sh am_michael 1.0       # the owner's chosen voice; 1.0 gives about 141 wpm
 ```
-QA (redo if it fails): 146–160 wpm; span count equals sentence count; no clipped words; peak 0.89. Never use atempo.
+QA (redo if it fails): 138–160 wpm; span count equals sentence count; no clipped words; peak 0.89. Never use atempo.
 
 ## 6. Animation → `$P/shots.js` (and `$P/extra.js` for new characters or props)
 - Read `examples/midterms/shots.js` fully before writing, then copy its structure. It covers:
@@ -95,7 +114,7 @@ node short.js 0 <end of last hook sentence + 0.4> "<HEADLINE LINE 1>" "<LINE 2>"
 - Length must be 15–60 s.
 
 ## 9. Quality checks (all must pass before publishing)
-- **ffprobe:** long video is 1920×1080 h264 + aac, 3–5.5 min. Short is 1080×1920, 15–60 s.
+- **ffprobe:** long video is 1920×1080 h264 + aac, 7.5–11 min. Short is 1080×1920, 15–60 s.
 - **Loudness:** `ffmpeg -i X -af ebur128=peak=true -f null -` gives I = −14 ± 1 LUFS for both.
 - **Frames:** grab 9 frames across each video (`ffmpeg -ss T -frames:v 1`), tile them and look. No blank or black frames (except the end card), no cut-off text, captions in sync.
 - **Voice:** spot-listen proxy (peak/RMS sane), no silence gaps over 2 s except planned ones.
@@ -108,6 +127,8 @@ node short.js 0 <end of last hook sentence + 0.4> "<HEADLINE LINE 1>" "<LINE 2>"
   - 3D headline, 2–3 words, that adds a hook beyond the title.
   - Nothing covering faces.
   - Must read at 320×180. Check the small version.
+  - **Original art only.** No photos of real people or press images, even if they were supplied earlier, because of the copyright risk. Real people appear as the engine's cartoon figures; alleged or unknown people appear as silhouettes.
+  - Don't use the same layout as yesterday's thumbnail (check `log.md`).
 
 ## 11. Title, description, tags
 - **Title:** under 70 characters, a curiosity question or a bold claim.
@@ -140,7 +161,7 @@ git add -A && git -c user.name="Shak Clips Studio" -c user.email="chopcount3-hue
    - `media`: the video's uploadId
    - one YOUTUBE destination with `platformAccountId: "UCKDebyppwGYG3UpxWGrd3FQ"`
    - `title`, `text` (the description), `tags`
-   - `categoryId: 27` (Education)
+   - `categoryId: 27` (Education) for evergreen days, `25` (News & Politics) for trending news
    - `privacyStatus: "public"`, `publishAt: "<YYYY-MM-DD>T22:00:00Z"` (03:30 IST next morning)
    - `thumbnailImageId`
 5. **Short:** create a separate draft the same way, with the Short's title and description, no thumbnail, and the same publishAt.
@@ -153,4 +174,5 @@ git add -A && git -c user.name="Shak Clips Studio" -c user.email="chopcount3-hue
 - In `topics.md`, tick the topic (`- [x] … — <date>, <titles>`) and move it under **Done**.
 - Append the run to `log.md`: date, topic, titles, durations, LUFS, postIds, any problems.
 - Commit and push to `main` (`git fetch origin main && git rebase origin/main` first). The `media` branch is replaced the next day, so it never grows.
-- Send the owner a short notification: today's two titles, "goes live 3:30 AM IST", and any problem.
+- **Channel stats:** call `vidiq_user_channels` (free) and log subscribers, views and video count in `log.md`. When subscribers reach 1,000, tell the owner in the notification to open YouTube Studio → Earn, check watch hours, and apply right away (before 31 Jan 2027).
+- Send the owner a short notification: today's two titles, "goes live 3:30 AM IST", subscriber count, and any problem.
