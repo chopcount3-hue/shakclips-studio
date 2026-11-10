@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><img id="em" src="elon_cut.png" style="display:none">
+<script>
+const W = 1920, H = 1080, X = document.getElementById('c').getContext('2d'), INK = '#14100f';
+const F = (w, s) => `${w} ${s}px "Inter Display", Inter, "Noto Color Emoji", sans-serif`;
+function layer() { const c = document.createElement('canvas'); c.width = W; c.height = H; return [c, c.getContext('2d')]; }
+function lg(ctx, x0, y0, x1, y1, st) { const g = ctx.createLinearGradient(x0, y0, x1, y1); st.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+function rg(ctx, x, y, r0, r1, st) { const g = ctx.createRadialGradient(x, y, r0, x, y, r1); st.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+function sticker(c, r, col, sh = 0.55) {
+  const [s, sx] = layer(); sx.drawImage(c, 0, 0); sx.globalCompositeOperation = 'source-in'; sx.fillStyle = col; sx.fillRect(0, 0, W, H);
+  X.save(); X.globalAlpha = sh; X.filter = 'blur(18px)'; X.drawImage(s, 16, 24); X.restore();
+  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; X.drawImage(s, Math.cos(a) * r, Math.sin(a) * r); }
+  X.drawImage(c, 0, 0);
+}
+function text3d(str, x, y, size, rot, fill, ext) {
+  X.save(); X.translate(x, y); X.rotate(rot); X.font = F(900, size); X.textAlign = 'center'; X.textBaseline = 'middle'; X.lineJoin = 'round';
+  X.shadowColor = 'rgba(0,0,0,0.7)'; X.shadowBlur = 40; X.shadowOffsetY = 18; X.lineWidth = size * 0.42; X.strokeStyle = '#fff'; X.strokeText(str, 0, 0); X.shadowColor = 'transparent';
+  for (let d = 18; d > 0; d -= 2) { X.lineWidth = size * 0.2; X.strokeStyle = INK; X.strokeText(str, d * 0.5, d); X.fillStyle = ext; X.fillText(str, d * 0.5, d); }
+  X.lineWidth = size * 0.2; X.strokeStyle = INK; X.strokeText(str, 0, 0); X.fillStyle = fill; X.fillText(str, 0, 0); X.restore();
+}
+function tower(ctx, x, top, bot, w) {
+  ctx.fillStyle = lg(ctx, x - w / 2, 0, x + w / 2, 0, [[0, '#2a2f3a'], [0.5, '#4a5262'], [1, '#1c2029']]); ctx.fillRect(x - w / 2, top, w, bot - top);
+  ctx.strokeStyle = 'rgba(200,210,230,0.55)'; ctx.lineWidth = 5; for (let y = top; y < bot; y += w) { ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(x + w / 2, y + w); ctx.moveTo(x + w / 2, y); ctx.lineTo(x - w / 2, y + w); ctx.stroke(); }
+  ctx.lineWidth = 10; ctx.strokeStyle = INK; ctx.strokeRect(x - w / 2, top, w, bot - top);
+  ctx.fillStyle = '#1c2029'; ctx.fillRect(x - w / 2 - 14, top - 30, w + 28, 34); ctx.strokeRect(x - w / 2 - 14, top - 30, w + 28, 34);
+}
+function arm(ctx, x0, y, x1, glow) {
+  ctx.save(); ctx.shadowColor = glow; ctx.shadowBlur = 40; ctx.fillStyle = lg(ctx, 0, y - 22, 0, y + 22, [[0, '#ffe27a'], [1, '#f2a91a']]); ctx.beginPath(); ctx.roundRect(x0, y - 22, x1 - x0, 44, 14); ctx.fill(); ctx.restore();
+  ctx.lineWidth = 8; ctx.strokeStyle = INK; ctx.beginPath(); ctx.roundRect(x0, y - 22, x1 - x0, 44, 14); ctx.stroke();
+  ctx.strokeStyle = 'rgba(120,70,0,0.6)'; ctx.lineWidth = 4; for (let u = x0 + 30; u < x1 - 10; u += 46) { ctx.beginPath(); ctx.moveTo(u, y - 20); ctx.lineTo(u + 26, y + 20); ctx.stroke(); }
+}
+function ship(ctx, cx, top, h, w) {
+  const bot = top + h;
+  // flames
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 3; i++) { const fx = cx + (i - 1) * w * 0.28; ctx.beginPath(); ctx.moveTo(fx - w * 0.14, bot); ctx.quadraticCurveTo(fx, bot + 330, fx + w * 0.14, bot); ctx.closePath(); ctx.fillStyle = lg(ctx, 0, bot, 0, bot + 300, [[0, 'rgba(255,255,230,1)'], [0.3, 'rgba(255,190,60,0.95)'], [1, 'rgba(255,80,20,0)']]); ctx.fill(); }
+  ctx.fillStyle = rg(ctx, cx, bot + 60, 10, 260, [[0, 'rgba(255,170,60,0.55)'], [1, 'rgba(255,90,30,0)']]); ctx.fillRect(cx - 300, bot - 100, 600, 420); ctx.restore();
+  // body
+  ctx.beginPath(); ctx.moveTo(cx - w / 2, bot); ctx.lineTo(cx - w / 2, top + w * 0.9); ctx.bezierCurveTo(cx - w / 2, top + w * 0.2, cx - w * 0.15, top, cx, top); ctx.bezierCurveTo(cx + w * 0.15, top, cx + w / 2, top + w * 0.2, cx + w / 2, top + w * 0.9); ctx.lineTo(cx + w / 2, bot); ctx.closePath();
+  ctx.fillStyle = lg(ctx, cx - w / 2, 0, cx + w / 2, 0, [[0, '#6b7280'], [0.22, '#e8edf3'], [0.4, '#ffffff'], [0.7, '#aab2bd'], [1, '#4b5260']]); ctx.fill(); ctx.lineWidth = 10; ctx.strokeStyle = INK; ctx.stroke();
+  ctx.save(); ctx.clip(); ctx.fillStyle = 'rgba(20,20,26,0.85)'; ctx.fillRect(cx - w / 2, top, w * 0.22, h); ctx.strokeStyle = 'rgba(60,64,74,0.5)'; ctx.lineWidth = 3; for (let y = top + w; y < bot; y += 46) { ctx.beginPath(); ctx.moveTo(cx - w / 2, y); ctx.lineTo(cx + w / 2, y); ctx.stroke(); } ctx.restore();
+  // flaps
+  for (const [yy, s] of [[top + w * 1.0, 1], [bot - 150, 1.4]]) for (const sd of [-1, 1]) { ctx.beginPath(); ctx.moveTo(cx + sd * w / 2, yy); ctx.lineTo(cx + sd * (w / 2 + 46 * s), yy + 26 * s); ctx.lineTo(cx + sd * (w / 2 + 46 * s), yy + 120 * s); ctx.lineTo(cx + sd * w / 2, yy + 130 * s); ctx.closePath(); ctx.fillStyle = '#2b2f38'; ctx.fill(); ctx.lineWidth = 7; ctx.strokeStyle = INK; ctx.stroke(); }
+}
+window.draw = async () => {
+  await document.fonts.load('900 64px "Inter Display"'); await document.fonts.load('64px "Noto Color Emoji"'); const im = document.getElementById('em'); if (!im.complete) await new Promise(r => im.onload = r);
+  // sky
+  X.fillStyle = lg(X, 0, 0, 0, H, [[0, '#1a0f3d'], [0.45, '#6a2a7a'], [0.75, '#e0624a'], [1, '#ffb24a']]); X.fillRect(0, 0, W, H);
+  for (let i = 0; i < 80; i++) { X.fillStyle = `rgba(255,255,255,${0.3 + (i * 37 % 10) / 15})`; X.beginPath(); X.arc((i * 389) % W, (i * 173) % 420, 1.5 + (i % 3), 0, 7); X.fill(); }
+  X.save(); X.globalCompositeOperation = 'lighter'; for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; X.beginPath(); X.moveTo(1560, 420); X.arc(1560, 420, 2400, a, a + 0.07); X.closePath(); X.fillStyle = rg(X, 1560, 420, 0, 1500, [[0, 'rgba(255,220,150,0.35)'], [1, 'rgba(255,220,150,0)']]); X.fill(); } X.restore();
+  // ground + tower + ship
+  X.fillStyle = lg(X, 0, 930, 0, H, [[0, '#3a2a3a'], [1, '#1a1220']]); X.fillRect(0, 930, W, H);
+  const [tc, tx] = layer(); tower(tx, 1330, 120, 1010, 130); ship(tx, 1640, 160, 640, 190); arm(tx, 1395, 470, 1760, '#ffd23a'); arm(tx, 1395, 590, 1760, '#ffd23a');
+  // motion lines above the ship
+  tx.strokeStyle = 'rgba(255,255,255,0.7)'; tx.lineWidth = 8; tx.lineCap = 'round'; for (const [x, y, l] of [[1560, 40, 90], [1640, 20, 110], [1720, 40, 90], [1600, 100, 60], [1690, 95, 60]]) { tx.beginPath(); tx.moveTo(x, y); tx.lineTo(x, y + l); tx.stroke(); }
+  sticker(tc, 8, '#fff', 0.45);
+  // sparks where the arms grab
+  X.save(); X.globalCompositeOperation = 'lighter'; for (const [x, y] of [[1545, 470], [1735, 470], [1545, 590], [1735, 590]]) { X.fillStyle = rg(X, x, y, 0, 60, [[0, 'rgba(255,255,220,1)'], [1, 'rgba(255,200,80,0)']]); X.fillRect(x - 60, y - 60, 120, 120); } X.restore();
+  // Elon (photo, untouched)
+  const [ec, ex] = layer(); const s = 0.98 / (im.width / 2000), w = im.width * s, h = im.height * s; ex.filter = 'contrast(1.06) saturate(1.08)'; ex.drawImage(im, -330, 130, w, h);
+  ex.globalCompositeOperation = 'source-atop'; ex.fillStyle = lg(ex, 0, 0, 1300, 0, [[0, 'rgba(120,40,140,0.18)'], [0.7, 'rgba(255,170,90,0.12)'], [1, 'rgba(255,170,90,0.25)']]); ex.fillRect(0, 0, W, H);
+  sticker(ec, 11, '#fff');
+  // big curved arrow from the headline to the ship
+  X.save(); X.lineCap = 'round'; X.lineJoin = 'round';
+  const arrow = () => { X.beginPath(); X.moveTo(820, 210); X.quadraticCurveTo(1120, 60, 1440, 230); };
+  arrow(); X.lineWidth = 46; X.strokeStyle = '#fff'; X.stroke(); arrow(); X.lineWidth = 30; X.strokeStyle = '#ff3b2b'; X.stroke();
+  X.beginPath(); X.moveTo(1490, 270); X.lineTo(1380, 270); X.lineTo(1460, 160); X.closePath(); X.lineWidth = 16; X.strokeStyle = '#fff'; X.stroke(); X.fillStyle = '#ff3b2b'; X.fill(); X.restore();
+  // headline + badges
+  text3d('CATCH IT?!', 540, 140, 158, -0.05, lg(X, 0, -80, 0, 80, [[0, '#fff3a0'], [0.5, '#ffd23a'], [1, '#ff9d1c']]), '#3a1206');
+  X.save(); X.translate(1720, 860); X.rotate(0.06); X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 24; X.shadowOffsetY = 10; X.beginPath(); X.roundRect(-190, -62, 380, 124, 22); X.fillStyle = lg(X, 0, -62, 0, 62, [[0, '#ff5a48'], [1, '#b3120c']]); X.fill(); X.shadowColor = 'transparent'; X.lineWidth = 9; X.strokeStyle = '#fff'; X.stroke();
+  X.font = F(900, 54); X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillStyle = '#fff'; X.fillText('FIRST EVER?', 0, 4); X.restore();
+  X.save(); X.font = '150px "Noto Color Emoji"'; X.textAlign = 'center'; X.textBaseline = 'middle'; X.shadowColor = 'rgba(0,0,0,0.5)'; X.shadowBlur = 20; X.fillText('😱', 1830, 330); X.restore();
+  X.fillStyle = rg(X, W / 2, H / 2, 600, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0.45)']]); X.fillRect(0, 0, W, H);
+};
+</script></body></html>

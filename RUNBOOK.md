@@ -121,6 +121,14 @@ node short.js 0 <end of last hook sentence + 0.4> "<HEADLINE LINE 1>" "<LINE 2>"
 
 ## 10. Thumbnail (1280×720 JPEG under 2 MB)
 - **Builders:** start from `thumb/mid.html` (cartoon) or `thumb/pro.html` (shaded characters). `thumb/shot.js` screenshots at 1920×1080; scale to 1280×720 with ffmpeg.
+- **Make it expressive** (owner, 2026-11-10: "make thumbnails more expressive"):
+  - One huge emotion: a shocked, laughing or angry face, or the owner's most expressive photo.
+  - A big curved arrow or circle pointing at the key object.
+  - One emoji sticker (😱 🤯 💀 🔥) rendered with Noto Color Emoji.
+  - Motion lines, sparks or glow on the action.
+  - A bold red data or claim badge (▼ 4%, FIRST EVER?, $2B).
+  - Strong warm/cool contrast.
+  - Reference: `examples/spacex/catch.html`.
 - **Rules** (owner feedback, from the Animation project's format doc):
   - Richer art than the video: shading, sticker outlines, glow, god rays, vignette.
   - Extreme expressions.
@@ -156,6 +164,7 @@ cp $P/ShakClips_<Slug>.mp4 $P/ShakClips_<Slug>_SHORT.mp4 $P/thumb/<thumb>.jpg da
 git add -A && git -c user.name="Shak Clips Studio" -c user.email="chopcount3-hue@users.noreply.github.com" commit -qm "media $D" && git push -f origin media
 # public URL (the shell can't open it, but vidIQ can): https://raw.githubusercontent.com/$REPO/media/daily/<file>
 ```
+Also write `daily/upload.json` into the media commit (the list format is in `tools/youtube/yt_upload.py`: file, title, description, tags, categoryId, publishAt, thumbnail). It feeds the backup GitHub Actions uploader. That uploader stays off unless the owner sets `UPLOAD_VIA_ACTIONS=true`.
 
 ## 13. Upload and schedule with vidIQ (all free, 0 credits)
 1. Call `vidiq_social_account_list` with `platform: YOUTUBE`. Confirm `UCKDebyppwGYG3UpxWGrd3FQ` has `canPublish: true`. If not, notify the owner to reconnect, and stop before publishing.
