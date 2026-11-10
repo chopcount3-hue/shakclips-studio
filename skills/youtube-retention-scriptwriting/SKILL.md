@@ -23,7 +23,7 @@ retention graphs override them.
 - The first 5 seconds must visibly start paying the promise, because home-page autoplay makes the opening
   an extension of the thumbnail. If the script can't deliver the title's claim, change the title.
 
-## 1. Length budget (~145 wpm: the house voice bm_george:0.7+bm_fable:0.3 at speed 0.94)
+## 1. Length budget (~145 wpm: Kokoro am_michael at speed 1.0 measures 141 wpm)
 | Target | Words | Sections |
 |---|---|---|
 | 8:00 | ~1,150 | hook + context + 4 sections + payoff |
