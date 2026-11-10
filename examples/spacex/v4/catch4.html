@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, X = document.getElementById('c').getContext('2d');
+const P = new URLSearchParams(location.search);
+const L1 = P.get('l1') || 'FRIDAY', L2 = P.get('l2') || '13TH';
+const F = s => `900 ${s}px "Inter Display"`;
+function word(str, x, y, size, fill, rot) {
+  X.save(); X.translate(x, y); X.rotate(rot); X.font = F(size); X.textBaseline = 'alphabetic'; X.lineJoin = 'round'; X.miterLimit = 2;
+  X.shadowColor = 'rgba(0,0,0,0.75)'; X.shadowBlur = 36; X.shadowOffsetY = 14;
+  X.lineWidth = size * 0.16; X.strokeStyle = '#0b0a0e'; X.strokeText(str, 0, 0);
+  X.shadowColor = 'transparent'; X.fillStyle = fill; X.fillText(str, 0, 0); X.restore();
+  return X.measureText(str).width;
+}
+window.draw = async () => {
+  await document.fonts.load(F(260)); if (!document.fonts.check(F(260))) throw new Error('font missing');
+  const img = new Image(); img.src = 'comp.png'; await img.decode(); X.drawImage(img, 0, 0);
+  const rot = -0.045;
+  word(L1, 708, 228, 150, '#ffffff', rot);
+  word(L2, 698, 458, 250, '#ffd21f', rot);
+  // red ring on the catch point (arms + ship)
+  X.save(); X.translate(1528, 442); X.rotate(-0.08); X.lineWidth = 26; X.strokeStyle = '#0b0a0e';
+  X.beginPath(); X.ellipse(0, 0, 172, 112, 0, 0, Math.PI * 2); X.stroke();
+  X.shadowColor = 'rgba(255,40,40,0.9)'; X.shadowBlur = 24; X.lineWidth = 15; X.strokeStyle = '#ff2a2a'; X.stroke(); X.restore();
+};
+</script></body></html>

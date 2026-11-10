@@ -36,7 +36,7 @@ heuristics. Our own Test & Compare results override them.
 - **Distinctness**: a dominant colour different from today's top results for the topic. It must work on a white (#FFFFFF)
   and a dark (#0F0F0F) page.
 - **Brand**: the same font (Inter Display 900), stroke style and palette family on every upload, plus the recurring Shak stick figure. Vary the layout, not the identity.
-- **Owner feedback (2026-11-10)**: real photos beat cartoons for catchiness. Make it expressive: one huge emotion, an arrow or circle, glow or motion on the action, and a bold red claim or data badge. A lumpy cutout or a mismatched flat-cartoon background reads as "low quality". Refine the cutout (section 5) and softly blur background art behind a sharp photo subject. Reference builds: `examples/spacex/catch.html`, `examples/nvidia/spy.html` in the shakclips-studio repo.
+- **Owner feedback (2026-11-10)**: real photos beat cartoons for catchiness. Make it expressive: one huge emotion, an arrow or circle, glow or motion on the action, and a bold red claim or data badge. A lumpy cutout or a mismatched flat-cartoon background reads as "low quality". Refine the cutout (section 5) and softly blur background art behind a sharp photo subject. Reference builds: `examples/spacex/v4/` (cinematic rendered scene, current best), `examples/spacex/catch.html`, `examples/nvidia/spy.html` in the shakclips-studio repo.
 
 ## 3. Eight layout templates (coordinates for a 1920x1080 canvas)
 1. **Face left + object right + arrow**: face cutout bbox x 0-860, head top y 110, chin y 700, gaze to the right.
@@ -87,7 +87,7 @@ or an object the person didn't really say, do or hold.
    4+ px inside the mask to remove background halos.
 5. Resolution: the cutout is drawn at 1.0x its native pixels or less (1.15x at most). If the face needs more, crop tighter or ask the owner for
    a larger photo.
-6. QA: composite on magenta, black and white and inspect hair, ears, fingers and shoulders at 300%. No halo wider than 1 px,
+6. QA: draw the cutout's contour in red on a shadow-brightened copy of the original photo (gamma 0.45) and check the whole outline. The top of the hair is the most common miss (2026-11-10: the crown was chopped off and the owner caught it); `thumb/fix_hair.py` restores it. Then composite on magenta, black and white and inspect hair, ears, fingers and shoulders at 300%. No halo wider than 1 px,
    no missing parts, no background islands. Then add the sticker outline: alpha dilated 10-14 px, filled white or accent, drawn
    behind the cutout, plus an optional soft separation shadow (blur 24 px, 35% black, no offset).
 
