@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><img id="jh" src="jensen_cut.png" style="display:none">
+<script>
+const W = 1920, H = 1080, X = document.getElementById('c').getContext('2d'), INK = '#14100f';
+const F = (w, s) => `${w} ${s}px "Inter Display", Inter, sans-serif`;
+function layer() { const c = document.createElement('canvas'); c.width = W; c.height = H; return [c, c.getContext('2d')]; }
+function lg(ctx, x0, y0, x1, y1, st) { const g = ctx.createLinearGradient(x0, y0, x1, y1); st.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+function rg(ctx, x, y, r0, r1, st) { const g = ctx.createRadialGradient(x, y, r0, x, y, r1); st.forEach(([o, c]) => g.addColorStop(o, c)); return g; }
+function sticker(c, r, col, sh = 0.55) {
+  const [s, sx] = layer(); sx.drawImage(c, 0, 0); sx.globalCompositeOperation = 'source-in'; sx.fillStyle = col; sx.fillRect(0, 0, W, H);
+  X.save(); X.globalAlpha = sh; X.filter = 'blur(18px)'; X.drawImage(s, 16, 24); X.restore();
+  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; X.drawImage(s, Math.cos(a) * r, Math.sin(a) * r); }
+  X.drawImage(c, 0, 0);
+}
+function text3d(str, x, y, size, rot, fill, ext) {
+  X.save(); X.translate(x, y); X.rotate(rot); X.font = F(900, size); X.textAlign = 'center'; X.textBaseline = 'middle'; X.lineJoin = 'round';
+  X.shadowColor = 'rgba(0,0,0,0.7)'; X.shadowBlur = 40; X.shadowOffsetY = 18; X.lineWidth = size * 0.42; X.strokeStyle = '#fff'; X.strokeText(str, 0, 0); X.shadowColor = 'transparent';
+  for (let d = 18; d > 0; d -= 2) { X.lineWidth = size * 0.2; X.strokeStyle = INK; X.strokeText(str, d * 0.5, d); X.fillStyle = ext; X.fillText(str, d * 0.5, d); }
+  X.lineWidth = size * 0.2; X.strokeStyle = INK; X.strokeText(str, 0, 0); X.fillStyle = fill; X.fillText(str, 0, 0); X.restore();
+}
+const YEL = () => lg(X, 0, -90, 0, 90, [[0, '#fff3a0'], [0.5, '#ffd23a'], [1, '#ff9d1c']]);
+function silhouette(ctx, cx, by, s) {   // generic woman silhouette, long hair, no face
+  ctx.save(); ctx.translate(cx, by); ctx.scale(s, s);
+  ctx.beginPath();
+  ctx.moveTo(-290, 0); ctx.bezierCurveTo(-290, -160, -230, -235, -150, -262);              // left shoulder
+  ctx.lineTo(-165, -250); ctx.bezierCurveTo(-175, -330, -158, -430, -150, -540);            // hair falling on the shoulder
+  ctx.bezierCurveTo(-140, -690, -70, -745, 0, -745); ctx.bezierCurveTo(70, -745, 140, -690, 150, -540);
+  ctx.bezierCurveTo(158, -430, 175, -330, 165, -250); ctx.lineTo(150, -262);
+  ctx.bezierCurveTo(230, -235, 290, -160, 290, 0); ctx.closePath();
+  ctx.fillStyle = lg(ctx, 0, -770, 0, 0, [[0, '#191922'], [1, '#07070b']]); ctx.fill();
+  ctx.restore();
+}
+window.draw = async () => {
+  await document.fonts.load('900 64px "Inter Display"'); const im = document.getElementById('jh'); if (!im.complete) await new Promise(r => im.onload = r);
+  // dark red spy background
+  X.fillStyle = lg(X, 0, 0, W, H, [[0, '#07080e'], [0.55, '#1a0608'], [1, '#4a0a0c']]); X.fillRect(0, 0, W, H);
+  X.save(); X.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 22; i++) { const a = i / 22 * Math.PI * 2; X.beginPath(); X.moveTo(1420, 380); X.arc(1420, 380, 2300, a, a + 0.07); X.closePath(); X.fillStyle = rg(X, 1420, 380, 0, 1400, [[0, 'rgba(255,60,40,0.30)'], [1, 'rgba(255,60,40,0)']]); X.fill(); }
+  X.fillStyle = rg(X, 1420, 400, 0, 700, [[0, 'rgba(255,120,80,0.55)'], [1, 'rgba(255,60,40,0)']]); X.fillRect(0, 0, W, H);
+  X.restore();
+  // grid + falling stock line behind everything
+  X.strokeStyle = 'rgba(255,255,255,0.05)'; X.lineWidth = 2; for (let x = 0; x < W; x += 80) { X.beginPath(); X.moveTo(x, 0); X.lineTo(x, H); X.stroke(); } for (let y = 0; y < H; y += 80) { X.beginPath(); X.moveTo(0, y); X.lineTo(W, y); X.stroke(); }
+  const pts = [[-20, 250], [160, 210], [300, 290], [430, 240], [560, 420], [700, 380], [830, 600], [960, 560], [1120, 820], [1260, 780], [1400, 1000], [1560, 1100]];
+  X.save(); X.shadowColor = '#ff2a1a'; X.shadowBlur = 40; X.strokeStyle = '#ff3b2b'; X.lineWidth = 20; X.lineJoin = 'miter'; X.beginPath(); pts.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.stroke(); X.restore();
+  X.fillStyle = lg(X, 0, 200, 0, H, [[0, 'rgba(255,40,30,0.18)'], [1, 'rgba(255,40,30,0)']]); X.beginPath(); pts.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.lineTo(1560, H); X.lineTo(-20, H); X.closePath(); X.fill();
+  // mystery silhouette (left)
+  const [sc, sx] = layer(); silhouette(sx, 560, H - 10, 0.86);
+  X.save(); X.shadowColor = '#ff3020'; X.shadowBlur = 60; X.drawImage(sc, 0, 0); X.drawImage(sc, 0, 0); X.restore(); sticker(sc, 6, '#ff4a3a', 0.4);
+  X.save(); X.translate(560, H - 10 - 0.86 * 545); X.font = F(900, 230); X.textAlign = 'center'; X.textBaseline = 'middle'; X.lineJoin = 'round';
+  X.shadowColor = '#ff2a1a'; X.shadowBlur = 50; X.lineWidth = 26; X.strokeStyle = '#fff'; X.strokeText('?', 0, 0); X.shadowColor = 'transparent'; X.fillStyle = '#ff3b2b'; X.fillText('?', 0, 0); X.restore();
+  // Jensen (photo, untouched) — right
+  const [jc, jx] = layer(); const s = 0.86, w = im.width * s, h = im.height * s; jx.filter = 'contrast(1.08) saturate(1.05)'; jx.drawImage(im, 1920 - w + 70, 40, w, h);
+  jx.globalCompositeOperation = 'source-atop'; jx.fillStyle = lg(jx, 960, 0, 1920, 0, [[0, 'rgba(255,60,40,0.22)'], [0.5, 'rgba(255,60,40,0)'], [1, 'rgba(0,0,0,0.15)']]); jx.fillRect(0, 0, W, H);
+  sticker(jc, 11, '#fff');
+  // CLASSIFIED stamp across the silhouette's shoulder
+  X.save(); X.translate(560, 985); X.rotate(-0.1); X.font = F(900, 92); const tw = X.measureText('CLASSIFIED').width + 60; X.globalAlpha = 0.95;
+  X.lineWidth = 12; X.strokeStyle = '#ff3b2b'; X.strokeRect(-tw / 2, -66, tw, 132); X.lineWidth = 4; X.strokeRect(-tw / 2 + 14, -52, tw - 28, 104); X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillStyle = '#ff3b2b'; X.fillText('CLASSIFIED', 0, 4); X.restore();
+  // stock badge
+  X.save(); X.translate(1010, 610); X.rotate(-0.05); X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 30; X.shadowOffsetY = 12; X.beginPath(); X.roundRect(-200, -78, 400, 156, 26); X.fillStyle = lg(X, 0, -78, 0, 78, [[0, '#ff5a48'], [1, '#b3120c']]); X.fill(); X.shadowColor = 'transparent';
+  X.lineWidth = 10; X.strokeStyle = '#fff'; X.stroke(); X.font = F(900, 50); X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillStyle = '#fff'; X.fillText('NVDA', 0, -32); X.font = F(900, 74); X.fillText('▼ 4%', 0, 30); X.restore();
+  // headline
+  text3d('SPY', 330, 150, 230, -0.05, YEL(), '#3a0604');
+  text3d('SCANDAL', 470, 345, 150, -0.05, lg(X, 0, -70, 0, 70, [[0, '#ffffff'], [1, '#ffc9c0']]), '#3a0604');
+  X.fillStyle = rg(X, W / 2, H / 2, 560, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0.5)']]); X.fillRect(0, 0, W, H);
+};
+</script></body></html>
