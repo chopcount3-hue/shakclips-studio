@@ -49,6 +49,9 @@ const CAST = {
   worker: { suit: '#3D6FA8', tie: '#3D6FA8', hat: 'cap', hatCol: '#3a3a3a', mus: null, hairCol: '#333', skin: '#E0B48E', body: 'thin' },
 };
 // pose: {aL:[shoulder, elbow], aR, lL:[hip, knee], lR, lean, headTilt}
+// Leg-angle convention: the left leg is drawn from hip x -14 and the right from +14, so the shipped idle
+// (lL +0.06 / lR -0.06) CONVERGES the feet. Copying that sign pattern at a bigger angle crosses the legs.
+// Any pose that needs a wide stance uses the opposite signs. Also: setting `bob` turns off the idle breath.
 const POSES = {
   idle: (t = 0) => ({ aL: [0.12 + 0.03 * Math.sin(t * 2), 0.15], aR: [-0.12 - 0.03 * Math.sin(t * 2), -0.15], lL: [0.06, 0], lR: [-0.06, 0] }),
   hips: () => ({ aL: [0.9, -1.9], aR: [-0.9, 1.9], lL: [0.12, 0], lR: [-0.12, 0] }),
@@ -74,6 +77,8 @@ function runPose(ph) { const s = Math.sin(ph); return { aL: [-1.0 * s, 1.2], aR:
 
 // draw a person; o: {x, y, s, face, pose, flip, look, t, talk, blink, prop(fnInHandSpace)}
 function person(id, o) {
+  // seed defaults to a hash of the cast id: without it every figure blinks and breathes in lockstep.
+  if (o.seed === undefined) { let h = 0; for (let i = 0; i < String(id).length; i++) h = (h * 31 + String(id).charCodeAt(i)) % 997; o = Object.assign({}, o, { seed: h / 97 }); }
   const c = CAST[id], s = o.s || 1, p = Object.assign({}, typeof o.pose === 'function' ? o.pose(o.t || 0) : (o.pose || POSES.idle(o.t || 0)));
   const breath = p.bob === undefined ? 2.5 * Math.sin((o.t || 0) * 2.6 + (o.seed || 0)) : 0;
   ctx.save(); ctx.translate(o.x, o.y - ((p.bob || 0) + breath) * s); ctx.scale((o.flip ? -1 : 1) * s, s); ctx.rotate((o.lean || 0) + (p.lean || 0));
@@ -111,7 +116,10 @@ function person(id, o) {
   ctx.restore();
   ctx.restore();
 }
-function shade(hex, k) { const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = (n >> 8) & 255, b = n & 255; const f = (v) => clamp(Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k), 0, 255); return `rgb(${f(r)},${f(g)},${f(b)})`; }
+function shade(hex, k) { let r, g, b;
+  if (hex[0] === '#') { let h = hex.slice(1); if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; const n = parseInt(h, 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
+  else { const m = String(hex).match(/[\d.]+/g) || [0, 0, 0]; r = +m[0]; g = +m[1]; b = +m[2]; }   // accept rgb() too, so shade() nests
+  const f = (v) => clamp(Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k), 0, 255); return `rgb(${f(r)},${f(g)},${f(b)})`; }
 function head(c, R, o) {
   const t = o.t || 0, face = o.face || 'neutral', look = o.look || 0;
   // hair behind

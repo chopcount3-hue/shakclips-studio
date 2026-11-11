@@ -43,6 +43,9 @@ export STUDIO=/home/claude/shakclips-studio
 Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`. Then read the repo's own skills in `skills/`, and follow them as part of this runbook:
 - `youtube-retention-scriptwriting`: step 4.
 - `explainer-video-direction`: step 6.
+- `stick-figure-character-acting`, `canvas-motion-graphics` and `explainer-art-direction`: step 6, with `engine/acting.js`
+  (`ACT.*`: easing, springs, pose interpolation with anticipation and overshoot, follow-through, seeded blinks,
+  squash/stretch, and ready-made walk/run/point/shrug/shock/think/celebrate/slump cycles). Demo: `examples/acting/`.
 - `video-editing-polish`: steps 7 to 9.
 - `youtube-thumbnail-design`: step 10. Its checklist must pass before upload.
 - `youtube-content-calendar`: step 2 (the `## Calendar` section of `topics.md`) and the monthly plan.
