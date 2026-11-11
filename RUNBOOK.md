@@ -50,6 +50,11 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - `youtube-monetization-revenue`: the Sunday YPP pace check and ad-safe rules for every topic.
 - `youtube-repurposing-distribution`: cross-posting only with the owner's approval per platform; never TikTok workarounds.
 - `youtube-channel-branding-audit`: first week of Feb, May, Aug and Nov, and before applying to YPP.
+- `youtube-search-evergreen-engine`: step 2 on evergreen days (Tue/Thu/Sat) and step 11's title, description line 1 and chapters.
+- `youtube-suggested-browse-reach`: step 2 (pick an anchor video for every evergreen topic) and the Sunday reach review.
+- `youtube-trend-speed-playbook`: step 2 on trending days (Mon/Wed/Fri/Sun). Its go/no-go gate must pass before research starts.
+- `youtube-income-50k-plan`: the Sunday money scorecard. Never let it delay the daily upload.
+- `youtube-multilanguage-dubbing` and `youtube-collabs-cross-promo`: only when the owner asks. Not part of the daily run.
 
 If a skill disagrees with this runbook, the runbook's hard rules win.
 
