@@ -118,7 +118,7 @@ function person(id, o) {
 }
 function shade(hex, k) { let r, g, b;
   if (hex[0] === '#') { let h = hex.slice(1); if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; const n = parseInt(h, 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
-  else { const m = String(hex).match(/[\d.]+/g) || [0, 0, 0]; r = +m[0]; g = +m[1]; b = +m[2]; }   // accept rgb() too, so shade() nests
+  else { const m = String(hex).match(/[\d.]+/g) || [0, 0, 0]; r = +m[0]; g = +m[1]; b = +m[2]; if (m.length > 3) { const f0 = (v) => clamp(Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k), 0, 255); return `rgba(${f0(r)},${f0(g)},${f0(b)},${m[3]})`; } }   // accept rgb()/rgba() too, so shade() nests
   const f = (v) => clamp(Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k), 0, 255); return `rgb(${f(r)},${f(g)},${f(b)})`; }
 function head(c, R, o) {
   const t = o.t || 0, face = o.face || 'neutral', look = o.look || 0;

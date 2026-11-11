@@ -43,6 +43,10 @@ export STUDIO=/home/claude/shakclips-studio
 Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`. Then read the repo's own skills in `skills/`, and follow them as part of this runbook:
 - `youtube-retention-scriptwriting`: step 4.
 - `explainer-video-direction`: step 6.
+- `visual-spectacle-direction`: step 6, the lead director for this channel's format, with `engine/cosmic.js`
+  (`COS.*`: star fields, planets with a real terminator and city lights, eclipses, tides, rings, black holes,
+  comets, auroras, impacts). Demo: `examples/cosmic/`. **Never draw a planet as a flat gradient circle again** —
+  `examples/starship/extra.js`'s `earth()` and `bgSpace()` are superseded by `COS.planet` and `COS.starfield`.
 - `stick-figure-character-acting`, `canvas-motion-graphics` and `explainer-art-direction`: step 6, with `engine/acting.js`
   (`ACT.*`: easing, springs, pose interpolation with anticipation and overshoot, follow-through, seeded blinks,
   squash/stretch, and ready-made walk/run/point/shrug/shock/think/celebrate/slump cycles). Demo: `examples/acting/`.

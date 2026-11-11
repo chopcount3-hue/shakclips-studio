@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>cosmic.js demo</title>
+  <style>html,body{margin:0;background:#000;width:1920px;height:1080px;overflow:hidden}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<!-- core.js reads window.TIMING at load; this demo has no narration, so stub it. -->
+<script>window.TIMING = { total: 24, times: [[0, 24]], sentences: ['demo'] };</script>
+<script src="../../engine/core.js"></script>
+<script src="../../engine/acting.js"></script>
+<script src="../../engine/cosmic.js"></script>
+<script>
+// Six spectacle beats on one 24 s timeline, 4 s each. Every frame is a pure
+// function of t: no state carries between frames, so any frame renders alone.
+//
+//   A  0- 4  Earth, lit from one side, with the Moon at its TRUE distance
+//   B  4- 8  the two tidal bulges and the pull gradient that makes them
+//   C  8-12  a total solar eclipse, in geometry and then in the sky
+//   D 12-16  a ringed gas giant, backlit, moons on their orbit
+//   E 16-20  a black hole: shadow, photon ring, lensed disc
+//   F 20-24  deep field: Milky Way, a comet, a shockwave through dust
+
+const EZ = ACT.ease;
+
+// --- shared furniture ------------------------------------------------------
+function panel(label, sub) {
+  tag(label, 520, 92, 99, 0, { size: 40, bg: '#FFF4DC' });
+  if (sub) tag(sub, 520, 168, 99, 0, { size: 28, bg: '#11131f', col: '#dfe6f5' });
+}
+function deepSpace(t, o) {
+  o = o || {};
+  // one flat deep field, then the washes. Never a gradient under a planet beat:
+  // the planet's own glow is the only light in the frame.
+  ctx.fillStyle = o.base || '#04060e';
+  ctx.fillRect(-200, -200, 2320, 1480);
+  COS.nebula(o.nebSeed === undefined ? 3 : o.nebSeed, { t: t, alpha: o.neb === undefined ? 0.9 : o.neb, hues: o.hues });
+  COS.starfield(o.seed === undefined ? 7 : o.seed, {
+    density: o.density === undefined ? 1 : o.density, twinkleT: t,
+    parallax: o.px || 0, alpha: o.stars === undefined ? 1 : o.stars
+  });
+}
+
+const SHOTS = [
+  // ------------------------------------------------------------- A: Earth + Moon
+  [0, 4, (tl) => {
+    deepSpace(tl, { px: tl * 14, nebSeed: 3, neb: 0.75 });
+    // One light, low to the left, so a real night side faces the camera and the
+    // city lights have somewhere to be. Spin 58 puts Asia under the terminator.
+    const L = COS.light(-168, -9);
+    const r = 320;
+    COS.earth(560, 520, r, {
+      light: L, t: tl, spin: 58 + tl * 3, cloudDrift: tl * 5, lightsOpt: { alpha: 0.85 }
+    });
+    // the same Moon, same light, true SIZE ratio at a squeezed distance
+    COS.planet(1530, 760, r * COS.MOON_R_RATIO, 'moon', { light: L, spin: 18 + tl });
+    // and the true DISTANCE, honestly, on a strip: 60.3 Earth radii
+    const sr = 8.4, sx = 180, sy = 1000;
+    COS.earth(sx, sy, sr, { light: L, t: tl, spin: 58, moon: { dist: COS.MOON_DIST_RE, ang: 0, link: true } });
+    tag('true distance: 30 Earths', 760, 1000, 99, 0, { size: 28, bg: '#11131f', col: '#9ec4ff' });
+    panel('A · EARTH, ONE LIGHT', 'terminator · city lights · drifting cloud · Moon at 0.27 r');
+  }],
+
+  // ------------------------------------------------------------- B: tidal bulges
+  [4, 8, (tl) => {
+    deepSpace(tl, { seed: 21, nebSeed: 8, neb: 0.5, density: 0.8 });
+    const ang = -0.06 + Math.sin(tl * 0.5) * 0.05;
+    COS.tidalBulge(760, 640, 250, {
+      ang: ang, light: COS.light(-150, 20), t: tl, spin: 40 + tl * 2,
+      exaggerate: 0.19, lead: 0.13, moonDist: 3.9, arrowOffset: -1.3
+    });
+    tag('near bulge', 1118, 482, 99, 0, { size: 30, bg: '#11131f', col: '#9ed0ff' });
+    tag('far bulge', 408, 800, 99, 0, { size: 30, bg: '#11131f', col: '#9ed0ff' });
+    tag('two high tides a day', 760, 1012, 99, 0, { size: 40, bg: '#FFF4DC' });
+    panel('B · WHY TWO BULGES', 'pull falls off with distance · bulges lead the Moon');
+  }],
+
+  // ----------------------------------------------------------------- C: eclipse
+  [8, 12, (tl) => {
+    deepSpace(tl, { seed: 33, neb: 0.3, density: 0.6, nebSeed: 12 });
+    const u = EZ.inOutSine(Math.min(1, tl / 3.2));
+    // Geometry across the lower band, what a person under the umbra sees above
+    // it. No divider rule: the beam already separates them, and a drawn seam
+    // is the kind of UI chrome that makes a spectacle frame look like a slide.
+    COS.eclipse({
+      mode: 'solar', u: 0.5, t: tl, sunX: 80, sunR: 76, earthX: 880, earthR: 128,
+      moonX: 560, moonR: 39, y: 790, beam: 190, beamEnd: 1060
+    });
+    COS.eclipse({ mode: 'sky', x: 1370, y: 440, r: 190, cover: 0.55 + 0.45 * u, t: tl, dir: -0.4 });
+    tag('the Sun is 400x wider — and 400x farther', 1370, 830, 99, 0, { size: 30, bg: '#11131f', col: '#ffe0a8' });
+    panel('C · TOTALITY', 'umbra cone · corona · angular diameters within 1%');
+  }],
+
+  // -------------------------------------------------------------- D: ringed giant
+  [12, 16, (tl) => {
+    deepSpace(tl, { seed: 45, nebSeed: 17, hues: ['#4a2d6e', '#1f4a7a', '#6b2f4a'], neb: 0.8, px: tl * 9 });
+    const L = COS.light(-28, -22);                  // backlit from behind-right
+    COS.star(1810, 150, 24, { t: tl, seed: 9, rays: false });
+    COS.orbitPath(820, 600, 640, 150, -0.19, { col: '#9fc4f0', alpha: 0.3, dash: true });
+    // depth sort: a moon on the far half of the orbit goes BEHIND the planet.
+    // orbitPos hands back `front`, so this is three lines, not a z-buffer.
+    const MOONS = [[0.17, 16, 'rocky'], [0.68, 11, 'moon']]
+      .map(m => ({ p: COS.orbitPos(820, 600, 640, 150, -0.19, (m[0] + tl * 0.045) % 1), r: m[1], k: m[2] }));
+    const drawMoon = (m) => COS.planet(m.p.x, m.p.y, m.r, m.k, { light: L, spin: 40, soft: 0.06 });
+    MOONS.filter(m => !m.p.front).forEach(drawMoon);
+    COS.planet(820, 600, 300, 'gas', {
+      light: L, spin: 300 - tl * 4, tilt: 0.19, t: tl,
+      rings: { tilt: 0.22, rot: -0.19, inner: 1.3, outer: 2.5, seed: 55 }
+    });
+    MOONS.filter(m => m.p.front).forEach(drawMoon);
+    panel('D · RINGED GIANT, BACKLIT', 'bands · storm · ring shadow · moons on one orbit');
+  }],
+
+  // ---------------------------------------------------------------- E: black hole
+  [16, 20, (tl) => {
+    deepSpace(tl, { seed: 57, nebSeed: 22, neb: 0.45, density: 1.15, hues: ['#2b2f6e', '#5a2b55'] });
+    COS.blackHole(930, 545, 220, { t: tl, tilt: 0.155, doppler: 1, outer: 4.1, seed: 67 });
+    tag('shadow: 2.6 Schwarzschild radii', 930, 985, 99, 0, { size: 32, bg: '#11131f', col: '#ffd79a' });
+    panel('E · THE SHADOW', 'photon ring · lensed far edge · beamed disc');
+  }],
+
+  // ------------------------------------------------------------- F: comet + field
+  [20, 24, (tl) => {
+    ctx.fillStyle = '#03050c'; ctx.fillRect(-200, -200, 2320, 1480);
+    COS.milkyWay({ y: 400, rot: -0.19, thick: 320, seed: 31, alpha: 1 });
+    COS.starfield(71, { density: 1.25, twinkleT: tl, parallax: tl * 10 });
+    // An off-frame star at upper right is the light for this whole beat, and
+    // the comet's tails point exactly away from it — which is what a tail
+    // does. Pointing it backward along the motion is the usual mistake.
+    const SUN = [2080, -120];
+    COS.glow(SUN[0], SUN[1], 900, '#ffe3b0', 0.14);
+    // Everything in this frame is lit by that one off-frame star, including
+    // the rock below. Mixed light directions are the fastest way to make a
+    // space frame look assembled rather than photographed.
+    const PL = { x: 350, y: 880, r: 215 };
+    const SL = COS.light(Math.atan2(SUN[1] - PL.y, SUN[0] - PL.x) / Math.PI * 180, 8);
+    COS.planet(PL.x, PL.y, PL.r, 'rocky', { light: SL, spin: 12 + tl * 2, ink: true });
+    // impact on the lit limb, with the debris ring thrown out in the plane
+    const iu = ((tl - 0.5) % 2.4) / 2.4;
+    const ia = -0.55, ix = PL.x + Math.cos(ia) * PL.r * 0.93, iy = PL.y + Math.sin(ia) * PL.r * 0.93;
+    if (tl > 0.5) {
+      COS.shockwave(ix, iy, iu, { r0: 18, r1: 330, col: '#ffcf8a', thick: 12, flat: 0.3, alpha: 0.75 });
+      COS.impactFlash(ix, iy, iu * 1.9, { r: 110, seed: 13 });
+    }
+    // the comet last, over the rock, tails pointing exactly away from the star
+    const u = Math.min(1, tl / 3.6);
+    COS.trajectory((v) => [1820 - 1560 * v, 170 + 560 * v * v], u, {
+      col: '#6f9ec6', lw: 1.8, trail: 0.3, ghost: false, glow: false,
+      body: (x, y) => COS.comet(x, y, {
+        ang: Math.atan2(y - SUN[1], x - SUN[0]), len: 620, r: 15, t: tl, curve: 0.55
+      })
+    });
+    COS.vignette(0.28);
+    panel('F · DEEP FIELD', 'Milky Way band · dust lanes · ion + dust tails · impact');
+  }]
+];
+
+window.TOTAL_DUR = 24;
+window.ready = (async () => {
+  await document.fonts.load('900 64px "Inter Display"');
+  return { shots: SHOTS.length, total: 24 };
+})();
+window.renderFrame = function (t) {
+  let i = SHOTS.length - 1; while (i > 0 && SHOTS[i][0] > t) i--;
+  const sh = SHOTS[i], tl = t - sh[0];
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, 1920, 1080);
+  ctx.save(); sh[2](tl, sh[1] - sh[0], t); ctx.restore();
+  return { shot: i, tl: Number(tl.toFixed(3)) };
+};
+window.SHOTS = SHOTS;
+</script>
+</body>
+</html>
