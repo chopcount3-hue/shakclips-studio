@@ -53,9 +53,9 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - `youtube-monetization-revenue`: the Sunday YPP pace check and ad-safe rules for every topic.
 - `youtube-repurposing-distribution`: cross-posting only with the owner's approval per platform; never TikTok workarounds.
 - `youtube-channel-branding-audit`: first week of Feb, May, Aug and Nov, and before applying to YPP.
-- `youtube-search-evergreen-engine`: step 2 on evergreen days (Tue/Thu/Sat) and step 11's title, description line 1 and chapters.
+- `youtube-search-evergreen-engine`: step 2 (every day is evergreen now) and step 11's title, description line 1 and chapters.
 - `youtube-suggested-browse-reach`: step 2 (pick an anchor video for every evergreen topic) and the Sunday reach review.
-- `youtube-trend-speed-playbook`: step 2 on trending days (Mon/Wed/Fri/Sun). Its go/no-go gate must pass before research starts.
+- `youtube-trend-speed-playbook`: only when a news story has a real spectacle angle. Its go/no-go gate still applies.
 - `youtube-income-50k-plan`: the Sunday money scorecard. Never let it delay the daily upload.
 - `youtube-hook-lab`: step 4, the first 30 s of the long video and the first 2 s of the Short.
 - `youtube-title-lab`: step 11, the title plus two Test & Compare alternates.
@@ -74,13 +74,19 @@ If a skill disagrees with this runbook, the runbook's hard rules win.
 Piper voice `en-us-ryan-high` named in the `shak-voiceover` skill: it is not on Piper's commercial-use list, and this
 channel is heading for monetization. If Kokoro fails, stop and notify the owner (see `tts-engine-evaluation`).
 
-## 2. Pick today's topic (owner: "automate by yourself daily trending topics"; weekday format mix from the Goal section)
+## 2. Pick today's topic (spectacle lanes; owner's direction 2026-11-11)
 - First look under `## Calendar` in `topics.md` for an unchecked line dated today's UTC run date (format in `youtube-content-calendar`). If its topic is AUTO, pick a trending story, using any `hint=`. Leave past-dated unchecked lines alone and note them in log.md.
 - Otherwise, if `topics.md` has an unchecked line under **Queue**, use it (the owner may add topics there).
-- Otherwise pick **one story that is trending in the US today**. Find it with WebSearch (news of the last 24–72 h, plus `youtube-free-research` for what's getting views). Pick a story that is:
-  - Big: tech/business drama, science, space, weird-but-true news, viral moments, or a history story tied to today's date.
-  - Explainable in 8–10 minutes with a clear story arc (hook → what happened → reactions → what's next). On evergreen days (Tue/Thu/Sat) pick a story or question people search for all year; check demand with `youtube-free-research`.
-  - Verifiable: at least 2 independent reputable outlets cover every key claim.
+- Otherwise pick a **visual spectacle** topic. **Owner's direction, 2026-11-11: the channel is a spectacle channel, not a news channel.** The daily trending-news mix is retired. The owner's verdict on the old format was "very much boring and this content is not going to get views at all", and he is right: a neutral news explainer competes with 50 faster, bigger channels. Pick from these lanes instead:
+  - **Scale comparison**: smallest to largest, one ladder, each step beating the last ("every object in the universe, compared", "the biggest things humans have built").
+  - **What if**: one rule changed, then escalation on a clock (first second → hour → year → century).
+  - **What happens if / inside**: a process or a disaster chain, shown as a mechanism ("what happens if you fall into a black hole").
+  - **Extremes**: deepest, hottest, fastest, oldest, with real numbers.
+  A topic only qualifies if **a single frame of it would make someone stop scrolling**. If the best image in the video is a talking figure, pick another topic.
+  - Must be **evergreen** (searched all year), with demand checked via `youtube-search-evergreen-engine` §2.
+  - Verifiable: at least 2 independent reputable sources for every number. Numbers on screen must match the narration exactly.
+  - A trending news story only qualifies if it has a genuine spectacle angle (a size, a speed, a scale), and then the video is built around that angle, not around the news.
+- **Tone stays neutral** (owner's choice, 2026-11-11): no jokes, no opinion pieces, no sarcasm. The awe comes from the visuals and the numbers, not from the narrator.
 - **Skip** stories that are:
   - About private individuals, minors, or ongoing tragedies with victims (shootings, disasters with deaths).
   - Medical advice, or election voting procedures.

@@ -4,7 +4,8 @@ The daily run picks a trending topic by itself (the owner's choice). Anything ad
 
 ## Calendar
 <!-- One line per UTC run date (format in skills/youtube-content-calendar). An unchecked line dated today wins over Queue. -->
-- [ ] 2026-11-13 | Fri | trending | SpaceX Starship Flight 15: the first ship catch | tentpole=Starship F15 — follow-up to the 2026-11-10 explainer; lead with what actually happened, then why catching the ship is harder than catching the booster. Only if the flight has flown by the run; otherwise make it a preview and re-queue the result.
+- [ ] 2026-11-11 | Wed | spectacle | What if the Moon disappeared? | lane=whatif — escalate on a clock: the first second, the first night, the first month, the first year, 100 years. Tides, length of day, axial tilt, animals. Every beat is a picture, not a talking figure.
+- [ ] 2026-11-13 | Fri | spectacle | How big is Starship, really? | lane=scale; tentpole=Starship F15 — a scale ladder (person → bus → Saturn V → Starship → the tower that catches it), with the Nov 13 catch as the cold open. Spectacle first, news second.
 
 ## Queue
 
