@@ -6,7 +6,7 @@ HERE=$(cd "$(dirname "$0")" && pwd); V=/home/claude/venvs/cbx; export UV_HTTP_TI
 command -v uv >/dev/null || pip install -q --break-system-packages uv
 [ -x "$V/bin/python" ] || uv venv -q "$V" --python 3.13
 "$V/bin/python" -c "import torch" 2>/dev/null || uv pip install -q --python "$V/bin/python" torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
-uv pip install -q --python "$V/bin/python" faster-whisper==1.2.1 "yt-dlp[default]" streamlink "scenedetect[opencv-headless]" mediapipe rapidocr onnxruntime auto-editor
+uv pip install -q --python "$V/bin/python" faster-whisper==1.2.1 "yt-dlp[default]" streamlink "scenedetect[opencv-headless]" mediapipe rapidocr onnxruntime auto-editor "rembg[cpu]" pyloudnorm
 # TwitchDownloaderCLI (MIT): Twitch VODs, clips and chat replay
 TD=1.56.5
 if [ ! -x "$HERE/bin/TwitchDownloaderCLI" ]; then
@@ -17,6 +17,9 @@ fi
 # MediaPipe face model (Apache-2.0) for facecam.py
 [ -s "$HERE/models/blaze_face_short_range.tflite" ] || curl -fsSL -o "$HERE/models/blaze_face_short_range.tflite" \
   https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite
+# MediaPipe face landmarker (Apache-2.0) for thumb.py expression scoring
+[ -s "$HERE/models/face_landmarker.task" ] || curl -fsSL -o "$HERE/models/face_landmarker.task" \
+  https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task
 # caption + hook fonts (OFL / Apache-2.0)
 mkdir -p ~/.fonts
 for f in apache/luckiestguy/LuckiestGuy-Regular.ttf ofl/anton/Anton-Regular.ttf ofl/bangers/Bangers-Regular.ttf; do

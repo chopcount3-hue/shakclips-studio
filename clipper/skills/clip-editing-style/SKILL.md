@@ -61,3 +61,18 @@ music beds (`angels_singing`, `sas_piano`, `sad_violin`, `fighting`, `ayogima`, 
 - A 1 fps contact sheet: no black stretches over 1 s (except a game's own death fade), no cut-off game text,
   captions readable and inside the safe zone (not in the top 14% or bottom 20%).
 - Watch the first 3 s at phone size: is it obvious why to keep watching?
+
+## 5. Narration: required on every upload (the owner's tutorial, 12 Nov 2026)
+Clips with only edits and music get rejected as **reused content**. What keeps clip channels monetized is **commentary**:
+a short script read over the clip, with the stream audio ducked underneath.
+- `narration` in `plan.json`: 3–5 lines in the house voice (Chatterbox Turbo, Michael reference), storytelling, present tense, punchy:
+  1. a hook over the cold open ("Kai Cenat really thought this mountain was a shortcut.")
+  2. a set-up line
+  3. a "watch this" line just before the payoff
+  4. a punchline after the reaction (one Turbo cue at most, e.g. `[chuckle]`)
+  Never describe what viewers can plainly see word for word. Add context, stakes or a joke.
+- `marks`: a red **arrow** on what to watch just before the payoff, and a red **circle** on the result or the reaction (`x`, `y` as
+  fractions of the 1080×1920 frame; check a frame first).
+- **The originality gate** (printed by `edit.py`, written to `metadata.md`): our voice covers **≥25%** of the Short, and no stretch
+  over **8 s** passes without a cut, narration line, mark or effect. A FAIL is fixed (add a line, a mark or a cut), never uploaded.
+- Long-forms: voice **≥30%**, the same 8 s rule. Keep the gate numbers for the Content ID dispute (`templates/contentid-dispute.md`).

@@ -34,11 +34,16 @@ $PY facecam.py W/source.mp4                                  # webcam box (small
 # then write plan.json (see edit.py docstring): start/end, teaser, replay, hook, fx, sfx
 $PY edit.py plan.json out/                                   # finished Shorts + metadata.md
 ```
+`thumb.py spec.json out.jpg`: thumbnails (most expressive face via MediaPipe blendshapes, rembg cutout, sticker outline, 3D text).
+`templates/contentid-dispute.md`: fair-use dispute text, filled from the originality numbers.
+
 `render.py` is the simple v1 renderer (one continuous cut). `edit.py` is the v2 editor:
 - cold-open teaser of the payoff, then a white-flash transition
 - jump cuts on dead air, with alternating punch-ins
 - impacts: `shake`, `flash`, `punch`
 - slow-motion `REPLAY`
+- **narration** in the house voice, with the stream audio ducked under it, plus red arrow and circle `marks`
+- an **originality gate**: our voice must cover at least 25% of the Short, and no stretch over 8 s may pass untouched
 - captions re-transcribed per clip with Whisper small.en, low-confidence words dropped
 - SFX at exact source times
 - always under 60 s
