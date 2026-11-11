@@ -1,0 +1,81 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;background:#0b0c0b;}
+  #gl,#still{position:absolute;left:0;top:0;width:1080px;height:1920px;}
+  #still{display:none;}
+  .ov{position:absolute;left:0;width:1080px;text-align:center;font-family:'Inter Display','Inter',sans-serif;color:#fff;}
+  .num{font-weight:900;letter-spacing:-2px;line-height:1;text-shadow:0 4px 18px rgba(0,0,0,.55),0 2px 0 rgba(0,0,0,.35);font-variant-numeric:tabular-nums;}
+  .lbl{font-weight:800;letter-spacing:6px;line-height:1;margin-top:10px;text-shadow:0 2px 10px rgba(0,0,0,.6);}
+  #cuts{top:205px;}
+  #cuts .num{font-size:170px;}
+  #cuts .lbl{font-size:40px;color:#7CF29A;}
+  #pieces{top:1318px;}
+  #pieces .num{font-size:112px;}
+  #pieces .lbl{font-size:34px;color:#FFD24A;}
+  #ppp{top:1488px;}
+  #ppp .pill{display:inline-block;padding:14px 30px;border-radius:44px;background:rgba(10,30,18,.72);border:2px solid rgba(124,242,154,.55);
+    font-weight:800;font-size:44px;color:#fff;letter-spacing:.5px;box-shadow:0 6px 24px rgba(0,0,0,.35);}
+  #ppp .pill b{color:#7CF29A;font-weight:900;}
+  #ppp .pill span{color:#cfd8d2;font-weight:600;font-size:34px;margin-left:10px;}
+  #wm{position:absolute;left:46px;top:120px;display:flex;align-items:center;gap:14px;opacity:.82;
+    font-family:'Inter Display','Inter',sans-serif;font-weight:800;font-size:34px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);}
+  #wm2{position:absolute;right:40px;top:1160px;opacity:.20;font-family:'Inter Display','Inter',sans-serif;font-weight:900;font-size:30px;color:#fff;letter-spacing:2px;transform:rotate(-90deg);transform-origin:right top;}
+  #hook{top:205px;opacity:0;}
+  #hook .a{font-family:'Inter Display';font-weight:900;font-size:120px;letter-spacing:-3px;color:#fff;line-height:1;
+    text-shadow:0 6px 30px rgba(0,0,0,.7);}
+  #hook .a em{font-style:normal;color:#7CF29A;}
+  #hook .a em.ban{background:linear-gradient(100deg,#FFE88A,#FFD24A 38%,#F7B733 72%,#E8A317);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:3px rgba(0,0,0,.35);text-shadow:none;filter:drop-shadow(0 6px 20px rgba(0,0,0,.7));}
+  #hook .b{font-family:'Inter Display';font-weight:800;font-size:54px;color:#FFD24A;margin-top:12px;letter-spacing:2px;text-shadow:0 4px 16px rgba(0,0,0,.7);}
+  #banner{top:470px;opacity:0;}
+  #banner .p{display:inline-block;padding:18px 40px;border-radius:18px;background:#E8343A;font-family:'Inter Display';font-weight:900;font-size:62px;color:#fff;letter-spacing:1px;
+    box-shadow:0 10px 40px rgba(0,0,0,.45);}
+  #vig{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none;
+    background:radial-gradient(ellipse 85% 60% at 50% 48%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%),
+               linear-gradient(to bottom, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 72%, rgba(0,0,0,.45) 100%);}
+  #flash{position:absolute;left:0;top:0;width:1080px;height:1920px;background:#fff;opacity:0;pointer-events:none;}
+  /* end card */
+  #end{position:absolute;left:0;top:0;width:1080px;height:1920px;display:none;font-family:'Inter Display','Inter',sans-serif;color:#fff;}
+  #end .dim{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%, rgba(6,22,14,.55), rgba(0,0,0,.88));}
+  #end .logo{position:absolute;left:0;width:1080px;top:430px;text-align:center;}
+  #end .word{position:absolute;left:0;width:1080px;top:720px;text-align:center;font-weight:900;font-size:104px;letter-spacing:-2px;line-height:1;}
+  #end .word em{font-style:normal;color:#FFD24A;}
+  #end .handle{position:absolute;left:0;width:1080px;top:842px;text-align:center;font-weight:700;font-size:40px;color:#cfd8d2;letter-spacing:1px;}
+  #end .q{position:absolute;left:0;width:1080px;top:960px;text-align:center;font-weight:800;font-size:58px;line-height:1.15;}
+  #end .q span{color:#FFD24A;}
+  #end .row{position:absolute;left:0;width:1080px;top:1150px;display:flex;justify-content:center;align-items:center;gap:28px;}
+  #end .like{width:132px;height:132px;border-radius:66px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.35);}
+  #end .sub{height:132px;padding:0 54px;border-radius:66px;background:#E8343A;display:flex;align-items:center;gap:20px;font-weight:900;font-size:58px;letter-spacing:1px;box-shadow:0 12px 40px rgba(232,52,58,.35);}
+  #end .sub.done{background:#3a3d3c;box-shadow:none;}
+  #end .bell{width:132px;height:132px;border-radius:66px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.35);}
+  #end .tap{position:absolute;width:90px;height:90px;border-radius:45px;border:6px solid #fff;background:rgba(255,255,255,.25);opacity:0;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+  #end .foot{position:absolute;left:0;width:1080px;top:1340px;text-align:center;font-weight:700;font-size:40px;color:#cfd8d2;}
+</style></head>
+<body>
+<canvas id="gl" width="1080" height="1920"></canvas>
+<img id="still">
+<div id="vig"></div>
+<div id="wm"></div>
+<div id="wm2">@SHAKCLIPS</div>
+<div id="cuts" class="ov"><div class="num">0</div><div class="lbl">CUTS</div></div>
+<div id="pieces" class="ov"><div class="num">1</div><div class="lbl">PIECES</div></div>
+<div id="ppp" class="ov"><div class="pill"><b>105</b><span>calories per piece</span></div></div>
+<div id="hook" class="ov"><div class="a"><em class="ban">ONE BANANA</em></div><div class="b">vs 1,000 CUTS</div></div>
+<div id="banner" class="ov"><div class="p">FINAL: 1,000 CUTS</div></div>
+<div id="flash"></div>
+<div id="end">
+  <div class="dim"></div>
+  <div class="logo"></div>
+  <div class="word">SHAK <em>CLIPS</em></div>
+  <div class="handle">@ShakClips</div>
+  <div class="q">What should we chop <span>next?</span><br><span style="color:#fff;font-size:44px;font-weight:700">Tell us in the comments</span></div>
+  <div class="row">
+    <div class="like" id="likeBtn"></div>
+    <div class="sub" id="subBtn"><span id="subTxt">FOLLOW</span></div>
+    <div class="bell" id="bellBtn"></div>
+  </div>
+  <div class="foot">Like &amp; Follow for more</div>
+  <div class="tap" id="tap"></div>
+</div>
+<script src="engine_banana.js"></script>
+</body></html>
