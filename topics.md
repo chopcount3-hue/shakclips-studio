@@ -4,7 +4,7 @@ The daily run picks a trending topic by itself (the owner's choice). Anything ad
 
 ## Calendar
 <!-- One line per UTC run date (format in skills/youtube-content-calendar). An unchecked line dated today wins over Queue. -->
-- [ ] 2026-11-11 | Wed | spectacle | What if the Moon disappeared? | lane=whatif — escalate on a clock: the first second, the first night, the first month, the first year, 100 years. Tides, length of day, axial tilt, animals. Every beat is a picture, not a talking figure.
+- [ ] 2026-11-11 | Wed | spectacle | A new world was just found beyond Pluto | lane=scale+discovery — 2026 ED138, found 13 Oct 2026 in Vera C. Rubin Observatory data by Matthew Holman (CfA), announced late Oct. Roughly 600–1,500 km across, about 46 AU out (Pluto averages 40), orbit tilted ~25 degrees, hidden for years against the crowded Milky Way plane. Candidate, NOT confirmed — say so. Spectacle: the dark outer solar system, a size ladder (ED138 vs Ceres vs Pluto vs the Moon), the 46 AU distance drawn honestly, the tilted orbit, and Rubin's 10-year survey finding more. Saturation check: covered only by news outlets (NatGeo, IFLScience, Astronomy.com); no big animation channel has it yet.
 - [ ] 2026-11-13 | Fri | spectacle | How big is Starship, really? | lane=scale; tentpole=Starship F15 — a scale ladder (person → bus → Saturn V → Starship → the tower that catches it), with the Nov 13 catch as the cold open. Spectacle first, news second.
 
 ## Queue

@@ -83,6 +83,9 @@ channel is heading for monetization. If Kokoro fails, stop and notify the owner 
   - **What happens if / inside**: a process or a disaster chain, shown as a mechanism ("what happens if you fall into a black hole").
   - **Extremes**: deepest, hottest, fastest, oldest, with real numbers.
   A topic only qualifies if **a single frame of it would make someone stop scrolling**. If the best image in the video is a talking figure, pick another topic.
+  - **Saturation check (hard gate, owner's complaint 2026-11-11: "you are trying to get already used content").** Before committing, search the topic and look at what already exists. **Reject it** if a channel with over 1M subscribers (Kurzgesagt, Veritasium, Vsauce, Real Engineering, PBS Space Time, What If, Ridddle, Real Life Lore and the like) has covered the same question. We cannot out-animate them on a question they already own, and the viewer has already seen it.
+    Prefer instead: a discovery or event from the **last 6 weeks** that the big channels have not reached yet (they take months); a specific, concrete case rather than the famous general question ("this one object" beats "what if the Moon disappeared"); or an angle on a known subject that nobody has filmed.
+    Write the saturation check in `log.md`: the topic, what already exists, and why ours is different. If nothing passes, pick another topic — never ship a copy of a famous video.
   - Must be **evergreen** (searched all year), with demand checked via `youtube-search-evergreen-engine` §2.
   - Verifiable: at least 2 independent reputable sources for every number. Numbers on screen must match the narration exactly.
   - A trending news story only qualifies if it has a genuine spectacle angle (a size, a speed, a scale), and then the video is built around that angle, not around the news.
