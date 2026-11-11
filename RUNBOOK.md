@@ -54,6 +54,10 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - `youtube-suggested-browse-reach`: step 2 (pick an anchor video for every evergreen topic) and the Sunday reach review.
 - `youtube-trend-speed-playbook`: step 2 on trending days (Mon/Wed/Fri/Sun). Its go/no-go gate must pass before research starts.
 - `youtube-income-50k-plan`: the Sunday money scorecard. Never let it delay the daily upload.
+- `youtube-hook-lab`: step 4, the first 30 s of the long video and the first 2 s of the Short.
+- `youtube-title-lab`: step 11, the title plus two Test & Compare alternates.
+- `youtube-low-views-diagnosis`: whenever a video underperforms or the channel is flat for 2+ weeks. Read it before changing anything.
+- `youtube-experiment-lab`: one variable at a time, logged in `experiments.csv`. No untracked changes.
 - `youtube-multilanguage-dubbing` and `youtube-collabs-cross-promo`: only when the owner asks. Not part of the daily run.
 
 If a skill disagrees with this runbook, the runbook's hard rules win.
