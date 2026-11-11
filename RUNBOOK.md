@@ -141,6 +141,9 @@ Piper voice `en-us-ryan-high` named in the `shak-voiceover` skill (not on Piper'
 ```bash
 cd $P && ./voice.sh                     # house voice: Chatterbox Turbo + michael_ref (owner's blind pick, 2026-11-12). About 2.5x real time: ~25 min for 10 min
 ```
+**Run this step alone:** no renders, Whisper jobs or other heavy work at the same time. Chatterbox plus a render exceeds the
+7 GB RAM, and the kernel kills the voice (seen twice on 2026-11-12; `voice.sh` then falls back to Kokoro).
+
 QA (redo if it fails):
 - `voice/ENGINE` says `chatterbox-turbo`. If it says `kokoro-am_michael`, the fallback ran: carry on, and report it in step 14.
 - `voice/voice_qa.json`: every paragraph has at most 2 word errors and a length ratio of 0.72–1.40. `chatterbox_tts.py` already
