@@ -39,7 +39,7 @@ def loud_frames(src, a, b):
     return 20 * np.log10(np.sqrt((fr ** 2).mean(1)) + 1e-6)
 
 def keep_ranges(c, words, src):
-    """speech (word spans) plus loud reactions, gaps > 0.35 s removed, within [start, end]."""
+    """speech (word spans) plus loud reactions; gaps longer than cut_gap (default 0.6 s) removed, within [start, end]."""
     st, en = c['start'], c['end']
     if not c.get('jump_cuts', True): return [[st, en]]
     iv = [[w['s'] - 0.10, w['e'] + 0.18] for w in words if w['e'] > st and w['s'] < en]
@@ -51,7 +51,7 @@ def keep_ranges(c, words, src):
     for a, b in iv:
         a, b = max(a, st), min(b, en)
         if b <= a: continue
-        if out and a - out[-1][1] <= 0.35: out[-1][1] = max(out[-1][1], b)
+        if out and a - out[-1][1] <= float(c.get('cut_gap', 0.6)): out[-1][1] = max(out[-1][1], b)
         else: out.append([a, b])
     out = [r for r in out if r[1] - r[0] >= 0.25]
     return out or [[st, en]]
@@ -87,29 +87,37 @@ def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
 
 VOICE_REF = '/home/claude/shakclips-studio/tts/voices/michael_ref.wav'
 
-def synth_lines(lines, cache):
+def synth_lines(lines, cache, narrator=None):
     """[(key, text)] -> {key: (wav, seconds)} with Chatterbox Turbo in a subprocess (frees ~5.7 GB before Whisper runs)."""
     import hashlib
     os.makedirs(cache, exist_ok=True); todo, out = [], {}
     for key, text in lines:
-        f = os.path.join(cache, hashlib.sha1(text.encode()).hexdigest()[:16] + '.wav')
+        nr = narrator or {}; f = os.path.join(cache, hashlib.sha1((text + json.dumps(nr, sort_keys=True)).encode()).hexdigest()[:16] + '.wav')
         out[key] = f
         if not os.path.exists(f): todo.append((f, text))
     if todo:
         code = r'''
 import json, sys, numpy as np, soundfile as sf, torch, pyloudnorm as ln
 torch.set_num_threads(2); a = json.loads(sys.argv[1])
-from chatterbox.tts_turbo import ChatterboxTurboTTS as M
+nr = a.get('narrator') or {}
+if nr.get('engine', 'orig') == 'orig':
+    from chatterbox.tts import ChatterboxTTS as M
+else:
+    from chatterbox.tts_turbo import ChatterboxTurboTTS as M
 m = M.from_pretrained(device='cpu')
-_nl = m.norm_loudness; m.norm_loudness = lambda w, s, target_lufs=-27: np.asarray(_nl(w, s, target_lufs), dtype=np.float32)
-m.prepare_conditionals(a['ref'])
+if hasattr(m, 'norm_loudness'):
+    _nl = m.norm_loudness; m.norm_loudness = lambda w, s, target_lufs=-27: np.asarray(_nl(w, s, target_lufs), dtype=np.float32)
+m.prepare_conditionals(a['ref'], exaggeration=float(nr.get('exaggeration', 0.85))) if nr.get('engine', 'orig') == 'orig' else m.prepare_conditionals(a['ref'])
 for i, (f, t) in enumerate(a['todo']):
-    torch.manual_seed(11 + i); w = m.generate(t, temperature=0.8).squeeze().cpu().numpy().astype(np.float64)
+    torch.manual_seed(11 + i)
+    kw = dict(exaggeration=float(nr.get('exaggeration', 0.85)), cfg_weight=float(nr.get('cfg', 0.3)), temperature=0.8) if nr.get('engine', 'orig') == 'orig' else dict(temperature=0.8)
+    import re as _re
+    w = m.generate(_re.sub(r'\[[a-z ]+\]', '', t) if nr.get('engine', 'orig') == 'orig' else t, **kw).squeeze().cpu().numpy().astype(np.float64)
     idx = np.where(np.abs(w) > 0.01 * np.abs(w).max())[0]; w = w[max(0, idx[0] - 600): idx[-1] + 2400]
     g = 10 ** ((-16 - ln.Meter(m.sr).integrated_loudness(w)) / 20); w = np.clip(w * g, -0.97, 0.97)
     sf.write(f, w.astype(np.float32), m.sr)
 '''
-        sh(['/home/claude/venvs/cbx/bin/python', '-c', code, json.dumps({'todo': todo, 'ref': VOICE_REF})])
+        sh(['/home/claude/venvs/cbx/bin/python', '-c', code, json.dumps({'todo': todo, 'ref': (narrator or {}).get('ref', VOICE_REF), 'narrator': narrator or {}})])
     return {k: (f, float(sh(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).stdout)) for k, f in out.items()}
 
 def sticker_png(kind, d, direction='down'):
@@ -147,7 +155,8 @@ def main():
     src = plan['source']; tr = json.load(open(plan['transcript']))
     words = [dict(w, w=R.clean(w['w'])) for s in tr['segments'] for w in s['words']]
     narr_lines = [(f'{ci}_{k}', n['text']) for ci, c in enumerate(plan['clips']) for k, n in enumerate(c.get('narration', []))]
-    voice = synth_lines(narr_lines, plan.get('voice_cache', os.path.join(outdir, '_voice'))) if narr_lines else {}
+    voice = synth_lines(narr_lines, plan.get('voice_cache', os.path.join(outdir, '_voice')), plan.get('narrator')) if narr_lines else {}
+    voice_words = {}
     # better captions: re-transcribe only the clip windows with a larger model (base.en mishears game audio)
     asr = plan.get('asr', 'small.en')
     if asr:
@@ -162,8 +171,13 @@ def main():
                                     vad_filter=True, language='en', condition_on_previous_text=False)
             new = [{'w': R.clean(w.word.strip()), 's': a0 + w.start, 'e': a0 + w.end, 'p': w.probability} for sg in segs for w in (sg.words or [])]
             words = [w for w in words if not (a0 <= w['s'] < a1)] + new
-        words.sort(key=lambda w: w['s']); del wm
-    words = [w for w in words if w.get('p', 1) >= float(plan.get('min_word_prob', 0.45))]   # don't caption guesses
+        words.sort(key=lambda w: w['s'])
+        for key, (f, _) in voice.items():
+            pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', f, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
+            sg, _ = wm.transcribe(np.frombuffer(pcm, np.int16).astype(np.float32) / 32768, beam_size=5, word_timestamps=True, language='en')
+            voice_words[key] = [{'w': R.clean(w.word.strip()), 's': w.start, 'e': w.end, 'p': 1.0, 'narr': True} for x in sg for w in (x.words or [])]
+        del wm
+    words = [w for w in words if w.get('p', 1) >= float(plan.get('min_word_prob', 0.7))]   # only caption clearly understood speech
     if plan.get('layout') == 'facecam' and plan.get('facecam') in (None, 'auto'):
         r = json.loads(sh([sys.executable, os.path.join(HERE, 'facecam.py'), src]).stdout.strip().splitlines()[-1])
         plan['facecam'], plan['layout'] = (r['facecam'], 'facecam') if r.get('facecam') else (None, 'blur')
@@ -221,16 +235,20 @@ def main():
         sfx = [(t, x) for t, x in sfx if t is not None]
         sfx += [(max(0, t - 0.12), {'name': 'whoosh_transition', 'gain': 0.7}) for t in trans_at]
         if c.get('replay'): sfx.append((tl[-1][2] + 0.05, {'name': 'tape_rewind', 'gain': 0.35}))
-        # 3. captions + hook + SFX mix + loudness
-        ass = os.path.join(tmp, 'subs.ass'); _, cap_y = R.video_filter(plan, SW, SH)
-        R.ass_file(ass, cw, c.get('hook', ''), cap_y, plan.get('font', 'Luckiest Guy'), plan.get('accent', '&H4AD2FF&'), 2.8)
         # narration placement (no overlaps), ducking intervals
         narr, last_end = [], 0.0
         for k, n in enumerate(c.get('narration', [])):
             t = float(n['out_t']) if 'out_t' in n else to_out(float(n['src_t']))
             if t is None: continue
-            f, nd = voice[f'{ci}_{k}']; t = max(t, last_end + 0.12); narr.append((t, nd, f)); last_end = t + nd
-        duck = '+'.join(f'between(t,{t - 0.1:.2f},{t + nd + 0.15:.2f})' for t, nd, _ in narr)
+            f, nd = voice[f'{ci}_{k}']; t = max(t, last_end + 0.12); narr.append((t, nd, f, f'{ci}_{k}')); last_end = t + nd
+        if narr:
+            cw = [w for w in cw if not any(t - 0.15 <= w['s'] <= t + nd + 0.1 for t, nd, _, _ in narr)]
+            for t, nd, _, key in narr: cw += [dict(w, s=t + w['s'], e=t + w['e']) for w in voice_words.get(key, [])]
+            cw.sort(key=lambda w: w['s'])
+        # 3. captions + hook + SFX mix + loudness
+        ass = os.path.join(tmp, 'subs.ass'); _, cap_y = R.video_filter(plan, SW, SH)
+        R.ass_file(ass, cw, c.get('hook', ''), cap_y, plan.get('font', 'Luckiest Guy'), plan.get('accent', '&H4AD2FF&'), 2.8)
+        duck = '+'.join(f'between(t,{t - 0.1:.2f},{t + nd + 0.15:.2f})' for t, nd, _, _ in narr)
         marks = []
         for m in c.get('marks', []):
             t = float(m['out_t']) if 'out_t' in m else to_out(float(m['src_t']))
@@ -256,7 +274,17 @@ def main():
         for j, (t, x) in enumerate(sfx):
             ins += ['-i', R.sfx_path(x['name'], plan)]; ms = int(t * 1000)
             fc += f";[{idx}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={ms}|{ms},volume={float(x.get('gain', 0.9)):.2f}[s{j}]"; mix.append(f'[s{j}]'); idx += 1
-        for j, (t, nd, f) in enumerate(narr):
+        mu = c.get('music', plan.get('music'))
+        if mu:
+            mp = os.path.join(outdir, '_music', f"{mu.get('style', 'phonk')}_{mu.get('bpm', 130)}_{mu.get('seed', 1)}.wav")
+            if not os.path.exists(mp):
+                os.makedirs(os.path.dirname(mp), exist_ok=True)
+                sh([sys.executable, os.path.join(HERE, 'music.py'), mp, '--seconds', '70', '--bpm', str(mu.get('bpm', 130)),
+                    '--seed', str(mu.get('seed', 1)), '--style', mu.get('style', 'phonk')])
+            ins += ['-stream_loop', '-1', '-i', mp]; g = float(mu.get('gain', 0.22))
+            fc += (f";[{idx}:a]aformat=sample_rates=48000:channel_layouts=stereo,atrim=0:{dcur:.2f},afade=t=in:d=0.4,afade=t=out:st={max(0, dcur - 1.5):.2f}:d=1.5,"
+                   f"volume='{g}*if({duck or 0},0.45,1)':eval=frame[mus]"); mix.append('[mus]'); idx += 1
+        for j, (t, nd, f, _) in enumerate(narr):
             ins += ['-i', f]; ms = int(t * 1000)
             fc += f";[{idx}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={ms}|{ms},volume=1.5[n{j}]"; mix.append(f'[n{j}]'); idx += 1
         fc += f";{''.join(mix)}amix=inputs={len(mix)}:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[ao]"
@@ -266,10 +294,10 @@ def main():
         d = float(sh(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', final]).stdout)
         subprocess.run(['rm', '-rf', tmp])
         # originality report: our voice coverage + the longest stretch with no cut, narration, mark or effect
-        cov = sum(nd for _, nd, _ in narr) / max(d, 1)
+        cov = sum(nd for _, nd, _, _ in narr) / max(d, 1)
         ev = sorted({0.0, d} | {t0 for _, _, t0, _ in tl} | set(trans_at) | {t for t, _ in marks} |
                     {to_out(f) or 0 for f, _ in fx_src})
-        busy = [(t, t + nd) for t, nd, _ in narr]
+        busy = [(t, t + nd) for t, nd, _, _ in narr]
         gaps, prev = [], 0.0
         for t in ev:
             if t > prev:
