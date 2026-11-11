@@ -167,7 +167,7 @@ def main():
             inputs += ['-i', sfx_path(s['name'], plan)]; ms = int(float(s['t']) * 1000)
             fcx += f";[{k}:a]{AF},adelay={ms}|{ms},volume={float(s.get('gain', 0.9)):.2f}[s{j}]"; mixin.append(f'[s{j}]'); k += 1
         fcx += f";{''.join(mixin)}amix=inputs={len(mixin)}:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[ao]"
-        sh(['ffmpeg', '-v', 'error', '-y', *inputs, '-filter_complex', fcx, '-map', '[vo]', '-map', '[ao]',
+        sh(['ffmpeg', '-v', 'error', '-y', *inputs, '-filter_complex', fcx, '-map', '[vo]', '-map', '[ao]', '-map_metadata', '-1', '-map_chapters', '-1', '-dn', '-shortest',
             '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-profile:v', 'high', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000',
             '-movflags', '+faststart', f'{outdir}/{name}.mp4'])
         # QA sheet: 4 frames side by side

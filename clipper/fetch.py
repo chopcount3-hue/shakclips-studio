@@ -59,6 +59,11 @@ def main():
             sys.exit('YouTube refused the download (it blocks cloud servers). Ask the owner to upload the recording as a file.')
     else:
         sys.exit('unknown source: ' + s)
+    # Twitch VODs carry the stream's game changes as MP4 chapters + a text track; outputs inherited them and players
+    # showed a long blank tail. Keep only video and audio.
+    tmp = out + '.clean.mp4'
+    run(['ffmpeg', '-v', 'error', '-y', '-i', out, '-map', '0:v:0', '-map', '0:a:0', '-c', 'copy', '-dn', '-map_chapters', '-1', '-map_metadata', '-1',
+         '-movflags', '+faststart', tmp]); os.replace(tmp, out)
     d = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out], capture_output=True, text=True).stdout.strip()
     print(f'OK {out}  {float(d) / 60:.1f} min' + ('  + chat.json' if os.path.exists(os.path.join(a.work, 'chat.json')) else ''))
 

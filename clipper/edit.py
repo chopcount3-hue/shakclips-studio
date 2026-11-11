@@ -11,7 +11,7 @@ plan.json (per-plan keys as in render.py: source, transcript, layout, facecam, z
   "hook": "TEXT"          banner for the first ~2.8 s
   "sfx":  [{"src_t": 346.0, "name": "bruh", "gain": 0.9}]   times in SOURCE seconds (mapped through the cuts)
   "fx":   [{"src_t": 346.0, "type": "flash" | "shake" | "punch"}]
-  "max_len": 58
+  "max_len": 58, "min_len": 45   # Shorts land at 45-58 s: the lead-up is extended automatically when the cut story is short
 All SFX names come from sfx/user (the owner's pack), sfx/made (ours) or sfx/cc0.
 """
 import json, os, re, subprocess, sys, tempfile
@@ -76,13 +76,13 @@ def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
                      f"x=(w-text_w)/2:y=300:enable='lt(mod(t,0.8),0.55)'")
     af = 'aformat=sample_rates=48000:channel_layouts=stereo' + (f',atempo={1 / slow:.3f},asetrate=48000*0.9,aresample=48000' if slow != 1.0 else '')
     fc = f"{vf.replace('[v]', '[v0]')};[v0]{','.join(chain)},format=yuv420p[vo];[0:a]{af}[ao]"
-    sh(['ffmpeg', '-v', 'error', '-y', '-ss', f'{a:.3f}', '-t', f'{b - a:.3f}', '-i', src, '-filter_complex', fc, '-map', '[vo]', '-map', '[ao]',
+    sh(['ffmpeg', '-v', 'error', '-y', '-ss', f'{a:.3f}', '-t', f'{b - a:.3f}', '-i', src, '-filter_complex', fc, '-map', '[vo]', '-map', '[ao]', '-map_metadata', '-1', '-map_chapters', '-1', '-dn', 
         '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-r', str(FPS), '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', out])
     return float(sh(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out]).stdout)
 
 def concat(parts, out):
     lst = out + '.txt'; open(lst, 'w').write(''.join(f"file '{p}'\n" for p in parts))
-    sh(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', out])
+    sh(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', lst, '-map', '0:v', '-map', '0:a', '-c', 'copy', '-map_metadata', '-1', '-map_chapters', '-1', '-dn', out])
     return float(sh(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out]).stdout)
 
 def xfade(a, b, out, kind, dur, da):
@@ -90,7 +90,7 @@ def xfade(a, b, out, kind, dur, da):
     off = max(0.05, da - dur)
     sh(['ffmpeg', '-v', 'error', '-y', '-i', a, '-i', b, '-filter_complex',
         f"[0:v]settb=AVTB,fps={FPS},format=yuv420p[a0];[1:v]settb=AVTB,fps={FPS},format=yuv420p[b0];[a0][b0]xfade=transition={kind}:duration={dur}:offset={off:.3f},format=yuv420p[v];[0:a][1:a]acrossfade=d={dur}[a]",
-        '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-r', str(FPS), '-c:a', 'aac', '-b:a', '192k', out])
+        '-map', '[v]', '-map', '[a]', '-map_metadata', '-1', '-map_chapters', '-1', '-dn',  '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-r', str(FPS), '-c:a', 'aac', '-b:a', '192k', out])
     return off
 
 def main():
@@ -127,6 +127,10 @@ def main():
         # 1. story with jump cuts (alternate punch-ins hide the jumps), capped so the whole Short stays under max_len
         cap = float(c.get('max_len', 58)) - (c['teaser'][1] - c['teaser'][0] if c.get('teaser') else 0) \
             - (2 * (c['replay'][1] - c['replay'][0]) if c.get('replay') else 0)
+        min_story = float(c.get('min_len', 45)) - (cap_extra := float(c.get('max_len', 58)) - cap)
+        for _ in range(12):                                   # pull in more lead-up (5 s at a time, up to 60 s) until long enough
+            if sum(b - a for a, b in keep_ranges(c, words, src)) >= min_story or c['start'] <= float(c.get('earliest', 0)): break
+            c['start'] = max(float(c.get('earliest', 0)), c['start'] - 5.0)
         rngs, tot = [], 0.0
         for a, b in keep_ranges(c, words, src):
             if tot >= cap: break
@@ -176,8 +180,8 @@ def main():
             fc += f";[{k}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={ms}|{ms},volume={float(x.get('gain', 0.9)):.2f}[s{k}]"; mix.append(f'[s{k}]')
         fc += f";{''.join(mix)}amix=inputs={len(mix)}:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[ao]"
         final = os.path.join(outdir, name + '.mp4')
-        sh(['ffmpeg', '-v', 'error', '-y', *ins, '-filter_complex', fc, '-map', '[vo]', '-map', '[ao]', '-c:v', 'libx264', '-preset', 'veryfast',
-            '-crf', '20', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', final])
+        sh(['ffmpeg', '-v', 'error', '-y', *ins, '-filter_complex', fc, '-map', '[vo]', '-map', '[ao]', '-map_metadata', '-1', '-map_chapters', '-1', '-dn',  '-c:v', 'libx264', '-preset', 'veryfast',
+            '-crf', '20', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-shortest', '-movflags', '+faststart', final])
         d = float(sh(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', final]).stdout)
         subprocess.run(['rm', '-rf', tmp])
         meta.append(f"## {name}.mp4 ({d:.0f} s)\n**Title:** {c.get('title', '')}\n\n{c.get('description', '')}\n")
