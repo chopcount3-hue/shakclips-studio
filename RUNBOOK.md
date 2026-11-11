@@ -58,9 +58,18 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - `youtube-title-lab`: step 11, the title plus two Test & Compare alternates.
 - `youtube-low-views-diagnosis`: whenever a video underperforms or the channel is flat for 2+ weeks. Read it before changing anything.
 - `youtube-experiment-lab`: one variable at a time, logged in `experiments.csv`. No untracked changes.
+- Voice (step 5): `tts-voice-casting` (the voice is locked to am_michael 1.0 — never change it without asking),
+  `tts-prosody-control` and `tts-breath-and-pacing` for pacing and pauses, `tts-emotional-delivery` for per-beat delivery,
+  `tts-pronunciation-lexicon` for every name and acronym, `tts-voice-mastering` for the stem, and `tts-artifact-qa`
+  before step 7. `tts-character-voices` only for dialogue scenes. `tts-engine-evaluation` and `tts-voice-cloning-consent`
+  only when the owner asks.
 - `youtube-multilanguage-dubbing` and `youtube-collabs-cross-promo`: only when the owner asks. Not part of the daily run.
 
 If a skill disagrees with this runbook, the runbook's hard rules win.
+
+**Voice licence rule:** narration uses Kokoro-82M only (Apache-2.0 code and weights). Do **not** fall back to the
+Piper voice `en-us-ryan-high` named in the `shak-voiceover` skill: it is not on Piper's commercial-use list, and this
+channel is heading for monetization. If Kokoro fails, stop and notify the owner (see `tts-engine-evaluation`).
 
 ## 2. Pick today's topic (owner: "automate by yourself daily trending topics"; weekday format mix from the Goal section)
 - First look under `## Calendar` in `topics.md` for an unchecked line dated today's UTC run date (format in `youtube-content-calendar`). If its topic is AUTO, pick a trending story, using any `hint=`. Leave past-dated unchecked lines alone and note them in log.md.
