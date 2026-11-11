@@ -31,3 +31,21 @@ Reposted clips stitched together are what YouTube demonetizes ("reused content")
   when long-form support lands in edit.py; until then, export segments with ffmpeg cuts plus the same SFX and FX times).
 - Narration: write `script.json` (intro + bridges) → `chatterbox_tts.py` → place each line between segments.
 - Run the voice step alone (RAM). Assemble with xfade transitions (`fadewhite`, `zoomin`, `slideleft`) between segments.
+
+## Lessons from a channel that monetized on streamer clips in 21 days (owner's reference video, 12 Nov 2026)
+- **It monetized through long-form, with only 3 videos.** Video 1 (streamers' cars: weak topic, weak edit) flopped. Video 2,
+  "IShowSpeed's best moments at the 2026 World Cup", went viral and carried the channel. Video 3 (Speed with footballers) did well.
+- **Angle first.** Every video is one specific topic with its own script and narration, never random clips. Good angles:
+  arguments, the funniest moments, fan reactions, "streamer + celebrity", one event (World Cup → for us: GTA 6 launch week).
+- **A custom hook in the first 10 s**: a "What if Speed met Shakira?" scene they made themselves, then straight into the story.
+- **Thumbnail:** two instantly recognisable people together, on a trending topic. That was the CTR jump.
+- **Pacing:** about 140 cuts in 5 min (one every 2.2 s). Full-screen single words in heavy white type for emphasis
+  ("USED", "IMPORTANT", "SCRIPT"), blurred "?" grids to tease what's coming, screen recordings as B-roll.
+- **Copyright:** IShowSpeed's content is managed by **Thumbs Media**, which issued a Content ID claim. It was released after a
+  fair-use dispute citing the creator's commentary and transformation. Expect claims on Speed footage. Answer with a polite,
+  specific dispute (what we added: script, narration, edit, structure), never by re-uploading.
+- **Don't copy their meme inserts** (The Rock, Jim Carrey and other film/TV clips are copyrighted). Our replacement: short
+  original stick-figure reaction inserts from the Shak Clips engine (`engine/acting.js` poses: shock, facepalm, celebrate),
+  which are ours and set the channel apart.
+- **Avoid reused content:** no long uninterrupted clips (keep each run under about 8–10 s before a cut, a word card or narration),
+  our script around every clip, and our own presentation.
