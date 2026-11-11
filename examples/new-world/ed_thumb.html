@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script>
+const X = document.getElementById('c').getContext('2d'), W = 1920, H = 1080;
+const load = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = s; });
+function word(str, x, y, size, fill, grad) {
+  X.save(); X.font = `900 ${size}px "Inter Display"`; X.lineJoin = 'round'; X.miterLimit = 2;
+  X.shadowColor = 'rgba(0,0,0,0.9)'; X.shadowBlur = 44; X.shadowOffsetY = 16;
+  X.lineWidth = size * 0.16; X.strokeStyle = '#05070c'; X.strokeText(str, x, y);
+  X.shadowColor = 'transparent';
+  if (grad) { const g = X.createLinearGradient(0, y - size * 0.8, 0, y); g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1]); X.fillStyle = g; } else X.fillStyle = fill;
+  X.fillText(str, x, y); const w = X.measureText(str).width; X.restore(); return w;
+}
+function pill(txt, cx, cy, size, bg, col, rot) {
+  X.save(); X.translate(cx, cy); X.rotate(rot || 0); X.font = `900 ${size}px "Inter Display"`;
+  const w = X.measureText(txt).width + size * 1.1, h = size * 1.55;
+  X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 30; X.shadowOffsetY = 10;
+  X.beginPath(); X.roundRect(-w / 2, -h / 2, w, h, h / 2); X.fillStyle = bg; X.fill(); X.shadowColor = 'transparent';
+  X.lineWidth = 8; X.strokeStyle = '#fff'; X.stroke();
+  X.fillStyle = col; X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillText(txt, 0, size * 0.05); X.restore();
+}
+window.draw = async () => {
+  await document.fonts.load('900 200px "Inter Display"');
+  if (!document.fonts.check('900 200px "Inter Display"')) throw new Error('font missing');
+  const bg = await load('ed_3d.png'); X.drawImage(bg, 0, 0);
+  // darken the lower left a touch so the words sit on clean dark
+  const g = X.createLinearGradient(0, 0, 1100, 0); g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); X.fillStyle = g; X.fillRect(0, 0, 1100, 1080);
+  word('HIDDEN', 110, 770, 222, null, ['#ffffff', '#cfe0ff']);
+  word('10 YEARS', 116, 935, 160, null, ['#FFE07A', '#FFB02E']);
+  pill('UP TO 930 MILES WIDE', 1280, 150, 58, '#E8343A', '#fff', -0.03);
+  // arrow from the badge to the world
+  X.save(); X.strokeStyle = '#fff'; X.lineWidth = 14; X.lineCap = 'round'; X.shadowColor = 'rgba(0,0,0,0.7)'; X.shadowBlur = 16;
+  X.beginPath(); X.moveTo(1290, 215); X.quadraticCurveTo(1330, 270, 1300, 320); X.stroke();
+  X.beginPath(); X.moveTo(1268, 296); X.lineTo(1300, 330); X.lineTo(1330, 298); X.stroke(); X.restore();
+};
+</script></body></html>
