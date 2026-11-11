@@ -1,8 +1,22 @@
 #!/bin/bash
-# usage: ./voice.sh [voice] [speed]  -> voice/voice_raw.wav, voice/timing.json, voice/voice_proc.wav (48 kHz polished), timing.js
-set -e; cd "$(dirname "$0")"; V=${1:-am_michael}; SP=${2:-0.96}
-THREADS=2 nice python3 "${STUDIO:-/home/claude/shakclips-studio}/tts/kokoro_tts.py" script.json voice "$V" "$SP"
-# 1. the house chain (owner's blind-test pick 2026-11-11: do not change the EQ without asking)
+# usage: ./voice.sh                 -> house voice: Chatterbox Turbo + tts/voices/michael_ref.wav (owner's blind pick "A", 2026-11-12)
+#        ./voice.sh am_michael 1.0  -> Kokoro (the fallback; also used automatically if Chatterbox is not installed)
+# writes voice/voice_raw.wav, voice/timing.json, voice/voice_proc.wav (48 kHz polished), voice/ENGINE, timing.js
+set -e; cd "$(dirname "$0")"; V=${1:-chatterbox}; SP=${2:-1.0}; ST="${STUDIO:-/home/claude/shakclips-studio}"; mkdir -p voice
+CBX=${CBX_PY:-/home/claude/venvs/cbx/bin/python}
+if [ "$V" = chatterbox ]; then
+  if [ -x "$CBX" ] && "$CBX" -c "import chatterbox.tts_turbo, faster_whisper" 2>/dev/null \
+     && THREADS=2 nice "$CBX" "$ST/tts/chatterbox_tts.py" script.json voice; then
+    echo chatterbox-turbo > voice/ENGINE
+  else
+    echo "WARN: Chatterbox not installed or it failed (see above) -> FALLBACK to Kokoro am_michael 1.0. Tell the owner."
+    V=am_michael; SP=1.0
+  fi
+fi
+if [ "$V" != chatterbox ]; then
+  THREADS=2 nice python3 "$ST/tts/kokoro_tts.py" script.json voice "$V" "$SP"; echo "kokoro-$V" > voice/ENGINE
+fi
+# 1. the house chain (owner's blind-test pick 2026-11-11, kept for the 2026-11-12 Chatterbox pick: do not change the EQ without asking)
 ffmpeg -v error -y -i voice/voice_raw.wav -af "highpass=f=70,equalizer=f=3500:t=q:w=1.0:g=2,deesser=i=0.4,acompressor=threshold=0.18:ratio=2.2:attack=8:release=150:makeup=1.3,aecho=0.85:0.9:38|67:0.07|0.05,aresample=48000" -c:a pcm_s16le voice/pre.wav
 # 2. mastering tail: -25 LUFS + limiter + room tone, so mix.sh's +9.5 dB has headroom.
 #    Measured 2026-11-11: without it the mix hits +0.0 dBTP; with it, -4.3 dBTP. latency=1 keeps the

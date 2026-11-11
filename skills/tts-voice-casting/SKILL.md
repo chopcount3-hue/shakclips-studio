@@ -1,6 +1,6 @@
 ---
 name: tts-voice-casting
-description: Choose and lock the Shak Clips narrator voice in Kokoro-82M. Official grades, blend recipes, a two-minute blind phone A/B, male/female and US/UK trade-offs, and how to keep one house voice.
+description: Choose and lock the Shak Clips narrator voice (Chatterbox Turbo since 2026-11-12, Kokoro-82M fallback). Official grades, blend recipes, a two-minute blind phone A/B, male/female and US/UK trade-offs, and how to keep one house voice.
 ---
 
 # TTS voice casting (Kokoro-82M)
@@ -9,17 +9,25 @@ Use when picking, challenging or re-confirming the narrator voice — not for pe
 
 Legend: **[V]** verified on an official source or measured locally in this repo · **[H]** heuristic, ear-check it.
 
-## 1. The house voice is already decided
+## 1. The house voice is already decided (changed 2026-11-12)
 
 | Field | Value |
 |---|---|
-| Voice | `am_michael` |
-| Speed | `1.0` |
-| Polish chain | the one already in `engine/voice.sh` (highpass 70, +2 dB at 3.5 kHz, de-ess, 2.2:1 comp, short aecho) |
-| Call | `./engine/voice.sh am_michael 1.0` |
+| Engine | **Chatterbox Turbo** (Resemble AI, MIT code + weights), `tts/chatterbox_tts.py` |
+| Timbre | `tts/voices/michael_ref.wav`: 10 s of Kokoro `am_michael`, so it still sounds like the old narrator |
+| Delivery cues | 1–3 inline tags per video (`[chuckle]`, `[sigh]`, `[gasp]`); rules in RUNBOOK step 4 |
+| Polish chain | unchanged, the one in `engine/voice.sh` (highpass 70, +2 dB at 3.5 kHz, de-ess, 2.2:1 comp, short aecho) |
+| Call | `./voice.sh` (no arguments) |
+| Fallback | Kokoro `am_michael` 1.0, automatic when Chatterbox is missing or fails (`voice/ENGINE` records which ran) |
 
-The owner picked this in a blind listen against three challengers. **[V]** Do not change the voice or the speed to fix
-"robotic" or "not soothing" — those are pause, beat and delivery problems. The other four `tts-*` skills own them.
+History **[V]**: 2026-11-11 the owner kept Kokoro am_michael 1.0 in a blind listen against three Kokoro challengers.
+2026-11-12 the owner said Kokoro sounded "1000% AI" and picked sample **A** (Turbo + michael_ref + one `[chuckle]`) in a
+blind listen against Kokoro am_michael (B), Chatterbox original exag 0.55 / cfg 0.45 (C) and Turbo without tags (D).
+All four had 0 word errors (Whisper). Turbo varied its pauses more (7–10 distinct lengths vs Kokoro's 5).
+Turbo runs at about 2.4x real time on 2 cores (~24 min per 10 min); the original Chatterbox ~5.9x, too slow for daily use.
+
+Sections 2 onward describe Kokoro, which is now the fallback. Do not change the engine, the reference clip or the speed
+to fix "robotic" or "not soothing" — those are pause, beat and delivery problems. The other four `tts-*` skills own them.
 Measured on am_michael at 1.0 (pre-polish, 24 kHz): median F0 **118–122 Hz**, pitch spread (10th–90th percentile)
 **8.4–8.9 semitones**, spectral centroid **≈2790 Hz**, articulation rate **≈198 wpm**, effective **157–171 wpm**
 depending on how much silence the script asks for. **[V]**

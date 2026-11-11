@@ -37,10 +37,10 @@ Researched 2026-11-10 (sources are in the Animation project doc `claude/shak-cli
 ```bash
 REPO=chopcount3-hue/shakclips-studio
 cd /home/claude && git clone --depth 1 https://github.com/$REPO.git shakclips-studio
-cd shakclips-studio && ./setup.sh            # espeak-ng + Kokoro voice; prints SETUP OK
+cd shakclips-studio && ./setup.sh            # espeak-ng, Kokoro (fallback) and the Chatterbox house voice; prints SETUP OK
 export STUDIO=/home/claude/shakclips-studio
 ```
-Network: only GitHub is reachable from the shell (pip and npm are blocked). onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`. Then read the repo's own skills in `skills/`, and follow them as part of this runbook:
+Network: GitHub always works. The Chatterbox house voice also needs pypi.org, download.pytorch.org and huggingface.co (reachable since 2026-11-12). If setup.sh prints a Chatterbox WARN, carry on: `voice.sh` falls back to Kokoro by itself, and the owner must be told in the step 14 notification. onnxruntime, numpy, scipy, ffmpeg, Playwright/Chromium and the Inter and Noto Emoji fonts are preinstalled. Load the skills `video-making`, `tts-script-writing` and `shak-voiceover`. Then read the repo's own skills in `skills/`, and follow them as part of this runbook:
 - `youtube-retention-scriptwriting`: step 4.
 - `explainer-video-direction`: step 6.
 - `scale-comparison-format`: step 6 for any scale ladder, with `engine/scale.js` (`SCALE.*`: a real-metres world,
@@ -69,7 +69,9 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 - `youtube-title-lab`: step 11, the title plus two Test & Compare alternates.
 - `youtube-low-views-diagnosis`: whenever a video underperforms or the channel is flat for 2+ weeks. Read it before changing anything.
 - `youtube-experiment-lab`: one variable at a time, logged in `experiments.csv`. No untracked changes.
-- Voice (step 5): `tts-voice-casting` (the voice is locked to am_michael 1.0 — never change it without asking),
+- Voice (step 5): `tts-voice-casting` (the voice is locked to **Chatterbox Turbo + `tts/voices/michael_ref.wav`**, the owner's
+  blind pick "A" on 2026-11-12, over Kokoro am_michael and two other Chatterbox takes; never change it without asking;
+  Kokoro am_michael 1.0 is the automatic fallback only),
   `tts-prosody-control` and `tts-breath-and-pacing` for pacing and pauses, `tts-emotional-delivery` for per-beat delivery,
   `tts-pronunciation-lexicon` for every name and acronym, `tts-voice-mastering` for the stem, and `tts-artifact-qa`
   before step 7. `tts-character-voices` only for dialogue scenes. `tts-engine-evaluation` and `tts-voice-cloning-consent`
@@ -78,9 +80,13 @@ Network: only GitHub is reachable from the shell (pip and npm are blocked). onnx
 
 If a skill disagrees with this runbook, the runbook's hard rules win.
 
-**Voice licence rule:** narration uses Kokoro-82M only (Apache-2.0 code and weights). Do **not** fall back to the
-Piper voice `en-us-ryan-high` named in the `shak-voiceover` skill: it is not on Piper's commercial-use list, and this
-channel is heading for monetization. If Kokoro fails, stop and notify the owner (see `tts-engine-evaluation`).
+**Voice licence rule:** narration uses Chatterbox Turbo (Resemble AI, MIT code and MIT weights), and Kokoro-82M
+(Apache-2.0) only as the fallback. The timbre comes from `tts/voices/michael_ref.wav`, a Kokoro am_michael clip, so no
+real person's voice is cloned; never swap in a recording of a real person without their written consent
+(`tts-voice-cloning-consent`). Chatterbox embeds Resemble's inaudible Perth watermark: leave it on. Do **not** use the
+Piper voice `en-us-ryan-high` named in the `shak-voiceover` skill (not on Piper's commercial-use list), NeuTTS *nano*
+(custom licence), F5-TTS, XTTS-v2 or Spark-TTS (non-commercial weights). If both engines fail, stop and notify the owner
+(see `tts-engine-evaluation`).
 
 ## 2. Pick today's topic (spectacle lanes; owner's direction 2026-11-11)
 - First look under `## Calendar` in `topics.md` for an unchecked line dated today's UTC run date (format in `youtube-content-calendar`). If its topic is AUTO, pick a trending story, using any `hint=`. Leave past-dated unchecked lines alone and note them in log.md.
@@ -121,14 +127,25 @@ channel is heading for monetization. If Kokoro fails, stop and notify the owner 
   - **Body:** 4–6 sections, each with a short title-card name.
   - **Ending:** a callback to the opening, plus a comment prompt.
 - **TTS rules** (`tts-script-writing`): numbers and years as words, short clauses, 2–4 sentences per paragraph.
+- **Human delivery cues (Chatterbox Turbo):** the voice performs inline tags written into `paragraphs` only (never in
+  `sentences`; `chatterbox_tts.py` strips them from timing and captions). The owner's pick used `[chuckle]` after a wry
+  line ("Now make the phone a rocket. [chuckle] A really, really big one.").
+  - Use 1–3 per video, at most one per paragraph, only where a real narrator would make that sound: `[chuckle]` after
+    a wry or absurd line or a "Shak's take", `[sigh]` before a sobering fact, `[gasp]` or `[surprised]` on a genuine reveal.
+  - Never on deaths, disasters or victims, never two paragraphs in a row, never `[cough]`, `[clear throat]`, `[laugh]`
+    or `[crying]` (they read as gimmicks). Tone stays neutral: a cue colours a line, it never makes a joke.
 - **Format:** `{"title", "paragraphs": [...], "sentences": [...], "pause_after_paragraph": [...], "pron": {"Word": "IPA"}}`. Sentence numbering (1-based) drives every shot.
 - **The first 35–55 s must work alone as a Short.** The hook ends on a sentence boundary that makes a viewer want the full story.
 
 ## 5. Voice
 ```bash
-cd $P && ./voice.sh am_michael 1.0       # the owner's chosen voice (re-confirmed 2026-11-11 over 3 alternatives: keep it); 1.0 gives about 141 wpm
+cd $P && ./voice.sh                     # house voice: Chatterbox Turbo + michael_ref (owner's blind pick, 2026-11-12). About 2.5x real time: ~25 min for 10 min
 ```
-QA (redo if it fails): 138–160 wpm; span count equals sentence count; no clipped words; peak 0.89. Never use atempo.
+QA (redo if it fails):
+- `voice/ENGINE` says `chatterbox-turbo`. If it says `kokoro-am_michael`, the fallback ran: carry on, and report it in step 14.
+- `voice/voice_qa.json`: every paragraph has at most 2 word errors and a length ratio of 0.72–1.40. `chatterbox_tts.py` already
+  re-takes bad paragraphs up to 3 times; if one still fails, rewrite that paragraph (shorter clauses, spelled-out names) and re-run.
+- 138–168 wpm; span count equals sentence count; no clipped words; peak 0.89. Never use atempo.
 
 ## 6. Animation → `$P/shots.js` (and `$P/extra.js` for new characters or props)
 - Read `examples/midterms/shots.js` fully before writing, then copy its structure. It covers:
@@ -251,4 +268,5 @@ vidIQ's update tools cost credits, so don't use them for this.
 - Append the run to `log.md`: date, topic, titles, durations, LUFS, postIds, any problems.
 - Commit and push to `main` (`git fetch origin main && git rebase origin/main` first). The `media` branch is replaced the next day, so it never grows.
 - **Channel stats:** call `vidiq_user_channels` (free) and log subscribers, views and video count in `log.md`. When subscribers reach 1,000, tell the owner in the notification to open YouTube Studio → Earn, check watch hours, and apply right away (before 31 Jan 2027).
-- Send the owner a short notification: today's two titles, "goes live 3:30 AM IST", subscriber count, and any problem.
+- Send the owner a short notification: today's two titles, "goes live 3:30 AM IST", subscriber count, and any problem
+  (always mention it if `voice/ENGINE` shows the Kokoro fallback).

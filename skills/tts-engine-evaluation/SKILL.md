@@ -11,6 +11,15 @@ Legend: **[V]** = read on the official repo or model card (see Sources). **[H]**
 Hard rule: **the channel is monetized, so non-commercial weights are a no-go, whatever the code licence says.**
 A permissive code licence tells you nothing about the weights; check both, every time, on the official page.
 
+## 0. Decision of 2026-11-12: Chatterbox Turbo is the house engine
+- The owner judged Kokoro "1000% AI" and picked Chatterbox Turbo (MIT/MIT) in a blind A/B/C/D. See `tts-voice-casting`.
+- **Gate 2 below is out of date:** since 2026-11-12 the shell reaches pypi.org, download.pytorch.org and huggingface.co,
+  so torch engines run on-box (Turbo: 2.4x real time on 2 cores). `setup.sh` step 3 installs it into
+  `/home/claude/venvs/cbx`. If those hosts are blocked again, `voice.sh` falls back to Kokoro.
+- Checked the same night: NeuTTS **Air** weights are Apache-2.0 but **gated** on Hugging Face (needs the owner's HF
+  token); NeuTTS **nano** is a custom licence, so it's a no-go. The original Chatterbox (0.5B, exaggeration control) is MIT but
+  5.9x real time.
+
 ## 1. The two gates, in this order
 1. **Weights licence** permits commercial use, with conditions you can actually meet (attribution, a revenue cap).
    If the model card is silent, treat it as unresolved and do not ship it.
