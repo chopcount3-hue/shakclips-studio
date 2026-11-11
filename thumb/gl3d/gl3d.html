@@ -1,0 +1,646 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>gl3d raymarcher</title>
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+</head><body>
+<canvas id="c"></canvas>
+<script src="scenes/nvidia-chip.js"></script>
+<script>
+/* ============================================================================
+   gl3d - a reusable WebGL2 SDF raymarching renderer for still hero frames.
+
+   URL params:
+     scene=<name>     scene registered in window.SCENES   (default nvidia-chip)
+     w,h              output resolution                   (default 1920x1080)
+     ss               internal supersample factor 1..3    (default 2)
+     steps            max march steps                     (scene default)
+     dbg=1            draw to canvas only, skip PNG encode
+
+   Results:
+     window.done        true when everything is finished
+     window.outBeauty   data: URL, RGB PNG at w x h
+     window.outMask     data: URL, grayscale subject matte PNG at w x h
+     window.stats       { ms, w, h, ss, scene }
+
+   Deterministic: no Math.random() and no time uniform reaches the shaders.
+   ========================================================================= */
+
+const Q = new URLSearchParams(location.search);
+const SCENE_NAME = Q.get('scene') || 'nvidia-chip';
+const OW = parseInt(Q.get('w') || '1920', 10);
+const OH = parseInt(Q.get('h') || '1080', 10);
+const SS = Math.max(1, Math.min(3, parseFloat(Q.get('ss') || '2')));
+const DBG = Q.get('dbg') === '1';
+
+const scene = (window.SCENES || {})[SCENE_NAME];
+if (!scene) { window.err = 'no scene ' + SCENE_NAME; window.done = true; throw new Error(window.err); }
+
+const RW = Math.round(OW * SS), RH = Math.round(OH * SS);
+
+const cv = document.getElementById('c');
+cv.width = OW; cv.height = OH;
+cv.style.width = OW + 'px'; cv.style.height = OH + 'px';
+const gl = cv.getContext('webgl2', { antialias: false, preserveDrawingBuffer: true, alpha: false, depth: false, stencil: false });
+for (const e of ['EXT_color_buffer_float', 'OES_texture_float_linear', 'EXT_color_buffer_half_float']) gl.getExtension(e);
+
+/* ----------------------------------------------------------- gl plumbing */
+function compile(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    const log = gl.getShaderInfoLog(s);
+    const lines = src.split('\n').map((l, i) => (i + 1) + ': ' + l);
+    const m = /:(\d+):/.exec(log);
+    let ctx = '';
+    if (m) { const n = parseInt(m[1], 10); ctx = '\n' + lines.slice(Math.max(0, n - 6), n + 4).join('\n'); }
+    throw new Error(log + ctx);
+  }
+  return s;
+}
+const VS_QUAD = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+
+function program(fs, vs) {
+  const pr = gl.createProgram();
+  gl.attachShader(pr, compile(gl.VERTEX_SHADER, vs || VS_QUAD));
+  gl.attachShader(pr, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(pr);
+  if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
+  const u = {};
+  const n = gl.getProgramParameter(pr, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const nm = gl.getActiveUniform(pr, i).name.replace(/\[0\]$/, ''); u[nm] = gl.getUniformLocation(pr, nm); }
+  return { pr, u };
+}
+
+const vbo = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+function bindQuad(p) {
+  const l = gl.getAttribLocation(p.pr, 'p');
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.enableVertexAttribArray(l);
+  gl.vertexAttribPointer(l, 2, gl.FLOAT, false, 0, 0);
+}
+
+function tex(w, h, fmt) {
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  const F = fmt || 'f16';
+  if (F === 'f16') gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+  else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return { t, w, h };
+}
+function fbo(texes) {
+  const f = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+  texes.forEach((tx, i) => gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + i, gl.TEXTURE_2D, tx.t, 0));
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('fbo incomplete');
+  return { f, n: texes.length, w: texes[0].w, h: texes[0].h };
+}
+function target(fb) {
+  if (fb) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb.f);
+    gl.drawBuffers(Array.from({ length: fb.n }, (_, i) => gl.COLOR_ATTACHMENT0 + i));
+    gl.viewport(0, 0, fb.w, fb.h);
+  } else {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, OW, OH);
+  }
+}
+function use(p, fb, binds, setter) {
+  target(fb);
+  gl.useProgram(p.pr); bindQuad(p);
+  (binds || []).forEach((tx, i) => {
+    gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, tx.t);
+  });
+  if (setter) setter(p.u);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+const u1i = (l, v) => { if (l) gl.uniform1i(l, v); };
+const u1f = (l, v) => { if (l) gl.uniform1f(l, v); };
+const u2f = (l, a, b) => { if (l) gl.uniform2f(l, a, b); };
+const u3v = (l, v) => { if (l) gl.uniform3f(l, v[0], v[1], v[2]); };
+
+/* =================================================================== COMMON
+   Shared GLSL: maths, hashes, SDF primitives, BRDF, env, tonemap.         */
+const COMMON = `#version 300 es
+precision highp float;
+precision highp int;
+
+#define PI 3.14159265359
+
+float hash11(float n){ return fract(sin(n*127.1)*43758.5453123); }
+float hash12(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
+vec3  hash31(float n){ return fract(sin(vec3(n*127.1, n*311.7, n*74.7))*43758.5453123); }
+float vnoise(vec2 p){
+  vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(hash12(i),hash12(i+vec2(1,0)),f.x), mix(hash12(i+vec2(0,1)),hash12(i+vec2(1,1)),f.x), f.y);
+}
+float fbm2(vec2 p){ float a=0.5,s=0.0; for(int i=0;i<4;i++){ s+=a*vnoise(p); p*=2.03; a*=0.5; } return s; }
+
+/* ---- SDF primitives ---- */
+float sdBox(vec3 p, vec3 b, float r){ vec3 q=abs(p)-b+r; return length(max(q,0.0))+min(max(q.x,max(q.y,q.z)),0.0)-r; }
+float sdBox2(vec2 p, vec2 b, float r){ vec2 q=abs(p)-b+r; return length(max(q,0.0))+min(max(q.x,q.y),0.0)-r; }
+float sdCylY(vec3 p, float h, float ra){ vec2 d=abs(vec2(length(p.xz),p.y))-vec2(ra,h); return min(max(d.x,d.y),0.0)+length(max(d,0.0)); }
+float sdCylZ(vec3 p, float h, float ra){ vec2 d=abs(vec2(length(p.xy),p.z))-vec2(ra,h); return min(max(d.x,d.y),0.0)+length(max(d,0.0)); }
+float sdSph(vec3 p, float r){ return length(p)-r; }
+float smin(float a, float b, float k){ float h=clamp(0.5+0.5*(b-a)/k,0.0,1.0); return mix(b,a,h)-k*h*(1.0-h); }
+float smax(float a, float b, float k){ float h=clamp(0.5-0.5*(b-a)/k,0.0,1.0); return mix(b,a,h)+k*h*(1.0-h); }
+/* material-carrying min: x = distance, y = material id */
+vec2 mn(vec2 a, vec2 b){ return (a.x<b.x)? a : b; }
+/* smooth material-carrying min, blends the id too */
+vec2 smn(vec2 a, vec2 b, float k){
+  float h=clamp(0.5+0.5*(b.x-a.x)/k,0.0,1.0);
+  return vec2(mix(b.x,a.x,h)-k*h*(1.0-h), (h>0.5)? a.y : b.y);
+}
+mat2 rot2(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }
+vec3 rotX(vec3 p, float a){ p.yz = rot2(a)*p.yz; return p; }
+vec3 rotY(vec3 p, float a){ p.xz = rot2(a)*p.xz; return p; }
+vec3 rotZ(vec3 p, float a){ p.xy = rot2(a)*p.xy; return p; }
+/* bounded domain repetition */
+float repClamp(inout float x, float s, float n){
+  float i = clamp(floor(x/s + 0.5), -n, n);
+  x -= i*s; return i;
+}
+
+/* ---- material description ---- */
+struct Mat {
+  vec3  alb;    // base colour
+  float rough;  // 0 mirror .. 1 matte
+  float metal;  // dielectric .. conductor
+  vec3  emis;   // radiance added directly
+  float sub;    // 1 = part of the subject matte, 0 = environment
+};
+Mat mkMat(vec3 a, float r, float m, vec3 e, float s){ Mat o; o.alb=a; o.rough=r; o.metal=m; o.emis=e; o.sub=s; return o; }
+
+/* ---- GGX / Cook-Torrance ---- */
+float D_GGX(float NoH, float a){ float a2=a*a; float d=NoH*NoH*(a2-1.0)+1.0; return a2/max(PI*d*d, 1e-7); }
+float V_SmithGGX(float NoV, float NoL, float a){
+  float a2=a*a;
+  float gv = NoL*sqrt(NoV*NoV*(1.0-a2)+a2);
+  float gl = NoV*sqrt(NoL*NoL*(1.0-a2)+a2);
+  return 0.5/max(gv+gl, 1e-6);
+}
+vec3 F_Schlick(vec3 f0, float u){ return f0 + (1.0-f0)*pow(1.0-u, 5.0); }
+
+/* One light contribution. lrad is the light's angular radius: it widens the
+   specular lobe and renormalises its energy, so a bright key behaves like a
+   softbox instead of blowing a mirror-sharp dot to pure white.            */
+vec3 brdfA(vec3 n, vec3 v, vec3 l, Mat m, vec3 lightCol, float lrad){
+  float NoL = dot(n,l); if(NoL <= 0.0) return vec3(0.0);
+  vec3 h = normalize(v+l);
+  float NoV = max(dot(n,v), 1e-4);
+  float NoH = max(dot(n,h), 0.0);
+  float VoH = max(dot(v,h), 0.0);
+  float a  = max(m.rough*m.rough, 2e-3);
+  float a2 = clamp(a + lrad, a, 1.0);
+  float norm = (a*a)/(a2*a2);
+  vec3 f0 = mix(vec3(0.045), m.alb, m.metal);
+  vec3 F = F_Schlick(f0, VoH);
+  vec3 spec = F * (D_GGX(NoH,a2) * V_SmithGGX(NoV,NoL,a2)) * norm;
+  vec3 diff = m.alb*(1.0-m.metal)*(1.0-F)/PI;
+  return (diff+spec)*lightCol*NoL;
+}
+vec3 brdf(vec3 n, vec3 v, vec3 l, Mat m, vec3 lightCol){ return brdfA(n,v,l,m,lightCol,0.0); }
+
+/* ---- ACES (Hill fit) ---- */
+const mat3 ACESin = mat3(0.59719,0.07600,0.02840, 0.35458,0.90834,0.13383, 0.04823,0.01566,0.83777);
+const mat3 ACESout= mat3(1.60475,-0.10208,-0.00327, -0.53108,1.10813,-0.07276, -0.07367,-0.00605,1.07602);
+vec3 acesTonemap(vec3 c){
+  c = ACESin*c;
+  vec3 a = c*(c+0.0245786)-0.000090537;
+  vec3 b = c*(0.983729*c+0.4329510)+0.238081;
+  c = ACESout*(a/b);
+  return clamp(c, 0.0, 1.0);
+}
+/* 8x8 ordered bayer, analytic */
+float bayer8(vec2 c){
+  ivec2 i = ivec2(mod(c, 8.0));
+  int x=i.x, y=i.y, v=0;
+  for(int k=0;k<3;k++){
+    int xk=(x>>k)&1, yk=(y>>k)&1;
+    v |= ((xk ^ yk) << (2*(2-k)+1)) | (yk << (2*(2-k)));
+  }
+  return float(v)/64.0;
+}
+`;
+
+/* =============================================================== MARCH PASS */
+const FS_MARCH = COMMON + `
+uniform vec2  uRes;        // render resolution (supersampled)
+uniform vec3  uCamPos, uCamTa;
+uniform float uFL, uShiftX, uShiftY, uRoll;
+uniform int   uSteps;
+uniform int   uDbg;
+uniform float uExpo;
+
+layout(location=0) out vec4 oCol;   // rgb = HDR radiance, a = eye-space depth
+layout(location=1) out vec4 oAux;   // r = subject matte
+
+` + scene.glsl + `
+
+/* ---------------------------------------------------- shared march helpers */
+vec3 calcNormal(vec3 p, float t){
+  float e = max(0.00045, 0.0010*t);
+  vec2 k = vec2(1.0,-1.0);
+  return normalize(vec3(
+    mapScene(p+e*k.xyy).x - mapScene(p-e*k.xyy).x,
+    mapScene(p+e*k.yxy).x - mapScene(p-e*k.yxy).x,
+    mapScene(p+e*k.yyx).x - mapScene(p-e*k.yyx).x));
+}
+float calcAO(vec3 p, vec3 n){
+  float occ = 0.0, sca = 1.0;
+  for(int i=0;i<5;i++){
+    float h = 0.018 + 0.14*float(i)/4.0;
+    float d = mapScene(p + n*h).x;
+    occ += (h-d)*sca; sca *= 0.80;
+  }
+  return clamp(1.0 - 1.7*occ, 0.0, 1.0);
+}
+/* penumbra soft shadow */
+float softShadow(vec3 ro, vec3 rd, float mint, float maxt, float k, int iters){
+  float res = 1.0, t = mint, ph = 1e9;
+  for(int i=0;i<64;i++){
+    if(i>=iters) break;
+    float h = mapScene(ro+rd*t).x;
+    float y = h*h/(2.0*ph);
+    float d = sqrt(max(h*h-y*y, 0.0));
+    res = min(res, k*d/max(t-y, 1e-4));
+    ph = h;
+    t += clamp(h, 0.010, 0.40);
+    if(res < 0.003 || t > maxt) break;
+  }
+  return clamp(res, 0.0, 1.0);
+}
+/* straight transmittance march, used for the close-range fracture light */
+float lightOcc(vec3 ro, vec3 rd, float maxt, int iters){
+  float res = 1.0, t = 0.012;
+  for(int i=0;i<40;i++){
+    if(i>=iters) break;
+    float h = mapScene(ro+rd*t).x;
+    res = min(res, 9.0*h/t);
+    t += clamp(h, 0.008, 0.10);
+    if(res < 0.01 || t > maxt) break;
+  }
+  return clamp(res, 0.0, 1.0);
+}
+
+void main(){
+  vec2 fc = gl_FragCoord.xy;
+  vec2 uv = (fc*2.0 - uRes)/uRes.y;
+  uv.x -= uShiftX; uv.y -= uShiftY;
+  uv = rot2(uRoll)*uv;
+
+  vec3 f = normalize(uCamTa - uCamPos);
+  vec3 r = normalize(cross(f, vec3(0.0,1.0,0.0)));
+  vec3 u = cross(r, f);
+  vec3 ro = uCamPos;
+  vec3 rd = normalize(uv.x*r + uv.y*u + uFL*f);
+
+  if(uDbg == 7){           /* field probe: mapScene along the ray */
+    float dmin = 1e9; float tp = 0.05;
+    for(int i=0;i<120;i++){ dmin = min(dmin, mapScene(ro+rd*tp).x); tp += 0.12; }
+    oCol = vec4(vec3(clamp(dmin*0.5+0.5,0.0,1.0), clamp(-dmin,0.0,1.0), clamp(dmin*0.02,0.0,1.0)), 1.0);
+    oAux = vec4(1.0); return;
+  }
+  if(uDbg == 9){           /* march outcome: red=NaN, green=hit, blue=escaped, yellow=budget */
+    float tp=0.05; int st=0; vec3 o=vec3(1.0,1.0,0.0);
+    for(int i=0;i<400;i++){ if(i>=uSteps) break; st=i;
+      float d = mapScene(ro+rd*tp).x;
+      if(isnan(d) || isinf(d)){ o=vec3(1.0,0.0,0.0); break; }
+      if(d < 0.0008*max(tp,1.0)){ o=vec3(0.0,1.0,0.0); break; }
+      tp += d*0.90;
+      if(isnan(tp)){ o=vec3(1.0,0.3,0.0); break; }
+      if(tp > FAR){ o=vec3(0.0,0.0,1.0); break; } }
+    oCol = vec4(o,1.0); oAux=vec4(1.0); return;
+  }
+  if(uDbg == 8){           /* sanity: hardcoded sphere, no scene code */
+    float tp=0.05; bool h=false;
+    for(int i=0;i<120;i++){ float d=length(ro+rd*tp)-1.0; if(d<0.001){h=true;break;} tp+=d; if(tp>50.0)break; }
+    oCol = vec4(h? vec3(1.0,0.4,0.1) : vec3(0.0), 1.0); oAux = vec4(h?1.0:0.0); return;
+  }
+  float t = 0.05; float mid = -1.0; bool hit = false; int used = 0;
+  for(int i=0;i<400;i++){
+    if(i>=uSteps) break;
+    used = i;
+    vec3 p = ro + rd*t;
+    vec2 res = mapScene(p);
+    if(res.x < 0.0008*max(t,1.0)){ hit = true; mid = res.y; break; }
+    t += res.x*0.90;
+    if(t > FAR) break;
+  }
+
+  if(uDbg > 0){
+    vec3 d = vec3(0.0);
+    if(hit){
+      vec3 p = ro+rd*t; vec3 n = calcNormal(p,t);
+      if(uDbg==1) d = n*0.5+0.5;
+      else if(uDbg==2) d = vec3(step(abs(mid-6.0),0.1), step(abs(mid-7.0),0.1), step(abs(mid-1.0),0.1));
+      else if(uDbg==3) d = vec3(step(abs(mid-5.0),0.1), step(abs(mid-2.0),0.1), step(abs(mid-3.0),0.1));
+      else if(uDbg==4) d = vec3(1.0);
+      else if(uDbg==5) d = vec3(float(used)/float(uSteps));
+      else if(uDbg==6) d = vec3(calcAO(p,n));
+    } else {
+      if(uDbg==5) d = vec3(float(used)/float(uSteps));
+      if(uDbg==3) d = vec3(0.0,0.0,0.3);
+    }
+    oCol = vec4(pow(max(d,0.0), vec3(2.2)), hit? t : FAR);
+    oAux = vec4(hit?1.0:0.0, 0.0,0.0,1.0);
+    return;
+  }
+
+  vec3 col; float depth; float matte = 0.0;
+  if(hit){
+    vec3 p = ro + rd*t;
+    vec3 n = calcNormal(p, t);
+    Mat m = matOf(mid, p, n);
+    col = shadePoint(p, n, rd, m, t);
+    depth = t;
+    matte = m.sub;
+  } else {
+    col = background(rd);
+    depth = FAR;
+  }
+  col = max(col, vec3(0.0)) * uExpo;
+  oCol = vec4(col, depth);
+  oAux = vec4(matte, 0.0, 0.0, 1.0);
+}
+`;
+
+/* ============================================================ DOWNSAMPLE */
+const FS_DOWN = COMMON + `
+uniform sampler2D uCol, uAux;
+uniform int uSS;
+layout(location=0) out vec4 oCol;   // rgb = colour, a = depth (centre tap)
+layout(location=1) out vec4 oAux;   // r = matte
+void main(){
+  ivec2 o = ivec2(gl_FragCoord.xy) * uSS;
+  vec3 c = vec3(0.0); float mt = 0.0; float dmin = 1e9; float w = 0.0;
+  for(int y=0;y<3;y++){
+    if(y>=uSS) break;
+    for(int x=0;x<3;x++){
+      if(x>=uSS) break;
+      ivec2 q = o + ivec2(x,y);
+      vec4 s = texelFetch(uCol, q, 0);
+      /* tonemap-ish weighting keeps fireflies from dominating the box filter */
+      c += s.rgb/(1.0+0.25*dot(s.rgb, vec3(0.2126,0.7152,0.0722)));
+      dmin = min(dmin, s.a);
+      mt += texelFetch(uAux, q, 0).r;
+      w += 1.0;
+    }
+  }
+  c /= w; mt /= w;
+  float l = dot(c, vec3(0.2126,0.7152,0.0722));
+  c = c/max(1.0-0.25*l, 1e-3);            // undo the weighting
+  oCol = vec4(c, dmin);
+  oAux = vec4(mt, 0.0, 0.0, 1.0);
+}
+`;
+
+/* ============================================================ BRIGHT PASS */
+const FS_BRIGHT = COMMON + `
+uniform sampler2D uTex; uniform vec2 uTexel; uniform float uThresh, uKnee;
+out vec4 o;
+void main(){
+  vec2 uv = gl_FragCoord.xy*uTexel;
+  vec3 c = texture(uTex, uv).rgb;
+  float l = max(max(c.r,c.g),c.b);
+  /* soft knee bright pass */
+  float s = clamp((l-uThresh+uKnee)/(2.0*uKnee), 0.0, 1.0);
+  float w = max(l-uThresh, s*s*uKnee)/max(l, 1e-5);
+  o = vec4(c*w, 1.0);
+}
+`;
+
+/* ======================================================= SEPARABLE GAUSSIAN */
+const FS_BLUR = COMMON + `
+uniform sampler2D uTex; uniform vec2 uDir;   // uDir already in uv units
+out vec4 o;
+void main(){
+  vec2 uv = gl_FragCoord.xy / vec2(textureSize(uTex,0));
+  /* 9-tap gaussian via 5 bilinear fetches (sigma ~ 2.2 texels) */
+  const float W[5] = float[5](0.227027, 0.316216, 0.070270, 0.011620, 0.000800);
+  const float OFF[5] = float[5](0.0, 1.384615, 3.230769, 5.176470, 7.100000);
+  vec3 c = texture(uTex, uv).rgb * W[0];
+  for(int i=1;i<5;i++){
+    c += texture(uTex, uv + uDir*OFF[i]).rgb * W[i];
+    c += texture(uTex, uv - uDir*OFF[i]).rgb * W[i];
+  }
+  o = vec4(c, 1.0);
+}
+`;
+
+/* ============================================================== DOWNSAMPLE 2x
+   plain box for the bloom pyramid                                        */
+const FS_HALF = COMMON + `
+uniform sampler2D uTex;
+out vec4 o;
+void main(){
+  ivec2 q = ivec2(gl_FragCoord.xy)*2;
+  vec3 c = texelFetch(uTex,q,0).rgb + texelFetch(uTex,q+ivec2(1,0),0).rgb
+         + texelFetch(uTex,q+ivec2(0,1),0).rgb + texelFetch(uTex,q+ivec2(1,1),0).rgb;
+  o = vec4(c*0.25, 1.0);
+}
+`;
+
+/* =================================================================== DOF */
+const FS_DOF = COMMON + `
+uniform sampler2D uCol;
+uniform float uFocus, uAperture, uMaxCoC, uFar;
+out vec4 o;
+/* 22-point spiral disc, fixed (deterministic) */
+void main(){
+  vec2 ts = vec2(textureSize(uCol,0));
+  vec2 uv = gl_FragCoord.xy/ts;
+  vec4 c0 = texture(uCol, uv);
+  float d0 = c0.a;
+  float coc0 = clamp(uAperture*abs(d0-uFocus)/max(d0,0.05), 0.0, 1.0)*uMaxCoC;
+  if(coc0 < 0.6 && uMaxCoC > 0.0){
+    /* still need to gather from blurred neighbours in front of us */
+  }
+  vec3 acc = c0.rgb; float wsum = 1.0;
+  const int N = 22;
+  for(int i=0;i<N;i++){
+    float fi = (float(i)+0.5)/float(N);
+    float ang = float(i)*2.39996323;             // golden angle
+    float rad = sqrt(fi);
+    vec2 off = vec2(cos(ang), sin(ang))*rad;
+    vec4 s = texture(uCol, uv + off*max(coc0, 1.0)/ts);
+    float cocS = clamp(uAperture*abs(s.a-uFocus)/max(s.a,0.05), 0.0, 1.0)*uMaxCoC;
+    /* a sample contributes if its own circle of confusion reaches us,
+       which stops sharp background leaking into blurred foreground */
+    float reach = max(cocS, (s.a < d0) ? cocS : coc0);
+    float w = smoothstep(rad*max(coc0,1.0)+1.0, rad*max(coc0,1.0)-1.0, 0.0) * 0.0
+            + step(rad*max(coc0,1.0), reach + 0.5);
+    w = max(w, 0.0);
+    acc += s.rgb*w; wsum += w;
+  }
+  o = vec4(acc/wsum, d0);
+}
+`;
+
+/* ============================================================= COMPOSITE */
+const FS_COMP = COMMON + `
+uniform sampler2D uCol, uB1, uB2, uB3, uAux;
+uniform float uBloom, uBloom2, uBloom3, uGrain, uVig, uSat, uLift, uMask;
+uniform float uLeftFall, uLeftEdge, uContrast;
+uniform vec3  uTint, uShadowTint;
+out vec4 o;
+void main(){
+  vec2 ts = vec2(textureSize(uCol,0));
+  vec2 uv = gl_FragCoord.xy/ts;
+  if(uMask > 0.5){
+    float m = texture(uAux, uv).r;
+    m = smoothstep(0.03, 0.97, m);
+    o = vec4(vec3(m), 1.0); return;
+  }
+  vec3 c = texture(uCol, uv).rgb;
+  vec3 b = texture(uB1,uv).rgb*uBloom + texture(uB2,uv).rgb*uBloom2 + texture(uB3,uv).rgb*uBloom3;
+  c += b;
+
+  /* reserved-plate falloff: the left third is kept dark for the cutout */
+  c *= mix(uLeftFall, 1.0, smoothstep(0.02, uLeftEdge, uv.x));
+
+  /* vignette, done in linear light before the tonemap */
+  vec2 q = (uv-0.5)*vec2(ts.x/ts.y, 1.0);
+  float vig = 1.0 - uVig*dot(q,q);
+  c *= clamp(vig, 0.0, 1.0);
+
+  c *= uTint;
+  c = acesTonemap(c);
+
+  /* gentle filmic grade: shadow tint + saturation */
+  /* filmic S-curve for contrast, then saturation */
+  c = clamp((c - 0.5)*uContrast + 0.5, 0.0, 1.0);
+  c = c*c*(3.0 - 2.0*c)*0.22 + c*0.78;
+  float l = dot(c, vec3(0.2126,0.7152,0.0722));
+  c = mix(vec3(l), c, uSat);
+  c += uShadowTint * pow(1.0-l, 3.0);
+  c += uLift;
+
+  /* deterministic film grain, luminance-weighted so highlights stay clean */
+  float g = hash12(gl_FragCoord.xy*1.7) + hash12(gl_FragCoord.yx*3.1) - 1.0;
+  c += g*uGrain*(0.35 + 0.65*(1.0-l));
+
+  c = clamp(c, 0.0, 1.0);
+  /* sRGB encode, then ordered-dither + hash dither to kill 8-bit banding */
+  c = pow(c, vec3(1.0/2.2));
+  float dth = (bayer8(gl_FragCoord.xy) - 0.5 + (hash12(gl_FragCoord.xy*0.37)-0.5)*0.5)/255.0;
+  c += dth;
+  o = vec4(clamp(c,0.0,1.0), 1.0);
+}
+`;
+
+/* ================================================================== RUN */
+const T0 = performance.now();
+let log = [];
+try {
+  const pMarch = program(FS_MARCH);
+  const pDown = program(FS_DOWN);
+  const pBright = program(FS_BRIGHT);
+  const pBlur = program(FS_BLUR);
+  const pHalf = program(FS_HALF);
+  const pDof = program(FS_DOF);
+  const pComp = program(FS_COMP);
+
+  // buffers
+  const texMarchC = tex(RW, RH), texMarchA = tex(RW, RH);
+  const fbMarch = fbo([texMarchC, texMarchA]);
+  const texC = tex(OW, OH), texA = tex(OW, OH);
+  const fbFull = fbo([texC, texA]);
+  const texDof = tex(OW, OH); const fbDof = fbo([texDof]);
+
+  const bw = [Math.max(1, OW >> 1), Math.max(1, OW >> 2), Math.max(1, OW >> 3)];
+  const bh = [Math.max(1, OH >> 1), Math.max(1, OH >> 2), Math.max(1, OH >> 3)];
+  const bA = bw.map((w, i) => tex(w, bh[i]));
+  const bB = bw.map((w, i) => tex(w, bh[i]));
+  const fbA = bA.map(t => fbo([t]));
+  const fbB = bB.map(t => fbo([t]));
+
+  const cam = Object.assign({}, scene.camera), post = Object.assign({}, scene.post || {});
+  /* URL overrides: ?p.bloom=0&p.maxCoC=0&c.fl=2.4 ... for fast iteration */
+  for (const [k, v] of Q.entries()) {
+    if (k.startsWith('p.')) post[k.slice(2)] = v.includes(',') ? v.split(',').map(Number) : Number(v);
+    if (k.startsWith('c.')) cam[k.slice(2)] = v.includes(',') ? v.split(',').map(Number) : Number(v);
+  }
+
+  // 1. march
+  let t1 = performance.now();
+  use(pMarch, fbMarch, [], u => {
+    u2f(u.uRes, RW, RH);
+    u3v(u.uCamPos, cam.pos); u3v(u.uCamTa, cam.target);
+    u1f(u.uFL, cam.fl); u1f(u.uShiftX, cam.shiftX || 0); u1f(u.uShiftY, cam.shiftY || 0);
+    u1f(u.uRoll, cam.roll || 0);
+    u1i(u.uSteps, parseInt(Q.get('steps') || (scene.steps || 170), 10));
+    u1f(u.uExpo, post.exposure === undefined ? 1.0 : post.exposure);
+    u1i(u.uDbg, parseInt(Q.get('dbgv')||'0',10));
+  });
+  gl.finish();
+  log.push('march ' + (performance.now() - t1).toFixed(0) + 'ms');
+
+  // 2. supersample downsample
+  use(pDown, fbFull, [texMarchC, texMarchA], u => {
+    u1i(u.uCol, 0); u1i(u.uAux, 1); u1i(u.uSS, Math.round(SS));
+  });
+
+  // 3. depth of field
+  use(pDof, fbDof, [texC], u => {
+    u1i(u.uCol, 0);
+    u1f(u.uFocus, post.focus === undefined ? 3.0 : post.focus);
+    u1f(u.uAperture, post.aperture === undefined ? 0.5 : post.aperture);
+    u1f(u.uMaxCoC, post.maxCoC === undefined ? 9.0 : post.maxCoC);
+  });
+
+  // 4. bloom pyramid: bright pass at half, then successive halves, blur each
+  use(pBright, fbA[0], [texDof], u => {
+    u1i(u.uTex, 0); u2f(u.uTexel, 1 / OW, 1 / OH);
+    u1f(u.uThresh, post.bloomThresh === undefined ? 1.0 : post.bloomThresh);
+    u1f(u.uKnee, post.bloomKnee === undefined ? 0.6 : post.bloomKnee);
+  });
+  for (let i = 1; i < 3; i++) use(pHalf, fbA[i], [bA[i - 1]], u => u1i(u.uTex, 0));
+  for (let i = 0; i < 3; i++) {
+    const reps = i === 0 ? 2 : 3;
+    for (let k = 0; k < reps; k++) {
+      use(pBlur, fbB[i], [bA[i]], u => { u1i(u.uTex, 0); u2f(u.uDir, 1 / bw[i], 0); });
+      use(pBlur, fbA[i], [bB[i]], u => { u1i(u.uTex, 0); u2f(u.uDir, 0, 1 / bh[i]); });
+    }
+  }
+
+  // 5. composite -> canvas, grab PNG
+  function composite(mask) {
+    use(pComp, null, [texDof, bA[0], bA[1], bA[2], texA], u => {
+      u1i(u.uCol, 0); u1i(u.uB1, 1); u1i(u.uB2, 2); u1i(u.uB3, 3); u1i(u.uAux, 4);
+      u1f(u.uBloom, post.bloom === undefined ? 0.6 : post.bloom);
+      u1f(u.uBloom2, post.bloom2 === undefined ? 0.45 : post.bloom2);
+      u1f(u.uBloom3, post.bloom3 === undefined ? 0.35 : post.bloom3);
+      u1f(u.uGrain, post.grain === undefined ? 0.020 : post.grain);
+      u1f(u.uVig, post.vignette === undefined ? 0.22 : post.vignette);
+      u1f(u.uSat, post.saturation === undefined ? 1.06 : post.saturation);
+      u1f(u.uLift, post.lift === undefined ? 0.0 : post.lift);
+      u1f(u.uLeftFall, post.leftFall === undefined ? 1.0 : post.leftFall);
+      u1f(u.uLeftEdge, post.leftEdge === undefined ? 0.40 : post.leftEdge);
+      u1f(u.uContrast, post.contrast === undefined ? 1.0 : post.contrast);
+      u3v(u.uTint, post.tint || [1, 1, 1]);
+      u3v(u.uShadowTint, post.shadowTint || [0, 0, 0]);
+      u1f(u.uMask, mask ? 1 : 0);
+    });
+    gl.finish();
+  }
+  composite(false);
+  if (!DBG) window.outBeauty = cv.toDataURL('image/png');
+  composite(true);
+  if (!DBG) window.outMask = cv.toDataURL('image/png');
+  composite(false);   // leave the beauty frame on screen
+
+  window.unif = Object.keys(pMarch.u);
+  window.stats = { ms: Math.round(performance.now() - T0), w: OW, h: OH, ss: SS, scene: SCENE_NAME, log: log.join(' | ') };
+} catch (e) {
+  window.err = (e && e.message) || String(e);
+  console.log('ERROR', window.err);
+}
+window.done = true;
+</script>
+</body></html>

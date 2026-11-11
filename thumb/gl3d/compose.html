@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script>
+const X = document.getElementById('c').getContext('2d'), W = 1920, H = 1080;
+const load = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = s; });
+function word(str, x, y, size, fillc) {
+  X.save(); X.font = `900 ${size}px "Inter Display"`; X.lineJoin = 'round'; X.miterLimit = 2;
+  X.shadowColor = 'rgba(0,0,0,0.85)'; X.shadowBlur = 40; X.shadowOffsetY = 14;
+  X.lineWidth = size * 0.16; X.strokeStyle = '#06080a'; X.strokeText(str, x, y);
+  X.shadowColor = 'transparent'; X.fillStyle = fillc; X.fillText(str, x, y);
+  const w = X.measureText(str).width; X.restore(); return w;
+}
+window.draw = async () => {
+  await document.fonts.load('900 200px "Inter Display"');
+  const bg = await load('final_3d.png'), jc = await load('jensen_cut.png');
+  X.drawImage(bg, 0, 0);
+  // the owner's photo: uniform scale + position + one global grade; nothing drawn on the person
+  const s = 0.80, jw = jc.width * s, jh = jc.height * s, jx = -70, jy = 1080 - jh + 110;
+  // green rim glow OUTSIDE the silhouette, from the board's light
+  const g = document.createElement('canvas'); g.width = W; g.height = H; const G = g.getContext('2d');
+  G.drawImage(jc, jx + 14, jy, jw, jh); G.globalCompositeOperation = 'source-in'; G.fillStyle = '#7dffb6'; G.fillRect(0, 0, W, H);
+  X.save(); X.filter = 'blur(18px)'; X.globalAlpha = 0.85; X.drawImage(g, 0, 0); X.restore();
+  // separation shadow
+  X.save(); X.filter = 'blur(26px) brightness(0)'; X.globalAlpha = 0.5; X.drawImage(jc, jx - 10, jy + 6, jw, jh); X.restore();
+  // the cutout itself, one global exposure/colour match to the dark green scene
+  X.save(); X.filter = 'brightness(0.9) contrast(1.06) saturate(0.95)'; X.drawImage(jc, jx, jy, jw, jh); X.restore();
+  // text
+  const w1 = word('NVIDIA', 112, 210, 190, '#FFFFFF');
+  const xr = 112 + w1 + 50; word('-4%', xr, 222, 230, '#FF3B30');
+  X.save(); const bx = xr + 8, by = 252; X.beginPath(); X.roundRect(bx, by, 318, 70, 14);
+  X.fillStyle = 'rgba(6,8,10,0.92)'; X.fill(); X.lineWidth = 5; X.strokeStyle = '#FF3B30'; X.stroke();
+  X.font = '900 42px "Inter Display"'; X.fillStyle = '#fff'; X.textBaseline = 'middle'; X.fillText('IN ONE DAY', bx + 28, by + 36); X.restore();
+  // vignette
+  const v = X.createRadialGradient(960, 540, 420, 960, 540, 1150); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.55)');
+  X.fillStyle = v; X.fillRect(0, 0, W, H);
+  window.done = true;
+};
+</script></body></html>
