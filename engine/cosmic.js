@@ -500,30 +500,53 @@
     g.restore();
   }
 
-  // Atmosphere: an outer halo plus a bright crescent on the lit limb, drawn as
-  // 56 short arcs weighted by cos(angle to the light).
+  /* Atmosphere: an outer halo plus a bright crescent on the lit limb.
+   *
+   * The crescent used to be 56 short arcs, each a flat alpha from
+   * cos(angle - phi), stroked twice with a 1.25-segment overlap. At r = 500
+   * each arc is ~56 px wide, so the alpha steps showed as vertical strips and
+   * the overlaps double-composited into a plaid. It is now TWO gradient
+   * strokes, which is also exact rather than sampled: for a point on a circle
+   * at angle theta, its position along the light axis is r*cos(theta - phi),
+   * so a linear gradient laid along that axis reproduces the cosine falloff
+   * with nothing left to band.
+   */
   function atmoRim(cx, cy, r, L, o) {
     var g = C(); o = o || {};
     var col = o.col || '#7fb6ff', A = o.alpha === undefined ? 1 : o.alpha;
     var thick = o.thick === undefined ? 0.1 : o.thick;
     var halo = o.halo === undefined ? 0.5 : o.halo;
+    var lw = r * thick, hot = o.hot || '#dff0ff';
     g.save();
     // outer halo — visible all round, so the body never has a cut-out edge
     g.fillStyle = radial(g, cx, cy, r * 0.96, cx, cy, r * (1 + thick * 2.6),
       [[0, rgba(col, 0.30 * A * halo)], [0.3, rgba(col, 0.14 * A * halo)], [1, rgba(col, 0)]]);
     g.fillRect(cx - r * 2, cy - r * 2, r * 4, r * 4);
-    // lit crescent
-    var phi = Math.atan2(L.y, L.x), N = 56, lw = r * thick;
     g.lineCap = 'butt';
-    for (var i = 0; i < N; i++) {
-      var a0 = i / N * TAU, a1 = (i + 1.25) / N * TAU;
-      var d = Math.cos((a0 + a1) / 2 - phi);
-      if (d <= 0.02) continue;
-      var k = Math.pow(d, 1.35);
-      g.beginPath(); g.arc(cx, cy, r - lw * 0.26, a0, a1);
-      g.lineWidth = lw; g.strokeStyle = rgba(col, cl01(0.78 * k * A)); g.stroke();
-      g.beginPath(); g.arc(cx, cy, r - lw * 0.05, a0, a1);
-      g.lineWidth = lw * 0.4; g.strokeStyle = rgba(o.hot || '#dff0ff', cl01(0.55 * k * A)); g.stroke();
+    var s = hyp(L.x, L.y);
+    var ring = function (rad, w, style) {
+      g.beginPath(); g.arc(cx, cy, rad, 0, TAU);
+      g.lineWidth = w; g.strokeStyle = style; g.stroke();
+    };
+    if (s < 1e-4) {
+      // light straight down the lens, or dead behind: the rim is even all round
+      ring(r - lw * 0.26, lw, rgba(col, 0.5 * A));
+      ring(r - lw * 0.05, lw * 0.4, rgba(hot, 0.32 * A));
+    } else {
+      var dx = L.x / s, dy = L.y / s;
+      // a grazing or back light scatters forward, so the dark limb keeps a floor
+      var floor = 0.42 * (1 - s) + 0.3 * Math.max(0, -L.z);
+      var grad = function (peak, hue) {
+        var st = [], K = 14;
+        for (var k = 0; k <= K; k++) {
+          var p = k / K, c = 2 * p - 1;
+          var a = Math.pow(Math.max(0, c), 1.35);
+          st.push([p, rgba(hue, cl01(peak * (a + floor * (1 - a)) * A))]);
+        }
+        return linear(g, cx - dx * r, cy - dy * r, cx + dx * r, cy + dy * r, st);
+      };
+      ring(r - lw * 0.26, lw, grad(0.78, col));
+      ring(r - lw * 0.05, lw * 0.4, grad(0.55, hot));
     }
     g.restore();
   }
@@ -694,35 +717,83 @@
       g.strokeStyle = rgba('#0c2a4a', 0.5); g.lineWidth = Math.max(1, r * 0.006); g.stroke();
     }
     // polar caps
-    polarCap(g, r, -90, -66, spin, tilt, ice, 0.9);
-    polarCap(g, r, 90, 70, spin, tilt, ice, 0.72);
+    polarCap(g, r, -90, -62, spin, tilt, ice, 0.92);
+    polarCap(g, r, 90, 68, spin, tilt, ice, 0.6);
     // the Sahara / Arabian / Australian deserts, as warm blotches over the land
     blotches(0, 0, r, 404, 7, '#c8a46a', 0.3, { spin: spin, tilt: tilt });
     g.restore();
   }
-  // The cap is the band of sphere between latEdge and the pole. Filled as a
-  // coarse quad mesh: no half-plane trickery, correct at every tilt and spin,
-  // and the quads are small enough that a vertex pushed to the limb doesn't show.
-  // Caller is already translated to the disc centre and clipped to it.
+  /* The cap is the band of sphere between latEdge and the pole, built as ONE
+   * closed path and filled ONCE.
+   *
+   * It used to be a quad mesh of NL latitude rows. Every quad was filled with
+   * the same sub-1 alpha, so alpha stacked along each shared edge and the cap
+   * came out banded into NL horizontal stripes — at r = 500 that reads as a
+   * pale glass lid sitting on the pole. One path, one fill, no seams.
+   *
+   * The parallel at latEdge is a circle on the sphere and the limb is a great
+   * circle, so they cross in at most two points: the visible part of the
+   * parallel is always ONE contiguous run. Walk that run, then close along the
+   * limb on whichever side the pole is on. Caller is already translated to the
+   * disc centre and clipped to it.
+   */
   function polarCap(g, r, latPole, latEdge, spin, tilt, col, alpha) {
-    var NL = 4, NO = 40, i, j;
-    g.save(); g.fillStyle = rgba(col, alpha);
-    var P = function (la, lo) {
-      var p = ortho(r, la, lo, spin, tilt);
-      if (p[2] <= 0) { var m = hyp(p[0], p[1]) || 1; p[0] = p[0] / m * r; p[1] = p[1] / m * r; }
-      return p;
-    };
-    for (i = 0; i < NL; i++) {
-      var la0 = lp(latEdge, latPole, i / NL), la1 = lp(latEdge, latPole, (i + 1) / NL);
-      for (j = 0; j < NO; j++) {
-        var lo0 = -180 + 360 * j / NO, lo1 = -180 + 360 * (j + 1) / NO;
-        var z0 = ortho(r, la0, lo0, spin, tilt)[2], z1 = ortho(r, la1, lo1, spin, tilt)[2];
-        if (z0 <= 0 && z1 <= 0) continue;
-        var a = P(la0, lo0), b = P(la0, lo1), c = P(la1, lo1), d = P(la1, lo0);
-        g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(c[0], c[1]); g.lineTo(d[0], d[1]);
-        g.closePath(); g.fill();
-      }
+    var N = 160, i, pts = new Array(N), nvis = 0;
+    for (i = 0; i < N; i++) {
+      pts[i] = ortho(r, latEdge, -180 + 360 * i / N, spin, tilt);
+      if (pts[i][2] > 0) nvis++;
     }
+    if (!nvis) return;
+    g.save();
+    g.beginPath();
+    if (nvis === N) {
+      for (i = 0; i < N; i++) { if (i) g.lineTo(pts[i][0], pts[i][1]); else g.moveTo(pts[i][0], pts[i][1]); }
+      g.closePath();
+    } else {
+      var s = 0;
+      for (i = 0; i < N; i++) { if (pts[i][2] > 0 && pts[(i + N - 1) % N][2] <= 0) { s = i; break; } }
+      var run = [];
+      for (i = 0; i < N; i++) { var k = (s + i) % N; if (pts[k][2] <= 0) break; run.push(pts[k]); }
+      if (run.length < 2) { g.restore(); return; }
+      for (i = 0; i < run.length; i++) { if (i) g.lineTo(run[i][0], run[i][1]); else g.moveTo(run[i][0], run[i][1]); }
+      var e0 = run[0], e1 = run[run.length - 1];
+      var a0 = Math.atan2(e0[1], e0[0]), a1 = Math.atan2(e1[1], e1[0]);
+      // the pole lies on the rotation axis, so it always projects to x = 0:
+      // its screen direction is straight up for the north cap, down for south
+      var pole = ortho(r, latPole, 0, spin, tilt);
+      var ap = (hyp(pole[0], pole[1]) > r * 1e-3) ? Math.atan2(pole[1], pole[0]) : (latPole > 0 ? -Math.PI / 2 : Math.PI / 2);
+      var d = a0 - a1; while (d < 0) d += TAU;          // length of the ccw sweep
+      var dp = ap - a1; while (dp < 0) dp += TAU;
+      var ccw = dp <= d;                                 // does that sweep pass the pole?
+      var M = 56, sweep = ccw ? d : -(TAU - d);
+      for (i = 1; i <= M; i++) {
+        var a = a1 + sweep * i / M;
+        g.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      g.closePath();
+    }
+    /* One paint, and the ice fades to nothing exactly ON its own boundary, so
+     * there is no hard edge anywhere and the cap sits in the surface instead
+     * of on top of it.
+     *
+     * Under this projection a parallel of latitude L is exactly an ellipse:
+     *     x = (r cosL) sin(lon),  y = -r sinL cos(tilt) + (r cosL sin tilt) cos(lon)
+     * so it is centred at (0, -r sinL cos tilt) with half-width r cosL and
+     * half-height r cosL sin(tilt). Clip to the real cap outline (which may be
+     * cut by the limb), then scale that ellipse to a unit circle and fill a
+     * radial gradient that reaches zero at radius 1. Where the limb does cut
+     * the cap the gradient stops mid-value, but that edge lands on the limb,
+     * under the limb darkening, so it never shows.
+     */
+    var ca = r * Math.cos(latEdge * D2R);
+    var cb = Math.max(Math.abs(ca * Math.sin(tilt || 0)), ca * 0.08);
+    var cy0 = -r * Math.sin(latEdge * D2R) * Math.cos(tilt || 0);
+    g.clip();
+    g.translate(0, cy0); g.scale(ca, cb);
+    g.fillStyle = radial(g, 0, 0, 0, 0, 0, 1, [
+      [0, rgba(col, alpha)], [0.5, rgba(col, alpha * 0.86)],
+      [0.82, rgba(col, alpha * 0.38)], [1, rgba(col, 0)]]);
+    g.fillRect(-1, -1, 2, 2);
     g.restore();
   }
   function cityLights(cx, cy, r, L, spin, tilt, t, o) {
@@ -755,7 +826,11 @@
       g.fillStyle = radial(g, p[0], p[1], 0, p[0], p[1], rr2 * 5, [[0, rgba(col, a * 0.75)], [0.3, rgba(col, a * 0.22)], [1, rgba(col, 0)]]);
       g.fillRect(p[0] - rr2 * 5, p[1] - rr2 * 5, rr2 * 10, rr2 * 10);
       g.fillStyle = rgba('#fff0d0', Math.min(0.95, a));
-      g.fillRect(p[0] - rr2 * 0.5, p[1] - rr2 * 0.5, rr2 * 1.2, rr2 * 1.2);
+      // a fillRect core is only invisible while it is about a pixel. On a
+      // scale-ladder Earth (r ~ 500) it is 5 px and the cities read as a grid
+      // of squares, so anything bigger than a point gets an arc.
+      if (rr2 > 1.4) { arcPath(g, p[0], p[1], rr2 * 0.62); g.fill(); }
+      else g.fillRect(p[0] - rr2 * 0.5, p[1] - rr2 * 0.5, rr2 * 1.2, rr2 * 1.2);
     }
     g.restore();
   }
