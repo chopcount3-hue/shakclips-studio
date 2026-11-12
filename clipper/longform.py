@@ -93,6 +93,10 @@ class Builder:
                 post.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=white@0.4:t=fill:enable='between(t,{t + 0.067:.2f},{t + 0.134:.2f})'")
             if kind == 'red':
                 post.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=0xE8343A@0.35:t=fill:enable='between(t,{t:.2f},{t + 0.2:.2f})'")
+            if kind in ('green', 'yellow'):   # colour wash on a hype word (the owner's reference edit)
+                col = '0x52FF2E' if kind == 'green' else '0xFFD400'
+                post.append(f"drawbox=x=0:y=0:w={W}:h={H}:color={col}@0.32:t=fill:enable='between(t,{t:.2f},{t + 0.22:.2f})'")
+                post.append(f"drawbox=x=0:y=0:w={W}:h={H}:color={col}@0.15:t=fill:enable='between(t,{t + 0.22:.2f},{t + 0.5:.2f})'")
         lab = label or o.get('label')
         if lab: post.append(self.text_filter(lab, 'x=60:y=56', 54, 'white', box='0xE8343A@0.95', boxw=16))
         if replay:
@@ -305,7 +309,7 @@ class Builder:
             else: ins += ['-loop', '1', '-t', f'{d:.2f}', '-framerate', str(FPS), '-i', self.emoji_png(o['emoji'], size)]
             x, y = POS.get(o.get('pos', 'tr'), POS['tr']) if isinstance(o.get('pos', 'tr'), str) else map(str, o['pos'])
             fc += (f";[{idx}:v]fps={FPS},tpad=stop_mode=clone:stop_duration={d:.2f},trim=duration={d:.2f},scale={size}:-1,format=rgba,fade=t=in:st=0:d=0.12:alpha=1,fade=t=out:st={max(0.1, d - 0.22):.2f}:d=0.2:alpha=1,"
-                   f"setpts=PTS-STARTPTS+{at:.3f}/TB[g{k}];[b{k}][g{k}]overlay=x={x}:y='{y}+36*exp(-7*max(0\\,t-{at:.2f}))*cos(16*max(0\\,t-{at:.2f}))':"
+                   f"tpad=start_duration={at:.3f}:color=black@0.0[g{k}];[b{k}][g{k}]overlay=x={x}:y='{y}+36*exp(-7*max(0\\,t-{at:.2f}))*cos(16*max(0\\,t-{at:.2f}))':"
                    f"enable='between(t,{at:.2f},{at + d:.2f})':eof_action=pass[b{k + 1}]")
         fc += f";[b{len(ovs)}]format=yuv420p[v]"
         fcs = os.path.join(self.work, 'final_filter.txt'); open(fcs, 'w').write(fc)

@@ -99,3 +99,25 @@ How the moments were found (`examples/preorder_shorts/`):
 Watch out for:
 - Twitch-muted VOD stretches: the audio is digital silence (-180 dB).
 - One-frame GIFs (prayer, mona_laugh, aura, cat_applause) used to vanish after one frame. Stickers are now held with `fps,tpad,trim`.
+
+## The owner's reference style (Speed split-screen Shorts, Nov 2026)
+Use this style when the owner says "edit like my reference".
+
+Plan keys for `edit.py`:
+- `layout: "split"`, with `top` / `bottom` pixel boxes. Each half fills 1080x960: top is the streamer cam, bottom is what they are watching.
+- `cap_mode: "single"`: one word at a time on the seam, in Lilita One (`fonts/`, OFL; copy it to `~/.fonts`), with a thick outline and a pop-in. `cap_colors` maps words to green / yellow / red.
+- fx `tint` / `tint_y` / `tint_r`: a colour wash on hype words. The long-form builder has `green` / `yellow`.
+- `cut_sfx`: a soft whoosh on every Nth jump cut.
+
+Music:
+- `music.py --style dream`: warm pad chords, a held D6 shimmer, a soft kick with side-chain, 123 bpm.
+- This copies the reference's calm bed under speech. It's our own synth, so it can't get a Content ID claim.
+
+Sticker timing fix (both builders):
+- Stickers are delayed with `tpad=start_duration=` (transparent lead-in) instead of `setpts=+at`.
+- With setpts, the ffmpeg 7+ scheduler silently dropped some late overlays in long chains. Seven of the 22 in the myths video vanished.
+- If the very last overlay of a long chain still misses, add it in a second pass, as was done for the myths file.
+
+Transcripts:
+- Use `ASR=medium.en tx_words.py` for noisy trailer-reaction audio. It heard "KFC" where small.en heard "can't see".
+- Merge in small.en words where medium skips a stretch.

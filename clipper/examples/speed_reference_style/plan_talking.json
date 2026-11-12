@@ -1,0 +1,212 @@
+{
+ "source": "/home/claude/job5/in/src.mp4",
+ "transcript": "/home/claude/job5/shorts/speed_tx.json",
+ "asr": "",
+ "min_word_prob": 0.45,
+ "min_narration": 0,
+ "layout": "split",
+ "top": [
+  60,
+  296,
+  840,
+  746
+ ],
+ "bottom": [
+  860,
+  330,
+  780,
+  694
+ ],
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "LIT": "green",
+  "GOD": "green",
+  "KEANU": "green",
+  "REEVES": "green",
+  "PLAYSTATION": "green",
+  "PLAYSTATION.": "green",
+  "PS5": "green",
+  "PS5.": "green",
+  "BUFF": "green",
+  "KFC?!": "green",
+  "KFC": "green",
+  "GAMEPLAY": "green",
+  "QUALITY": "green",
+  "LET'S": "green",
+  "GO!": "green",
+  "GO": "green",
+  "TRAILER": "green",
+  "BEST": "green",
+  "CHICKEN": "green",
+  "OH": "yellow",
+  "MY": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "HUH": "yellow",
+  "ME": "yellow",
+  "YOU": "yellow",
+  "EYES": "yellow",
+  "NOVEMBER": "yellow",
+  "19TH": "yellow",
+  "ISHOWSPEED": "yellow",
+  "JASON": "yellow",
+  "LUCIA": "yellow",
+  "TOM": "yellow",
+  "CRUISE": "yellow",
+  "XBOX": "red",
+  "XBOX?": "red",
+  "NO": "red",
+  "NAH": "red",
+  "NOT": "red",
+  "CAN'T": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "dream",
+  "bpm": 123,
+  "seed": 3,
+  "gain": 0.11
+ },
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "clips": [
+  {
+   "title": "Speed Thought His Friend Was Talking To Chat",
+   "hook": "SPEED BEFORE THE GTA 6 TRAILER",
+   "teaser": [
+    12.5,
+    13.3
+   ],
+   "ranges": [
+    [
+     0.0,
+     1.6
+    ],
+    [
+     2.5,
+     2.95
+    ],
+    [
+     5.5,
+     20.6
+    ],
+    [
+     41.0,
+     42.6
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 6.3,
+     "text": "HE THOUGHT IT WAS CHAT",
+     "color": "yellow",
+     "sfx": "bruh",
+     "gain": 0.6,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 12.6,
+     "text": "YOU TALKING TO ME?",
+     "color": "white",
+     "sfx": "what",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 19.2,
+     "text": "OK, TRAILER TIME",
+     "color": "green",
+     "sfx": "drum_roll",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 41.3,
+     "text": "SPEED HAS NO WORDS",
+     "color": "purple",
+     "sfx": "shocked_2",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 9.3,
+     "gif": "/home/claude/gta6vid/gifs/imoji_d.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 280,
+     "dur": 1.5
+    },
+    {
+     "src_t": 16.3,
+     "gif": "/home/claude/gta6vid/gifs/black_cat.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 300,
+     "dur": 1.6
+    },
+    {
+     "src_t": 41.4,
+     "emoji": "\ud83d\ude31",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 230,
+     "dur": 1.4
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 20.2,
+     "type": "tint"
+    },
+    {
+     "src_t": 42.0,
+     "type": "tint"
+    },
+    {
+     "src_t": 12.7,
+     "type": "punch"
+    },
+    {
+     "src_t": 41.5,
+     "type": "shake"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 20.3,
+     "name": "boom",
+     "gain": 0.45
+    }
+   ],
+   "max_len": 59,
+   "min_len": 8,
+   "max_untouched": 4.0
+  }
+ ]
+}

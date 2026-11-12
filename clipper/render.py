@@ -90,6 +90,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 def video_filter(plan, src_w, src_h):
     lay = plan.get('layout', 'blur')
+    if lay == 'split':   # reference style: top half = streamer cam box, bottom half = what they watch; both fill 1080x960
+        tx, ty, tw, th = plan['top']; bx, by, bw, bh = plan['bottom']; hh = H // 2
+        return (f"[0:v]split[a][b];[a]crop={tw}:{th}:{tx}:{ty},scale={W}:{hh}:force_original_aspect_ratio=increase,crop={W}:{hh}[t];"
+                f"[b]crop={bw}:{bh}:{bx}:{by},scale={W}:{hh}:force_original_aspect_ratio=increase,crop={W}:{hh}[u];[t][u]vstack,setsar=1[v]"), hh
     if lay == 'crop':
         cx = plan.get('crop_x', 0.5); z = float(plan.get('crop_zoom', 1.0)); cy = float(plan.get('crop_y', 0.5))
         return f"[0:v]scale=-2:{int(H * z) // 2 * 2},crop={W}:{H}:(iw-{W})*{cx}:(ih-{H})*{cy},setsar=1[v]", int(H * 0.66)

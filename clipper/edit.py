@@ -78,6 +78,11 @@ def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
         sx = '+'.join(f"between(t,{t:.2f},{t + 0.4:.2f})*22*sin(t*95)*exp(-(t-{t:.2f})*6)" for t in shakes)
         sy = '+'.join(f"between(t,{t:.2f},{t + 0.4:.2f})*16*cos(t*80)*exp(-(t-{t:.2f})*6)" for t in shakes)
         chain.append(f"scale={W + 64}:{H + 114},crop={W}:{H}:x='32+{sx}':y='57+{sy}'")
+    TINT = {'tint': '0x52FF2E', 'tint_y': '0xFFD400', 'tint_r': '0xFF2E2E', 'tint_p': '0xB04CFF'}
+    for t, k in fx:
+        if k in TINT:
+            chain.append(f"drawbox=x=0:y=0:w={W}:h={H}:color={TINT[k]}@0.34:t=fill:enable='between(t,{t:.2f},{t + 0.22:.2f})'")
+            chain.append(f"drawbox=x=0:y=0:w={W}:h={H}:color={TINT[k]}@0.16:t=fill:enable='between(t,{t + 0.22:.2f},{t + 0.5:.2f})'")
     for t in flashes:
         chain.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=white@0.85:t=fill:enable='between(t,{t:.2f},{t + 0.07:.2f})'")
         chain.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=white@0.35:t=fill:enable='between(t,{t + 0.07:.2f},{t + 0.14:.2f})'")
@@ -143,6 +148,26 @@ def sticker_png(kind, d, direction='down'):
         rot = {'down': 0, 'down-left': -45, 'left': -90, 'up-left': -135, 'up': 180, 'up-right': 135, 'right': 90, 'down-right': 45}[direction]
         im = im.rotate(rot, resample=Image.BICUBIC)
     im.save(p); return p
+
+COLS = {'green': '&H2EFF52&', 'yellow': '&H00D4FF&', 'red': '&H2E2EFF&', 'white': '&H00FFFFFF&', 'purple': '&HFF4CB0&'}
+def single_words(ass, words, cap_y, plan):
+    """one word at a time on the seam (the owner's reference edit): Lilita One, thick outline, pop-in, key words coloured."""
+    head, _, rest = open(ass).read().partition('[Events]')
+    keep = [l for l in rest.splitlines() if l.startswith('Dialogue:') and ',Cap,' not in l]
+    size = int(plan.get('cap_size', 132)); font = plan.get('cap_font', 'Lilita One')
+    head = re.sub(r'Style: Cap,[^\n]*', f'Style: Cap,{font},{size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,0,0,0,0,100,100,1,0,1,10,5,5,40,40,0,1', head)
+    kw = {k.upper(): COLS.get(v, v) for k, v in (plan.get('cap_colors') or {}).items()}
+    ev = []
+    for i, w in enumerate(words):
+        txt = R.esc(w['w'].upper()).strip(' .,!?;:"')
+        if not txt: continue
+        t0 = w['s']; t1 = words[i + 1]['s'] if i + 1 < len(words) else w['e'] + 0.3
+        t1 = min(t1, w['e'] + 0.45); t1 = max(t1, t0 + 0.12)
+        if i + 1 < len(words): t1 = min(t1, words[i + 1]['s'] - 0.02)
+        if t1 <= t0: continue
+        col = kw.get(txt, '&H00FFFFFF&')
+        ev.append(f"Dialogue: 1,{R.ass_t(t0)},{R.ass_t(t1)},Cap,,0,0,0,,{{\\pos({W // 2},{cap_y})\\1c{col}\\fscx72\\fscy72\\t(0,70,\\fscx114\\fscy114)\\t(70,140,\\fscx100\\fscy100)}}{txt}")
+    open(ass, 'w').write(head + '[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n' + '\n'.join(keep + ev) + '\n')
 
 def concat(parts, out):
     lst = out + '.txt'; open(lst, 'w').write(''.join(f"file '{p}'\n" for p in parts))
@@ -244,6 +269,9 @@ def main():
         sfx = [(to_out(float(x['src_t'])), x) for x in c.get('sfx', [])]
         sfx = [(t, x) for t, x in sfx if t is not None]
         sfx += [(max(0, t - 0.12), {'name': 'whoosh_transition', 'gain': 0.7}) for t in trans_at]
+        if plan.get('cut_sfx'):
+            cs = plan['cut_sfx']; cuts = [t0 for _, _, t0, sp in tl if sp == 1.0 and t0 > 0.5]
+            sfx += [(max(0, t - 0.05), {'name': cs['name'], 'gain': cs.get('gain', 0.35)}) for k, t in enumerate(cuts) if k % int(cs.get('every', 2)) == 0]
         if c.get('replay'): sfx.append((tl[-1][2] + 0.05, {'name': 'tape_rewind', 'gain': 0.35}))
         # narration placement (no overlaps), ducking intervals
         narr, last_end = [], 0.0
@@ -259,6 +287,7 @@ def main():
         ass = os.path.join(tmp, 'subs.ass'); _, cap_y = R.video_filter(plan, SW, SH)
         if plan.get('cap_y'): cap_y = int(H * float(plan['cap_y']))   # caption height override (keep them off the face)
         R.ass_file(ass, cw, c.get('hook', ''), cap_y, plan.get('font', 'Luckiest Guy'), plan.get('accent', '&H4AD2FF&'), 2.8)
+        if plan.get('cap_mode') == 'single': single_words(ass, cw, cap_y, plan)
         duck = '+'.join(f'between(t,{t - 0.1:.2f},{t + nd + 0.15:.2f})' for t, nd, _, _ in narr)
         marks = []
         for m in c.get('marks', []):
@@ -323,7 +352,7 @@ def main():
             d = float(g.get('dur', 1.6)); size = int(g.get('size', 300))
             x, y = SP.get(g.get('pos', 'tr'), SP['tr']) if isinstance(g.get('pos', 'tr'), str) else (str(int(W * g['pos'][0])), str(int(H * g['pos'][1])))
             fc += (f"[{idx}:v]fps={FPS},tpad=stop_mode=clone:stop_duration={d:.2f},trim=duration={d:.2f},scale={size}:-1,format=rgba,fade=t=in:st=0:d=0.12:alpha=1,fade=t=out:st={max(0.1, d - 0.22):.2f}:d=0.2:alpha=1,"
-                   f"setpts=PTS-STARTPTS+{t:.3f}/TB[gk{j}];{vlast}[gk{j}]overlay=x={x}:y='{y}+40*exp(-7*max(0\\,t-{t:.2f}))*cos(16*max(0\\,t-{t:.2f}))':"
+                   f"tpad=start_duration={t:.3f}:color=black@0.0[gk{j}];{vlast}[gk{j}]overlay=x={x}:y='{y}+40*exp(-7*max(0\\,t-{t:.2f}))*cos(16*max(0\\,t-{t:.2f}))':"
                    f"enable='between(t,{t:.2f},{t + d:.2f})':eof_action=pass[vg{j}];")
             vlast = f'[vg{j}]'; idx += 1
         fc += f"{vlast}ass={ass}:fontsdir={os.path.expanduser('~/.fonts')},format=yuv420p[vo]"

@@ -1,0 +1,254 @@
+{
+ "source": "/home/claude/job5/in/src.mp4",
+ "transcript": "/home/claude/job5/shorts/speed_tx.json",
+ "asr": "",
+ "min_word_prob": 0.45,
+ "min_narration": 0,
+ "layout": "split",
+ "top": [
+  60,
+  296,
+  840,
+  746
+ ],
+ "bottom": [
+  860,
+  330,
+  780,
+  694
+ ],
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "LIT": "green",
+  "GOD": "green",
+  "KEANU": "green",
+  "REEVES": "green",
+  "PLAYSTATION": "green",
+  "PLAYSTATION.": "green",
+  "PS5": "green",
+  "PS5.": "green",
+  "BUFF": "green",
+  "KFC?!": "green",
+  "KFC": "green",
+  "GAMEPLAY": "green",
+  "QUALITY": "green",
+  "LET'S": "green",
+  "GO!": "green",
+  "GO": "green",
+  "TRAILER": "green",
+  "BEST": "green",
+  "CHICKEN": "green",
+  "OH": "yellow",
+  "MY": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "HUH": "yellow",
+  "ME": "yellow",
+  "YOU": "yellow",
+  "EYES": "yellow",
+  "NOVEMBER": "yellow",
+  "19TH": "yellow",
+  "ISHOWSPEED": "yellow",
+  "JASON": "yellow",
+  "LUCIA": "yellow",
+  "TOM": "yellow",
+  "CRUISE": "yellow",
+  "XBOX": "red",
+  "XBOX?": "red",
+  "NO": "red",
+  "NAH": "red",
+  "NOT": "red",
+  "CAN'T": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "dream",
+  "bpm": 123,
+  "seed": 3,
+  "gain": 0.11
+ },
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "clips": [
+  {
+   "title": "Speed: Why Would You Play GTA 6 On Xbox?",
+   "hook": "PLAYSTATION OR XBOX FOR GTA 6?",
+   "teaser": [
+    217.7,
+    219.3
+   ],
+   "ranges": [
+    [
+     190.5,
+     192.6
+    ],
+    [
+     195.7,
+     200.4
+    ],
+    [
+     201.6,
+     205.5
+    ],
+    [
+     205.7,
+     212.2
+    ],
+    [
+     212.5,
+     219.3
+    ],
+    [
+     220.7,
+     221.3
+    ],
+    [
+     222.7,
+     223.95
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 197.0,
+     "text": "GO BACK, PRESS PLAY",
+     "color": "white",
+     "sfx": "tape_rewind",
+     "gain": 0.35,
+     "dur": 1.4,
+     "y": 0.12,
+     "rot": 3
+    },
+    {
+     "src_t": 191.7,
+     "text": "THE BIG QUESTION",
+     "color": "white",
+     "sfx": "suspense_1",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 203.2,
+     "text": "\"PLAYS BEST ON PS5\"",
+     "color": "green",
+     "sfx": "ding_correct",
+     "gain": 0.45,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 207.2,
+     "text": "SPEED HAS DECIDED",
+     "color": "yellow",
+     "sfx": "pop",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 219.0,
+     "text": "XBOX PLAYERS IN SHAMBLES",
+     "color": "red",
+     "sfx": "bruh",
+     "gain": 0.6,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 214.5,
+     "text": "IT SAYS IT ON THE SCREEN",
+     "color": "white",
+     "sfx": "pop",
+     "gain": 0.45,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": 3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 204.6,
+     "emoji": "\ud83c\udfae",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 230,
+     "dur": 1.5
+    },
+    {
+     "src_t": 219.1,
+     "gif": "/home/claude/gta6vid/gifs/cheems_cry.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 320,
+     "dur": 1.8
+    },
+    {
+     "src_t": 223.5,
+     "gif": "/home/claude/gta6vid/gifs/mona_laugh.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 300,
+     "dur": 1.6
+    },
+    {
+     "src_t": 216.4,
+     "emoji": "\ud83d\udcfa",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 220,
+     "dur": 1.4
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 204.6,
+     "type": "tint"
+    },
+    {
+     "src_t": 211.7,
+     "type": "tint"
+    },
+    {
+     "src_t": 219.1,
+     "type": "tint_r"
+    },
+    {
+     "src_t": 223.7,
+     "type": "shake"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 219.1,
+     "name": "boom",
+     "gain": 0.5
+    }
+   ],
+   "max_len": 59,
+   "min_len": 8,
+   "max_untouched": 4.0
+  }
+ ]
+}

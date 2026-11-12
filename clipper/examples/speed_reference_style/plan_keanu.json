@@ -1,0 +1,242 @@
+{
+ "source": "/home/claude/job5/in/src.mp4",
+ "transcript": "/home/claude/job5/shorts/speed_tx.json",
+ "asr": "",
+ "min_word_prob": 0.45,
+ "min_narration": 0,
+ "layout": "split",
+ "top": [
+  60,
+  296,
+  840,
+  746
+ ],
+ "bottom": [
+  560,
+  60,
+  900,
+  800
+ ],
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "LIT": "green",
+  "GOD": "green",
+  "KEANU": "green",
+  "REEVES": "green",
+  "PLAYSTATION": "green",
+  "PLAYSTATION.": "green",
+  "PS5": "green",
+  "PS5.": "green",
+  "BUFF": "green",
+  "KFC?!": "green",
+  "KFC": "green",
+  "GAMEPLAY": "green",
+  "QUALITY": "green",
+  "LET'S": "green",
+  "GO!": "green",
+  "GO": "green",
+  "TRAILER": "green",
+  "BEST": "green",
+  "CHICKEN": "green",
+  "OH": "yellow",
+  "MY": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "HUH": "yellow",
+  "ME": "yellow",
+  "YOU": "yellow",
+  "EYES": "yellow",
+  "NOVEMBER": "yellow",
+  "19TH": "yellow",
+  "ISHOWSPEED": "yellow",
+  "JASON": "yellow",
+  "LUCIA": "yellow",
+  "TOM": "yellow",
+  "CRUISE": "yellow",
+  "XBOX": "red",
+  "XBOX?": "red",
+  "NO": "red",
+  "NAH": "red",
+  "NOT": "red",
+  "CAN'T": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "dream",
+  "bpm": 123,
+  "seed": 3,
+  "gain": 0.11
+ },
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "clips": [
+  {
+   "title": "Speed Thinks Keanu Reeves Is In GTA 6",
+   "hook": "SPEED SPOTTED KEANU REEVES IN GTA 6?!",
+   "teaser": [
+    132.1,
+    134.3
+   ],
+   "ranges": [
+    [
+     114.4,
+     116.4
+    ],
+    [
+     118.1,
+     121.1
+    ],
+    [
+     124.0,
+     126.9
+    ],
+    [
+     127.0,
+     129.1
+    ],
+    [
+     129.2,
+     134.3
+    ],
+    [
+     134.5,
+     136.3
+    ],
+    [
+     137.6,
+     139.5
+    ],
+    [
+     141.6,
+     142.1
+    ],
+    [
+     144.5,
+     146.3
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 118.8,
+     "text": "KFC IN GTA 6?",
+     "color": "yellow",
+     "sfx": "pop",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 124.6,
+     "text": "OK THAT IS JASON",
+     "color": "white",
+     "sfx": "ding_correct",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 128.7,
+     "text": "THAT IS NOT TOM CRUISE",
+     "color": "red",
+     "sfx": "wrong",
+     "gain": 0.6,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 133.3,
+     "text": "KEANU REEVES?!",
+     "color": "green",
+     "sfx": "boom",
+     "gain": 0.6,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 145.2,
+     "text": "SPEED JUST WANTS CHICKEN",
+     "color": "purple",
+     "sfx": "munch_bite",
+     "gain": 0.6,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 128.9,
+     "gif": "/home/claude/gta6vid/gifs/troll1.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 300,
+     "dur": 1.6
+    },
+    {
+     "src_t": 133.4,
+     "gif": "/home/claude/gta6vid/gifs/imoji_b.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 300,
+     "dur": 1.6
+    },
+    {
+     "src_t": 145.0,
+     "emoji": "\ud83c\udf57",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 230,
+     "dur": 1.6
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 133.3,
+     "type": "tint"
+    },
+    {
+     "src_t": 115.0,
+     "type": "tint_y"
+    },
+    {
+     "src_t": 128.8,
+     "type": "punch"
+    },
+    {
+     "src_t": 138.9,
+     "type": "punch"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 133.3,
+     "name": "bass_drop",
+     "gain": 0.35
+    }
+   ],
+   "max_len": 59,
+   "min_len": 8,
+   "max_untouched": 4.0
+  }
+ ]
+}

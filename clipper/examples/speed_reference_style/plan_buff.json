@@ -1,0 +1,202 @@
+{
+ "source": "/home/claude/job5/in/src.mp4",
+ "transcript": "/home/claude/job5/shorts/speed_tx.json",
+ "asr": "",
+ "min_word_prob": 0.45,
+ "min_narration": 0,
+ "layout": "split",
+ "top": [
+  60,
+  296,
+  840,
+  746
+ ],
+ "bottom": [
+  860,
+  330,
+  780,
+  694
+ ],
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "LIT": "green",
+  "GOD": "green",
+  "KEANU": "green",
+  "REEVES": "green",
+  "PLAYSTATION": "green",
+  "PLAYSTATION.": "green",
+  "PS5": "green",
+  "PS5.": "green",
+  "BUFF": "green",
+  "KFC?!": "green",
+  "KFC": "green",
+  "GAMEPLAY": "green",
+  "QUALITY": "green",
+  "LET'S": "green",
+  "GO!": "green",
+  "GO": "green",
+  "TRAILER": "green",
+  "BEST": "green",
+  "CHICKEN": "green",
+  "OH": "yellow",
+  "MY": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "HUH": "yellow",
+  "ME": "yellow",
+  "YOU": "yellow",
+  "EYES": "yellow",
+  "NOVEMBER": "yellow",
+  "19TH": "yellow",
+  "ISHOWSPEED": "yellow",
+  "JASON": "yellow",
+  "LUCIA": "yellow",
+  "TOM": "yellow",
+  "CRUISE": "yellow",
+  "XBOX": "red",
+  "XBOX?": "red",
+  "NO": "red",
+  "NAH": "red",
+  "NOT": "red",
+  "CAN'T": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "dream",
+  "bpm": 123,
+  "seed": 3,
+  "gain": 0.11
+ },
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "clips": [
+  {
+   "title": "Speed Found Out You Can Work Out In GTA 6",
+   "hook": "YOU CAN WORK OUT IN GTA 6?!",
+   "teaser": [
+    106.4,
+    107.95
+   ],
+   "ranges": [
+    [
+     68.3,
+     72.5
+    ],
+    [
+     77.6,
+     78.8
+    ],
+    [
+     92.6,
+     93.4
+    ],
+    [
+     98.5,
+     103.6
+    ],
+    [
+     106.4,
+     107.95
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 70.0,
+     "text": "HE HAD TO REWIND",
+     "color": "white",
+     "sfx": "tape_rewind",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 100.1,
+     "text": "GYMS IN GTA 6",
+     "color": "green",
+     "sfx": "ding_correct",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 101.5,
+     "text": "A SNAKE AS A PET?!",
+     "color": "yellow",
+     "sfx": "what",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 107.5,
+     "text": "GAINS LOADING...",
+     "color": "purple",
+     "sfx": "goofy_cartoon_rubber",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 101.6,
+     "emoji": "\ud83d\udc0d",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 230,
+     "dur": 1.5
+    },
+    {
+     "src_t": 107.5,
+     "emoji": "\ud83d\udcaa",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 240,
+     "dur": 1.6
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 100.3,
+     "type": "tint"
+    },
+    {
+     "src_t": 107.7,
+     "type": "tint"
+    },
+    {
+     "src_t": 101.6,
+     "type": "punch"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 107.7,
+     "name": "boom",
+     "gain": 0.45
+    }
+   ],
+   "max_len": 59,
+   "min_len": 8,
+   "max_untouched": 4.0
+  }
+ ]
+}

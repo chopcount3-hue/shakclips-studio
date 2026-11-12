@@ -1,0 +1,202 @@
+{
+ "source": "/home/claude/job5/in/src.mp4",
+ "transcript": "/home/claude/job5/shorts/speed_tx.json",
+ "asr": "",
+ "min_word_prob": 0.45,
+ "min_narration": 0,
+ "layout": "split",
+ "top": [
+  60,
+  296,
+  840,
+  746
+ ],
+ "bottom": [
+  860,
+  330,
+  780,
+  694
+ ],
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "LIT": "green",
+  "GOD": "green",
+  "KEANU": "green",
+  "REEVES": "green",
+  "PLAYSTATION": "green",
+  "PLAYSTATION.": "green",
+  "PS5": "green",
+  "PS5.": "green",
+  "BUFF": "green",
+  "KFC?!": "green",
+  "KFC": "green",
+  "GAMEPLAY": "green",
+  "QUALITY": "green",
+  "LET'S": "green",
+  "GO!": "green",
+  "GO": "green",
+  "TRAILER": "green",
+  "BEST": "green",
+  "CHICKEN": "green",
+  "OH": "yellow",
+  "MY": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "HUH": "yellow",
+  "ME": "yellow",
+  "YOU": "yellow",
+  "EYES": "yellow",
+  "NOVEMBER": "yellow",
+  "19TH": "yellow",
+  "ISHOWSPEED": "yellow",
+  "JASON": "yellow",
+  "LUCIA": "yellow",
+  "TOM": "yellow",
+  "CRUISE": "yellow",
+  "XBOX": "red",
+  "XBOX?": "red",
+  "NO": "red",
+  "NAH": "red",
+  "NOT": "red",
+  "CAN'T": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "dream",
+  "bpm": 123,
+  "seed": 3,
+  "gain": 0.11
+ },
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "clips": [
+  {
+   "title": "Speed Is Ready For GTA 6 On November 19",
+   "hook": "SPEED AFTER THE GTA 6 LAUNCH TRAILER",
+   "teaser": [
+    180.1,
+    182.4
+   ],
+   "ranges": [
+    [
+     159.8,
+     164.2
+    ],
+    [
+     164.6,
+     168.3
+    ],
+    [
+     176.8,
+     186.0
+    ],
+    [
+     186.6,
+     188.2
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 160.9,
+     "text": "SPEED APPROVES",
+     "color": "green",
+     "sfx": "ding_correct",
+     "gain": 0.45,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 166.2,
+     "text": "NOVEMBER 19",
+     "color": "purple",
+     "sfx": "clock_tick",
+     "gain": 0.5,
+     "dur": 2.0,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 180.6,
+     "text": "DAY-ONE STREAM LOADING",
+     "color": "yellow",
+     "sfx": "cartoon_rocket",
+     "gain": 0.45,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 187.4,
+     "text": "IT LOOKS LIT",
+     "color": "green",
+     "sfx": "pop",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 161.0,
+     "gif": "/home/claude/gta6vid/gifs/cat_applause.gif",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 300,
+     "dur": 1.6
+    },
+    {
+     "src_t": 180.8,
+     "emoji": "\ud83d\udd25",
+     "pos": [
+      0.7,
+      0.56
+     ],
+     "size": 230,
+     "dur": 1.8
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 160.9,
+     "type": "tint"
+    },
+    {
+     "src_t": 163.1,
+     "type": "tint"
+    },
+    {
+     "src_t": 187.5,
+     "type": "tint"
+    },
+    {
+     "src_t": 166.1,
+     "type": "punch"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 164.7,
+     "name": "boom",
+     "gain": 0.4
+    }
+   ],
+   "max_len": 59,
+   "min_len": 8,
+   "max_untouched": 4.0
+  }
+ ]
+}
