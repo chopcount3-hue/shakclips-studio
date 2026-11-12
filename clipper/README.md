@@ -74,3 +74,9 @@ Layouts:
 Rejected:
 - AGPL tools (YOLO/ultralytics, ViralMint, clips-studio)
 - apps that need paid keys: OpenShorts (Gemini / fal / ElevenLabs), OpusClip
+
+## News-post cards and the channel outro (GTA 6 myths video)
+- `post` shots in longform.py: a white news card (outlet, date, real headline, yellow highlight) slides up over blurred footage. Use real headlines from real articles only, never made-up tweets.
+- `templates/remotion/Root.tsx` has the `Outro` composition (12 s, 1920x1080): logo pop, SHAK REPLAY, subscribe click and two WATCH NEXT frames placed where YouTube's end-screen video boxes go.
+- `templates/brand/outro_shakreplay.mp4` is the finished outro with music and SFX (-14 LUFS). Append it to every long video with ffmpeg concat (fps=30, yuv420p, 48 kHz stereo on both inputs), then set the end screen to "2 videos, 1 subscribe" over the last 12 seconds.
+- `examples/gta6myths/` is the full plan for "13 GTA 6 Gameplay Myths" (4:17, 13 myths, post cards, word-timed SFX, verdict stamps).

@@ -129,6 +129,45 @@ class Builder:
         if alpha: s += f":alpha='{alpha}'"
         return s
 
+    def post_png(self, p):
+        """a news-post card: outlet and date, the real headline, and a yellow highlight with our one-line takeaway."""
+        from PIL import Image, ImageDraw, ImageFont
+        F = '/usr/share/fonts/opentype/inter/'
+        f_out, f_date, f_head, f_hi = (ImageFont.truetype(F + 'Inter-ExtraBold.otf', 38), ImageFont.truetype(F + 'Inter-Regular.otf', 32),
+                                       ImageFont.truetype(F + 'Inter-Bold.otf', 58), ImageFont.truetype(F + 'Inter-ExtraBold.otf', 40))
+        Wc, pad = 1180, 56; words = p['headline'].split(); lines, cur = [], ''
+        for w in words:
+            t = (cur + ' ' + w).strip()
+            if f_head.getlength(t) > Wc - 2 * pad - 20 and cur: lines.append(cur); cur = w
+            else: cur = t
+        lines.append(cur)
+        hi = p.get('highlight', ''); Hc = pad + 50 + 28 + len(lines) * 72 + (36 + 70 if hi else 0) + pad
+        im = Image.new('RGBA', (Wc + 40, Hc + 40), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        d.rounded_rectangle((20, 26, Wc + 20, Hc + 26), 30, fill=(0, 0, 0, 120))
+        d.rounded_rectangle((14, 14, Wc + 14, Hc + 14), 30, fill=(255, 255, 255, 255))
+        d.rounded_rectangle((14, 14, 14 + 16, Hc + 14), 8, fill=tuple(int(p.get('accent', '9146FF')[i:i + 2], 16) for i in (0, 2, 4)) + (255,))
+        x, y = 14 + pad, 14 + pad
+        d.text((x, y), p['outlet'].upper(), font=f_out, fill=(17, 17, 17)); ox = x + f_out.getlength(p['outlet'].upper()) + 18
+        d.text((ox, y + 5), '·  ' + p['date'], font=f_date, fill=(110, 110, 120)); y += 50 + 28
+        for ln in lines: d.text((x, y), ln, font=f_head, fill=(15, 15, 20)); y += 72
+        if hi:
+            y += 36; tw = f_hi.getlength(hi) + 40
+            d.rounded_rectangle((x - 6, y - 8, x + tw, y + 56), 10, fill=(255, 212, 0)); d.text((x + 14, y), hi, font=f_hi, fill=(20, 20, 20))
+        f = os.path.join(self.work, f'post_{abs(hash(json.dumps(p, sort_keys=True))) % 10 ** 10}.png'); im.save(f); return f
+
+    def post(self, spec, d):
+        """a news-post card sliding up over a blurred frame of related footage."""
+        png = self.post_png(spec['post']); bgc, bt = spec.get('bg') or [None, 0]
+        f = os.path.join(self.work, f'{len(self.parts):04d}.mov')
+        o = self.opts({'clip': bgc}); pre = [f"crop=iw*{o['crop'][2]}:ih*{o['crop'][3]}:iw*{o['crop'][0]}:ih*{o['crop'][1]}"] if o.get('crop') else []
+        fc = (f"[0:v]{','.join(pre + [f'fps={FPS}'])},scale={W2}:{H2}:force_original_aspect_ratio=increase,crop={W2}:{H2},crop={W}:{H}:x='(iw-{W})/2+(iw-{W})/2*t/{d:.2f}':y='(ih-{H})/2',"
+              f"boxblur=24:2,eq=brightness=-0.22:saturation=0.6,vignette=PI/3.5[bg];[2:v]format=rgba,fade=t=in:st=0:d=0.25:alpha=1[c];"
+              f"[bg][c]overlay=x=(W-w)/2:y='(H-h)/2+max(0\\,70*(1-t/0.3))':shortest=0,format=yuv420p[v]")
+        sh([FF, '-v', 'error', '-y', '-ss', f'{bt:.2f}', '-t', f'{d + 0.1:.2f}', '-i', self.clip(bgc), '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo',
+            '-loop', '1', '-t', f'{d + 0.1:.2f}', '-i', png, '-filter_complex', fc, '-map', '[v]', '-map', '1:a', '-t', f'{d:.3f}', '-map_metadata', '-1',
+            *ENC, '-c:a', 'pcm_s16le', '-ar', '48000', '-ac', '2', f])
+        return self.add(f, d, 'post')
+
     def info(self, spec, d):
         """an info card: the head (and a sub line) over a blurred, darkened, red-tinted frame of related footage."""
         head, sub = (list(spec['info']) + [''])[:2]; bgc, bt = spec.get('bg') or [None, 0]
@@ -179,6 +218,7 @@ class Builder:
         for j, s in enumerate(specs):
             left = s['d'] if j < len(specs) - 1 else t_end - self.t
             if 'info' in s: self.info(s, left); continue
+            if 'post' in s: self.post(s, left); continue
             a, b = s.get('a', 0), s.get('b', 1e9); pos = a
             while left > 0.05:
                 ln = left if left < 3.8 else 2.2 + (self.k % 3) * 0.6
@@ -269,7 +309,7 @@ class Builder:
                    f"enable='between(t,{at:.2f},{at + d:.2f})':eof_action=pass[b{k + 1}]")
         fc += f";[b{len(ovs)}]format=yuv420p[v]"
         fcs = os.path.join(self.work, 'final_filter.txt'); open(fcs, 'w').write(fc)
-        sh([FF, '-v', 'error', '-y', '-i', track, '-i', mix, *ins, '-filter_complex_script', fcs, '-map', '[v]', '-map', '1:a', '-map_metadata', '-1',
+        sh([FF, '-v', 'error', '-y', '-i', track, '-i', mix, *ins, '-/filter_complex', fcs, '-map', '[v]', '-map', '1:a', '-map_metadata', '-1',
             '-map_chapters', '-1', '-dn', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-profile:v', 'high', '-c:a', 'aac', '-b:a', '320k',
             '-ar', '48000', '-shortest', '-movflags', '+faststart', self.out])
         D = dur(self.out); cov = sum(d for _, d, _ in self.narr) / D
