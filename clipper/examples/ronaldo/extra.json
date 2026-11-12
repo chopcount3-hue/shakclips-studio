@@ -1,0 +1,21 @@
+[
+ {"k": "x0",  "after": 2,  "text": "And stay until the end... because the last one didn't happen on a pitch at all."},
+ {"k": "x1",  "after": 3,  "text": "January twenty ten. Real Madrid against Malaga. Ronaldo has already scored twice."},
+ {"k": "x2",  "after": "x1", "text": "Then Patrick Mtiliga grabs him. Ronaldo swings his arm back to break free... and catches him right in the face."},
+ {"k": "x3",  "after": "x2", "text": "Mtiliga's nose is broken. Straight red. Ronaldo went to Malaga's dressing room to apologise, and still got a two-match ban."},
+ {"k": "x4",  "after": "x3", "text": "Five years later, it happened again."},
+ {"k": "x5",  "after": 7,  "text": "That was on the pitch. The next one happened on a quiet walk by a lake."},
+ {"k": "x6",  "after": 8,  "text": "A few days earlier, he had missed a penalty against Austria. The pressure was enormous."},
+ {"k": "x7",  "after": 11, "text": "That same night, against Hungary, he scored twice."},
+ {"k": "x8",  "after": 12, "text": "A microphone is one thing. Two years later... came the tears."},
+ {"k": "x9",  "after": 15, "text": "It was the first red card of his Champions League career. In his one hundred and fifty-fourth game."},
+ {"k": "x10", "after": 17, "text": "A red card hurts him. But you know what hurts him more? A goal that doesn't count."},
+ {"k": "x11", "after": 23, "text": "We're halfway. Keep a number in your head for the worst one so far... because the next one got the police involved."},
+ {"k": "x12", "after": 25, "text": "The fan was a fourteen-year-old boy. His mum said his hand was bruised."},
+ {"k": "x13", "after": 27, "text": "And that was only April. By October, he had fallen out with his own manager."},
+ {"k": "x14", "after": 29, "text": "Weeks later, in a TV interview with Piers Morgan, he said he felt betrayed... and that he had no respect for ten Hag."},
+ {"k": "x15", "after": 35, "text": "But some of his angriest moments came in a Portugal shirt."},
+ {"k": "x16", "after": 38, "text": "A lot of players hate it when a referee does that. But he's the captain... and every camera in the stadium was on him."},
+ {"k": "x17", "after": 39, "text": "A year later, the cameras caught something much worse."},
+ {"k": "x18", "after": 43, "text": "Almost there. And the last one... is the strangest of all."}
+]

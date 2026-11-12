@@ -49,3 +49,26 @@ Reposted clips stitched together are what YouTube demonetizes ("reused content")
   which are ours and set the channel apart.
 - **Avoid reused content:** no long uninterrupted clips (keep each run under about 8–10 s before a cut, a word card or narration),
   our script around every clip, and our own presentation.
+
+## Commentary long-forms with `longform.py` (built for the Ronaldo video, 12 Nov 2026)
+Narrated, topic-based long-forms (60–70% commentary, real clips, no animation) are built from a `plan.json`
+(see the docstring of `clipper/longform.py`; a full example is `ronaldo/make_plan.py`).
+- **Narration first.** Script → Chatterbox Turbo lines (`synth_range.py A B`, ≤12 lines per process: the model leaks about
+  70 MB per line and was OOM-killed at 6 GB after 29 lines). Every line is Whisper-checked; `lines.json` keeps word times.
+- **Items:** `line` (narration over `shots`, or the section `pool`), `moment` (original audio, ≤8 s, with flash/shake/red
+  hits, a label and an optional 2× `replay`), `info` (a headline card over blurred red-tinted footage, for incidents with
+  no downloadable footage; never put footage of a different match under a caption that names this one), `file`
+  (Remotion TitleCard / WordCard).
+- **Retention:** cold open of the 4–5 worst moments with no narration → word card → hook line that promises the ending
+  ("the last one didn't happen on a pitch") → countdown title cards #1–#10 → a re-hook line at the end of every section
+  that teases the next one, with a sting (`dun_dun_dunnn`) and a 1 s `hold` → a "halfway, pick your worst" line → a fast
+  recap montage → an end card asking for a number in the comments.
+- **Stamps** (red-box Anton text, top centre) carry the facts: scores, bans, fines, dates. Quotes only when the person
+  really said those words; otherwise write it as a fact ("NOT STARTING VS DENMARK"), not a quote.
+- **Clip audio:** b-roll under narration is silent. Moments keep their audio only after a Whisper check: mute fan clips
+  that swear (advertiser-friendly), news packages with a voice-over, and anything with a music bed (Content ID).
+- **Sound:** music bed from `music.py` at −22 LUFS between lines and 14 dB lower under narration (falls 1.0 s before a line,
+  rises 1.2 s after); whooshes/risers are aligned on their loudest point, other SFX on their onset; master −14 LUFS,
+  limiter −1.5 dBFS, AAC 320k.
+- **Captions** use the script's spelling timed by Whisper's words (names come out right), years and numbers as digits.
+- **Crop** burned-in captions, tickers and logos per clip in `clipopts`; vertical clips get `fit` (blurred fill).
