@@ -80,3 +80,22 @@ Rejected:
 - `templates/remotion/Root.tsx` has the `Outro` composition (12 s, 1920x1080): logo pop, SHAK REPLAY, subscribe click and two WATCH NEXT frames placed where YouTube's end-screen video boxes go.
 - `templates/brand/outro_shakreplay.mp4` is the finished outro with music and SFX (-14 LUFS). Append it to every long video with ffmpeg concat (fps=30, yuv420p, 48 kHz stereo on both inputs), then set the end screen to "2 videos, 1 subscribe" over the last 12 seconds.
 - `examples/gta6myths/` is the full plan for "13 GTA 6 Gameplay Myths" (4:17, 13 myths, post cards, word-timed SFX, verdict stamps).
+
+## No-voiceover Shorts (GTA 6 pre-order Shorts, Nov 2026)
+`edit.py` additions:
+- `ranges`: hand-picked source spans
+- `notes`: written joke pop-ups in coloured boxes, placed on source words
+- `stickers`: Giphy GIFs or emoji
+- `cap_y` / `cap_size` / `hook_size` / `note_size`
+- `crop_zoom` / `crop_y` for the crop layout
+
+The report counts notes and stickers as edits, and names any pop-up whose time fell in a jump cut.
+
+How the moments were found (`examples/preorder_shorts/`):
+1. `scan.py` checks clip and VOD titles.
+2. TwitchDownloader chat replays plus `spikes.py` find minutes where chat spams "pre-order / preload / download".
+3. `tx_search.py` / `tx_words.py` transcribe just those windows.
+
+Watch out for:
+- Twitch-muted VOD stretches: the audio is digital silence (-180 dB).
+- One-frame GIFs (prayer, mona_laugh, aura, cat_applause) used to vanish after one frame. Stickers are now held with `fps,tpad,trim`.

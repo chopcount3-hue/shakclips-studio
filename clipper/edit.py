@@ -4,7 +4,7 @@ slow-mo replay, VFX transitions, word captions and SFX on exact words. Output al
 
 usage: python edit.py plan.json outdir
 plan.json (per-plan keys as in render.py: source, transcript, layout, facecam, zoom, crop_x, font) plus per clip:
-  "start", "end"          source seconds of the story
+  "start", "end"          source seconds of the story (or "ranges": [[a, b], ...] hand-picked spans, in order)
   "teaser": [a, b]        optional: the payoff shown first (1.5-3 s), then a flash transition into the story
   "replay": [a, b]        optional: the peak again at half speed with a REPLAY tag, at the end
   "jump_cuts": true       drop dead air (gaps > 0.35 s with no speech and no loud reaction)
@@ -15,6 +15,11 @@ plan.json (per-plan keys as in render.py: source, transcript, layout, facecam, z
                           # "out_t" instead of "src_t" places a line at an output time (e.g. 0.3 over the teaser)
   "marks": [{"src_t": 433.0, "type": "arrow" | "circle", "x": 0.55, "y": 0.62, "dur": 1.6, "size": 0.16, "dir": "down"}]
                           # red arrow (tip at x,y) / red circle (centre at x,y); x,y are fractions of the 1080x1920 frame
+  "notes": [{"src_t": 440.2, "text": "BRO IS SERIOUS", "color": "yellow"|"red"|"green"|"purple"|"white"|"black", "y": 0.30,
+             "dur": 1.6, "rot": -3, "sfx": "vine_boom"}]   # our own written commentary pop-ups (the no-voiceover Shorts);
+                          # "|" breaks a line; "out_t" instead of "src_t" places it at an output time
+  "stickers": [{"src_t": 441.0, "gif": "/path/x.gif" | "emoji": "😭", "pos": "tr"|"tl"|"mr"|"ml"|"br"|"bl"|"c" or [x, y],
+                "size": 300, "dur": 1.6, "sfx": "..."}]     # Giphy meme stickers or emoji
   "min_narration": 0.25   # originality gate: share of the Short covered by our voice (YouTube reused-content rules)
   "max_len": 58, "min_len": 45   # Shorts land at 45-58 s: the lead-up is extended automatically when the cut story is short
 All SFX names come from sfx/user (the owner's pack), sfx/made (ours) or sfx/cc0.
@@ -39,7 +44,10 @@ def loud_frames(src, a, b):
     return 20 * np.log10(np.sqrt((fr ** 2).mean(1)) + 1e-6)
 
 def keep_ranges(c, words, src):
-    """speech (word spans) plus loud reactions; gaps longer than cut_gap (default 0.6 s) removed, within [start, end]."""
+    """speech (word spans) plus loud reactions; gaps longer than cut_gap (default 0.6 s) removed, within [start, end].
+    With "ranges": [[a, b], ...] only those hand-picked source spans are used (each one jump-cut the same way)."""
+    if c.get('ranges'):
+        return [r for a, b in c['ranges'] for r in keep_ranges(dict(c, start=a, end=b, ranges=None), words, src)]
     st, en = c['start'], c['end']
     if not c.get('jump_cuts', True): return [[st, en]]
     iv = [[w['s'] - 0.10, w['e'] + 0.18] for w in words if w['e'] > st and w['s'] < en]
@@ -163,6 +171,7 @@ def main():
         from faster_whisper import WhisperModel
         wm = WhisperModel(asr, device='cpu', compute_type='int8', cpu_threads=2)
         for c in plan['clips']:
+            if c.get('ranges'): c.setdefault('start', min(a for a, _ in c['ranges'])); c.setdefault('end', max(b for _, b in c['ranges']))
             a0 = min([c['start']] + [c[k][0] for k in ('teaser', 'replay') if c.get(k)]) - 1.0
             a1 = max([c['end']] + [c[k][1] for k in ('teaser', 'replay') if c.get(k)]) + 1.0
             pcm = subprocess.run(['ffmpeg', '-v', 'error', '-ss', f'{a0:.2f}', '-t', f'{a1 - a0:.2f}', '-i', src, '-vn', '-ac', '1', '-ar', '16000',
@@ -192,7 +201,8 @@ def main():
         cap = float(c.get('max_len', 58)) - (c['teaser'][1] - c['teaser'][0] if c.get('teaser') else 0) \
             - (2 * (c['replay'][1] - c['replay'][0]) if c.get('replay') else 0)
         min_story = float(c.get('min_len', 45)) - (cap_extra := float(c.get('max_len', 58)) - cap)
-        for _ in range(12):                                   # pull in more lead-up (5 s at a time, up to 60 s) until long enough
+        if c.get('ranges'): c.setdefault('start', c['ranges'][0][0]); c.setdefault('end', c['ranges'][-1][1])
+        for _ in range(0 if c.get('ranges') else 12):          # pull in more lead-up (5 s at a time, up to 60 s) until long enough
             if sum(b - a for a, b in keep_ranges(c, words, src)) >= min_story or c['start'] <= float(c.get('earliest', 0)): break
             c['start'] = max(float(c.get('earliest', 0)), c['start'] - 5.0)
         rngs, tot = [], 0.0
@@ -247,18 +257,58 @@ def main():
             cw.sort(key=lambda w: w['s'])
         # 3. captions + hook + SFX mix + loudness
         ass = os.path.join(tmp, 'subs.ass'); _, cap_y = R.video_filter(plan, SW, SH)
+        if plan.get('cap_y'): cap_y = int(H * float(plan['cap_y']))   # caption height override (keep them off the face)
         R.ass_file(ass, cw, c.get('hook', ''), cap_y, plan.get('font', 'Luckiest Guy'), plan.get('accent', '&H4AD2FF&'), 2.8)
         duck = '+'.join(f'between(t,{t - 0.1:.2f},{t + nd + 0.15:.2f})' for t, nd, _, _ in narr)
         marks = []
         for m in c.get('marks', []):
             t = float(m['out_t']) if 'out_t' in m else to_out(float(m['src_t']))
             if t is not None: marks.append((t, m))
+        def at_out(o): return float(o['out_t']) if 'out_t' in o else to_out(float(o['src_t']))
+        notes = [(at_out(n), n) for n in c.get('notes', [])]; notes = [(t, n) for t, n in notes if t is not None and t < dcur]
+        stick = [(at_out(g), g) for g in c.get('stickers', [])]; stick = [(t, g) for t, g in stick if t is not None and t < dcur]
+        for t, o in notes + stick:
+            if o.get('sfx'): sfx.append((t, {'name': o['sfx'], 'gain': o.get('gain', 0.8)}))
         ins = ['-i', cur]; mix = ['[ga]']; vlast = '[0:v]'; fc = ''
         for j, (t, m) in enumerate(marks):
             png = sticker_png(m.get('type', 'arrow'), os.path.join(outdir, '_stickers'), m.get('dir', 'down'))
             sz = int(W * float(m.get('size', 0.16))); x = int(W * float(m['x'])); y = int(H * float(m['y'])); t1 = t + float(m.get('dur', 1.6))
             ins += ['-loop', '1', '-t', f'{t1 + 0.1:.2f}', '-i', png]
         # input indexes: 0 = video, then one per mark, then sfx, then narration
+        if plan.get('cap_size'):
+            c_txt = open(ass).read(); c_txt = re.sub(r'(Style: Cap,[^,]+,)\d+', lambda m: m.group(1) + str(int(plan['cap_size'])), c_txt); open(ass, 'w').write(c_txt)
+        if plan.get('hook_size'):
+            h_txt = open(ass).read(); h_txt = re.sub(r'(Style: Hook,Anton,)\d+', lambda m: m.group(1) + str(int(plan['hook_size'])), h_txt); open(ass, 'w').write(h_txt)
+        print('  notes at', [round(float(t), 1) for t, _ in notes], '| stickers at', [round(float(t), 1) for t, _ in stick], flush=True)
+        miss = [o.get('text') or o.get('gif') or o.get('emoji') for o in c.get('notes', []) + c.get('stickers', []) if at_out(o) is None]
+        if miss: print('  NOT PLACED (time falls in a cut):', miss, flush=True)
+        if notes:
+            NC = {'yellow': ('&H004AD2FF&', '&H00101010&'), 'red': ('&H003A34E8&', '&H00FFFFFF&'), 'green': ('&H0050C83C&', '&H00FFFFFF&'),
+                  'purple': ('&H00FF4691&', '&H00FFFFFF&'), 'white': ('&H00FFFFFF&', '&H00101010&'), 'black': ('&H00101010&', '&H00FFFFFF&')}
+            a_txt = open(ass).read().replace('[Events]', f'Style: Note,Anton,{int(plan.get('note_size', 112))},&H00FFFFFF,&H00FFFFFF,&H004AD2FF,&H004AD2FF,0,0,0,0,100,100,1,0,3,22,0,5,40,40,0,1\n\n[Events]', 1)
+            a_txt = a_txt.replace('\n\nStyle: Note', '\nStyle: Note', 1)
+            evs = []
+            for t, n in notes:
+                box, col = NC.get(n.get('color', 'yellow'), NC['yellow']); d = float(n.get('dur', 1.6)); y = int(H * float(n.get('y', 0.30)))
+                txt = '\\N'.join(R.esc(x.strip().upper()) for x in n['text'].split('|'))
+                evs.append(f"Dialogue: 3,{R.ass_t(t)},{R.ass_t(min(dcur, t + d))},Note,,0,0,0,,{{\\pos({W // 2},{y})\\frz{float(n.get('rot', -3)):.1f}"
+                           f"\\3c{box}\\4c{box}\\1c{col}\\fad(40,160)\\fscx150\\fscy150\\t(0,130,\\fscx94\\fscy94)\\t(130,210,\\fscx100\\fscy100)}}{txt}")
+            open(ass, 'w').write(a_txt.rstrip('\n') + '\n' + '\n'.join(evs) + '\n')
+        SP = {'tr': ('W-w-50', '420'), 'tl': ('50', '420'), 'mr': ('W-w-40', '(H-h)/2'), 'ml': ('40', '(H-h)/2'), 'c': ('(W-w)/2', '(H-h)/2'),
+              'br': ('W-w-50', 'H-h-430'), 'bl': ('50', 'H-h-430')}
+        emo_dir = os.path.join(outdir, '_emoji')
+        def emoji_png(ch, size):
+            from PIL import Image, ImageDraw, ImageFont
+            os.makedirs(emo_dir, exist_ok=True); f = os.path.join(emo_dir, f'emoji_{ord(ch[0]):x}_{size}.png')
+            if not os.path.exists(f):
+                font = ImageFont.truetype('/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf', 109)
+                im = Image.new('RGBA', (160, 160), (0, 0, 0, 0)); ImageDraw.Draw(im).text((10, 10), ch, font=font, embedded_color=True)
+                im = im.crop(im.getbbox()); im.resize((size, int(size * im.height / im.width)), Image.LANCZOS).save(f)
+            return f
+        for t, g in stick:
+            d = float(g.get('dur', 1.6))
+            if g.get('gif'): ins += ['-ignore_loop', '0', '-t', f'{d:.2f}', '-i', g['gif']]
+            else: ins += ['-loop', '1', '-t', f'{d:.2f}', '-framerate', str(FPS), '-i', emoji_png(g['emoji'], int(g.get('size', 260)))]
         idx = 1
         for j, (t, m) in enumerate(marks):
             sz = int(W * float(m.get('size', 0.16))); x = int(W * float(m['x'])); y = int(H * float(m['y'])); t1 = t + float(m.get('dur', 1.6))
@@ -269,6 +319,13 @@ def main():
                 ox = f"{x - sz // 2 + int(dx * sz * 0.5)}+{dx * 14:.0f}*sin(t*11)"; oy = f"{y - sz // 2 + int(dy * sz * 0.5)}+{dy * 14:.0f}*sin(t*11)"
             fc += f"[{idx}:v]scale={sz}:{sz},format=rgba,fade=in:st={t:.2f}:d=0.12:alpha=1[mk{j}];{vlast}[mk{j}]overlay=x='{ox}':y='{oy}':enable='between(t,{t:.2f},{t1:.2f})'[vm{j}];"
             vlast = f'[vm{j}]'; idx += 1
+        for j, (t, g) in enumerate(stick):
+            d = float(g.get('dur', 1.6)); size = int(g.get('size', 300))
+            x, y = SP.get(g.get('pos', 'tr'), SP['tr']) if isinstance(g.get('pos', 'tr'), str) else (str(int(W * g['pos'][0])), str(int(H * g['pos'][1])))
+            fc += (f"[{idx}:v]fps={FPS},tpad=stop_mode=clone:stop_duration={d:.2f},trim=duration={d:.2f},scale={size}:-1,format=rgba,fade=t=in:st=0:d=0.12:alpha=1,fade=t=out:st={max(0.1, d - 0.22):.2f}:d=0.2:alpha=1,"
+                   f"setpts=PTS-STARTPTS+{t:.3f}/TB[gk{j}];{vlast}[gk{j}]overlay=x={x}:y='{y}+40*exp(-7*max(0\\,t-{t:.2f}))*cos(16*max(0\\,t-{t:.2f}))':"
+                   f"enable='between(t,{t:.2f},{t + d:.2f})':eof_action=pass[vg{j}];")
+            vlast = f'[vg{j}]'; idx += 1
         fc += f"{vlast}ass={ass}:fontsdir={os.path.expanduser('~/.fonts')},format=yuv420p[vo]"
         fc += f";[0:a]aformat=sample_rates=48000:channel_layouts=stereo" + (f",volume='if({duck},0.22,1)':eval=frame" if duck else '') + "[ga]"
         for j, (t, x) in enumerate(sfx):
@@ -296,19 +353,19 @@ def main():
         # originality report: our voice coverage + the longest stretch with no cut, narration, mark or effect
         cov = sum(nd for _, nd, _, _ in narr) / max(d, 1)
         ev = sorted({0.0, d} | {t0 for _, _, t0, _ in tl} | set(trans_at) | {t for t, _ in marks} |
-                    {to_out(f) or 0 for f, _ in fx_src})
-        busy = [(t, t + nd) for t, nd, _, _ in narr]
+                    {to_out(f) or 0 for f, _ in fx_src} | {t for t, _ in stick})
+        busy = [(t, t + nd) for t, nd, _, _ in narr] + [(t, t + float(n.get('dur', 1.6))) for t, n in notes]
         gaps, prev = [], 0.0
         for t in ev:
             if t > prev:
                 free = [(max(prev, a), min(t, b)) for a, b in busy if b > prev and a < t]
                 cur_s = prev
-                for a, b in sorted(free): gaps.append(a - cur_s); cur_s = max(cur_s, b)
-                gaps.append(t - cur_s)
+                for a, b in sorted(free): gaps.append((a - cur_s, cur_s)); cur_s = max(cur_s, b)
+                gaps.append((t - cur_s, cur_s))
             prev = max(prev, t)
-        mx = max(gaps or [0]); need = float(c.get('min_narration', 0.25))
+        mx, mx_at = max(gaps or [(0, 0)]); need = float(c.get('min_narration', plan.get('min_narration', 0.25)))
         ok = cov >= need and mx <= float(c.get('max_untouched', 8.0))
-        rep_line = f"originality: voice {cov * 100:.0f}% (need {need * 100:.0f}%), longest untouched stretch {mx:.1f}s (max 8) -> {'PASS' if ok else 'FAIL: add narration or edits'}"
+        rep_line = f"originality: voice {cov * 100:.0f}% (need {need * 100:.0f}%), {len(notes)} on-screen notes, {len(stick)} stickers, {len(sfx)} sfx, longest untouched stretch {mx:.1f}s at {mx_at:.1f}s (max {float(c.get('max_untouched', 8.0)):.0f}) -> {'PASS' if ok else 'FAIL: add narration or edits'}"
         meta.append(f"## {name}.mp4 ({d:.0f} s)\n**Title:** {c.get('title', '')}\n\n{c.get('description', '')}\n\n{rep_line}\n")
         print('  ' + rep_line, flush=True)
         print(f'{name}.mp4  {d:.1f}s  ({len(rngs)} cuts, {len(sfx)} sfx)', flush=True)

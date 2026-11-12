@@ -91,8 +91,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 def video_filter(plan, src_w, src_h):
     lay = plan.get('layout', 'blur')
     if lay == 'crop':
-        cx = plan.get('crop_x', 0.5)
-        return f"[0:v]scale=-2:{H},crop={W}:{H}:(iw-{W})*{cx}:0,setsar=1[v]", int(H * 0.66)
+        cx = plan.get('crop_x', 0.5); z = float(plan.get('crop_zoom', 1.0)); cy = float(plan.get('crop_y', 0.5))
+        return f"[0:v]scale=-2:{int(H * z) // 2 * 2},crop={W}:{H}:(iw-{W})*{cx}:(ih-{H})*{cy},setsar=1[v]", int(H * 0.66)
     if lay == 'facecam':
         x, y, w, h = plan['facecam']; cam_h = int(round(W * h / w / 2) * 2); game_h = H - cam_h
         gz = float(plan.get('game_zoom', 0.8))   # <1 shows more of the gameplay width (on a blurred fill) so centred text isn't cut

@@ -1,0 +1,388 @@
+{
+ "source": "/home/claude/preorder/src/jyn.mp4",
+ "transcript": "/home/claude/preorder/jyn/jyn_tx.json",
+ "asr": "",
+ "layout": "facecam",
+ "facecam": [
+  0,
+  600,
+  600,
+  480
+ ],
+ "game_zoom": 0.6,
+ "cap_y": 0.465,
+ "cap_size": 86,
+ "hook_size": 92,
+ "note_size": 104,
+ "min_word_prob": 0.5,
+ "min_narration": 0,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "phonk",
+  "bpm": 132,
+  "seed": 7,
+  "gain": 0.08
+ },
+ "clips": [
+  {
+   "title": "Jynxzi Finally Pre-Orders GTA 6",
+   "hook": "JYNXZI JUST FOUND OUT GTA 6 PRE-ORDERS EXIST",
+   "teaser": [
+    295.9,
+    301.0
+   ],
+   "ranges": [
+    [
+     242.5,
+     246.4
+    ],
+    [
+     251.2,
+     255.2
+    ],
+    [
+     262.1,
+     264.3
+    ],
+    [
+     270.9,
+     272.0
+    ],
+    [
+     277.5,
+     281.4
+    ],
+    [
+     288.6,
+     290.0
+    ],
+    [
+     295.9,
+     301.0
+    ],
+    [
+     301.7,
+     305.0
+    ],
+    [
+     306.9,
+     322.5
+    ],
+    [
+     323.5,
+     324.6
+    ],
+    [
+     336.1,
+     338.1
+    ],
+    [
+     341.7,
+     343.4
+    ],
+    [
+     348.1,
+     349.2
+    ],
+    [
+     377.1,
+     379.5
+    ],
+    [
+     409.6,
+     414.5
+    ],
+    [
+     431.6,
+     441.7
+    ],
+    [
+     459.5,
+     465.0
+    ]
+   ],
+   "max_len": 59,
+   "min_len": 30,
+   "max_untouched": 4.0,
+   "notes": [
+    {
+     "src_t": 245.2,
+     "text": "PRE-ORDERS OPENED IN JUNE",
+     "color": "yellow",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "bruh",
+     "gain": 0.7
+    },
+    {
+     "src_t": 254.5,
+     "text": "BRO IS 5 MONTHS LATE",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "pop",
+     "gain": 0.6
+    },
+    {
+     "src_t": 262.6,
+     "text": "$99.99 ULTIMATE EDITION",
+     "color": "green",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "cash_register",
+     "gain": 0.6
+    },
+    {
+     "src_t": 271.6,
+     "text": "NO GTA+ THANKS",
+     "color": "purple",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "pop",
+     "gain": 0.5
+    },
+    {
+     "src_t": 278.6,
+     "text": "CHAT, WHICH CARD??",
+     "color": "yellow",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "mouse_click",
+     "gain": 0.8
+    },
+    {
+     "src_t": 289.0,
+     "text": "209 GB?!",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "what",
+     "gain": 0.8
+    },
+    {
+     "src_t": 303.2,
+     "text": "TIME TO DELETE EVERYTHING",
+     "color": "yellow",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "wrong",
+     "gain": 0.6
+    },
+    {
+     "src_t": 319.2,
+     "text": "RIP CUPHEAD",
+     "color": "white",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "sad_trombone",
+     "gain": 0.55
+    },
+    {
+     "src_t": 324.1,
+     "text": "DELETED",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "bonk",
+     "gain": 0.7
+    },
+    {
+     "src_t": 337.6,
+     "text": "DELETED",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "bonk",
+     "gain": 0.7
+    },
+    {
+     "src_t": 342.9,
+     "text": "DELETED",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "bonk",
+     "gain": 0.7
+    },
+    {
+     "src_t": 348.5,
+     "text": "DELETED",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "bonk",
+     "gain": 0.7
+    },
+    {
+     "src_t": 378.4,
+     "text": "THE R6 KING DELETING R6??",
+     "color": "red",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "record_scratch",
+     "gain": 0.8
+    },
+    {
+     "src_t": 412.9,
+     "text": "COME ON COME ON",
+     "color": "white",
+     "dur": 1.6,
+     "y": 0.4
+    },
+    {
+     "src_t": 432.4,
+     "text": "IT'S INSTALLING!!",
+     "color": "green",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "celebration",
+     "gain": 0.5
+    },
+    {
+     "src_t": 440.0,
+     "text": "209.9 GB INCOMING",
+     "color": "purple",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "cartoon_rocket",
+     "gain": 0.5
+    },
+    {
+     "src_t": 462.1,
+     "text": "MIDNIGHT | NOVEMBER 19",
+     "color": "purple",
+     "dur": 1.6,
+     "y": 0.4,
+     "sfx": "clock_tick",
+     "gain": 0.5
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 254.6,
+     "gif": "/home/claude/gta6vid/gifs/anim3.gif",
+     "pos": [
+      0.68,
+      0.07
+     ],
+     "size": 300,
+     "dur": 1.5
+    },
+    {
+     "src_t": 289.2,
+     "gif": "/home/claude/gta6vid/gifs/imoji_b.gif",
+     "pos": [
+      0.68,
+      0.07
+     ],
+     "size": 320,
+     "dur": 1.6
+    },
+    {
+     "src_t": 319.4,
+     "gif": "/home/claude/gta6vid/gifs/cheems_cry.gif",
+     "pos": [
+      0.68,
+      0.07
+     ],
+     "size": 330,
+     "dur": 1.8
+    },
+    {
+     "src_t": 378.6,
+     "gif": "/home/claude/gta6vid/gifs/black_cat.gif",
+     "pos": [
+      0.68,
+      0.07
+     ],
+     "size": 320,
+     "dur": 1.8
+    },
+    {
+     "src_t": 432.6,
+     "gif": "/home/claude/gta6vid/gifs/cat_applause.gif",
+     "pos": [
+      0.68,
+      0.07
+     ],
+     "size": 330,
+     "dur": 2.0
+    },
+    {
+     "src_t": 462.3,
+     "emoji": "\u23f0",
+     "pos": [
+      0.68,
+      0.07
+     ],
+     "size": 240,
+     "dur": 2.0
+    },
+    {
+     "out_t": 2.4,
+     "emoji": "\ud83d\ude33",
+     "pos": [
+      0.7,
+      0.07
+     ],
+     "size": 240,
+     "dur": 2.2
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 245.5,
+     "type": "punch"
+    },
+    {
+     "src_t": 289.0,
+     "type": "shake"
+    },
+    {
+     "src_t": 300.8,
+     "type": "punch"
+    },
+    {
+     "src_t": 324.2,
+     "type": "punch"
+    },
+    {
+     "src_t": 337.8,
+     "type": "punch"
+    },
+    {
+     "src_t": 343.0,
+     "type": "punch"
+    },
+    {
+     "src_t": 348.6,
+     "type": "punch"
+    },
+    {
+     "src_t": 379.0,
+     "type": "shake"
+    },
+    {
+     "src_t": 432.4,
+     "type": "flash"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 379.2,
+     "name": "boom",
+     "gain": 0.6
+    },
+    {
+     "src_t": 300.8,
+     "name": "boom",
+     "gain": 0.55
+    }
+   ]
+  }
+ ]
+}

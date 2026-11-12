@@ -1,0 +1,317 @@
+{
+ "source": "/home/claude/preorder/src/kai_src.mp4",
+ "transcript": "/home/claude/preorder/kai/kai_tx.json",
+ "asr": "",
+ "layout": "crop",
+ "crop_x": 0.49,
+ "cap_y": 0.42,
+ "min_word_prob": 0.5,
+ "min_narration": 0,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "music": {
+  "style": "phonk",
+  "bpm": 128,
+  "seed": 4,
+  "gain": 0.09
+ },
+ "clips": [
+  {
+   "title": "Kai Cenat's GTA 6 Rules For His Girl",
+   "hook": "KAI'S GTA 6 RULES FOR HIS GIRL",
+   "teaser": [
+    183.0,
+    185.25
+   ],
+   "ranges": [
+    [
+     25.3,
+     30.45
+    ],
+    [
+     31.1,
+     38.3
+    ],
+    [
+     43.1,
+     48.15
+    ],
+    [
+     61.8,
+     64.95
+    ],
+    [
+     65.2,
+     74.5
+    ],
+    [
+     84.9,
+     86.6
+    ],
+    [
+     87.7,
+     92.6
+    ],
+    [
+     97.2,
+     105.0
+    ],
+    [
+     176.2,
+     178.35
+    ],
+    [
+     182.0,
+     190.5
+    ]
+   ],
+   "max_len": 59,
+   "min_len": 30,
+   "max_untouched": 4.0,
+   "notes": [
+    {
+     "src_t": 28.3,
+     "text": "WAITING SINCE 2013",
+     "color": "white",
+     "dur": 1.9,
+     "sfx": "clock_tick",
+     "gain": 0.5
+    },
+    {
+     "src_t": 31.2,
+     "text": "RULE #1: NO TEXTS",
+     "color": "yellow",
+     "dur": 1.7,
+     "sfx": "iphone_ding",
+     "gain": 0.6
+    },
+    {
+     "src_t": 33.3,
+     "text": "RULE #2: NO CALLS",
+     "color": "yellow",
+     "dur": 1.9,
+     "sfx": "pop",
+     "gain": 0.7,
+     "rot": 3
+    },
+    {
+     "src_t": 36.6,
+     "text": "RULE #3: NO DATES",
+     "color": "red",
+     "dur": 1.8,
+     "sfx": "wrong",
+     "gain": 0.7
+    },
+    {
+     "src_t": 47.2,
+     "text": "SUMMER 2027?!",
+     "color": "purple",
+     "dur": 1.6,
+     "sfx": "what",
+     "gain": 0.8,
+     "rot": 4
+    },
+    {
+     "src_t": 63.5,
+     "text": "HE NEEDS SHARK CARDS TOO",
+     "color": "green",
+     "dur": 1.6,
+     "sfx": "cash_register",
+     "gain": 0.6
+    },
+    {
+     "src_t": 68.2,
+     "text": "NO GOING OUTSIDE",
+     "color": "white",
+     "dur": 1.3
+    },
+    {
+     "src_t": 70.0,
+     "text": "NO CLUBS",
+     "color": "white",
+     "dur": 1.4,
+     "rot": 3
+    },
+    {
+     "src_t": 73.6,
+     "text": "HE'LL BE LIVE 24/7",
+     "color": "yellow",
+     "dur": 1.4,
+     "sfx": "pop",
+     "gain": 0.6
+    },
+    {
+     "src_t": 86.0,
+     "text": "WAIT WHAT??",
+     "color": "red",
+     "dur": 1.3,
+     "sfx": "record_scratch",
+     "gain": 0.8,
+     "rot": -5
+    },
+    {
+     "src_t": 91.3,
+     "text": "IN GTA THOUGH",
+     "color": "yellow",
+     "dur": 1.6,
+     "sfx": "ba_dum_tss",
+     "gain": 0.7
+    },
+    {
+     "src_t": 98.8,
+     "text": "IT'S VIRTUAL BABE",
+     "color": "purple",
+     "dur": 1.8,
+     "sfx": "bruh",
+     "gain": 0.7
+    },
+    {
+     "src_t": 103.5,
+     "text": "JUST FICTIONAL CHARACTERS",
+     "color": "white",
+     "dur": 1.6,
+     "rot": 3
+    },
+    {
+     "src_t": 177.5,
+     "text": "ROCKSTAR, TAKE HIS MONEY",
+     "color": "green",
+     "dur": 1.7,
+     "sfx": "cash_register",
+     "gain": 0.7
+    },
+    {
+     "src_t": 186.9,
+     "text": "GTA 6 | NOVEMBER 19",
+     "color": "purple",
+     "dur": 3.4
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 36.9,
+     "gif": "/home/claude/gta6vid/gifs/cheems_cry.gif",
+     "pos": [
+      0.69,
+      0.55
+     ],
+     "size": 330,
+     "dur": 1.6
+    },
+    {
+     "src_t": 47.5,
+     "gif": "/home/claude/gta6vid/gifs/imoji_d.gif",
+     "pos": [
+      0.02,
+      0.55
+     ],
+     "size": 330,
+     "dur": 1.4
+    },
+    {
+     "src_t": 86.3,
+     "gif": "/home/claude/gta6vid/gifs/black_cat.gif",
+     "pos": [
+      0.69,
+      0.55
+     ],
+     "size": 330,
+     "dur": 1.4
+    },
+    {
+     "src_t": 99.0,
+     "gif": "/home/claude/gta6vid/gifs/troll1.gif",
+     "pos": [
+      0.02,
+      0.55
+     ],
+     "size": 330,
+     "dur": 1.6
+    },
+    {
+     "src_t": 104.0,
+     "gif": "/home/claude/gta6vid/gifs/mona_laugh.gif",
+     "pos": [
+      0.69,
+      0.55
+     ],
+     "size": 330,
+     "dur": 1.5,
+     "sfx": "funny_laugh_2",
+     "gain": 0.5
+    },
+    {
+     "src_t": 177.8,
+     "emoji": "\ud83d\udcb8",
+     "pos": [
+      0.69,
+      0.55
+     ],
+     "size": 260,
+     "dur": 1.6
+    },
+    {
+     "src_t": 183.2,
+     "gif": "/home/claude/gta6vid/gifs/prayer.gif",
+     "pos": [
+      0.69,
+      0.55
+     ],
+     "size": 330,
+     "dur": 2.0
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 37.8,
+     "type": "punch"
+    },
+    {
+     "src_t": 47.8,
+     "type": "punch"
+    },
+    {
+     "src_t": 86.2,
+     "type": "shake"
+    },
+    {
+     "src_t": 92.2,
+     "type": "flash"
+    },
+    {
+     "src_t": 177.6,
+     "type": "punch"
+    },
+    {
+     "src_t": 187.3,
+     "type": "shake"
+    }
+   ],
+   "sfx": [
+    {
+     "src_t": 86.25,
+     "name": "boom",
+     "gain": 0.7
+    },
+    {
+     "src_t": 92.2,
+     "name": "bass_drop",
+     "gain": 0.5
+    },
+    {
+     "src_t": 187.3,
+     "name": "airhorn",
+     "gain": 0.5
+    }
+   ]
+  }
+ ],
+ "hook_size": 96,
+ "note_size": 112,
+ "crop_zoom": 1.1,
+ "crop_y": 0.8,
+ "cap_size": 86
+}
