@@ -36,10 +36,11 @@ def tts(text, voice, style):
             with urllib.request.urlopen(req, timeout=240) as r: d = json.load(r)
             return base64.b64decode(d['candidates'][0]['content']['parts'][0]['inlineData']['data'])
         except urllib.error.HTTPError as e:
-            msg = e.read().decode()[:400]
+            body_txt = e.read().decode(); msg = body_txt[:400]
             if e.code in (429, 500, 503):
-                print(f'  wait ({e.code})', 'per-day limit' if 'PerDay' in msg else '', flush=True)
-                if 'PerDay' in msg: raise RuntimeError('daily free limit reached: try again tomorrow or enable billing')
+                if 'PerDay' in body_txt:
+                    raise RuntimeError('daily free limit reached (10 requests/day on the free tier): try again after midnight Pacific time, or enable billing')
+                print(f'  wait ({e.code})', flush=True)
                 time.sleep(30 * (attempt + 1)); continue
             raise RuntimeError(f'HTTP {e.code}: {msg}')
     raise RuntimeError('TTS kept failing (rate limit or server busy)')
@@ -104,7 +105,7 @@ def main():
             words = [{'w': w['w'], 's': round(w['s'] - cs, 2), 'e': round(w['e'] - cs, 2)} for w in hw if cs <= w['s'] < ce]
             out.append({'i': x['i'], 'text': x['text'], 'file': f, 'dur': round(len(seg) / sr, 3), 'words': words, 'errors': errs[k]})
             print(f"{x['i']}: {len(seg) / sr:.1f}s err {errs[k]} | {x['text'][:60]}", flush=True)
-        out.sort(key=lambda z: z['i']); json.dump(out, open(res_path, 'w'), indent=1)
+        json.dump(out, open(res_path, 'w'), indent=1)
     print('DONE', len(out), 'lines', round(sum(x['dur'] for x in out)), 's', flush=True)
 
 if __name__ == '__main__':

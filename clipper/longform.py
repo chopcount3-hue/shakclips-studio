@@ -55,6 +55,7 @@ class Builder:
         self.p, self.out = plan, os.path.abspath(out); self.work = self.out + '.parts'; os.makedirs(self.work, exist_ok=True)
         self.parts, self.t, self.k = [], 0.0, 0
         self.narr, self.sfx, self.words, self.stamps, self.moments, self.timeline = [], [], [], [], [], []
+        self.overlays = []
         self.lines = {}
         for f in plan['lines']:
             for x in json.load(open(f)): self.lines[str(x['i'])] = x
@@ -189,6 +190,19 @@ class Builder:
         for s in lst or []:
             at = (line_end if s[1] == 'end' else item_t + float(s[1])); self.sfx.append((at, s[0], float(s[2]) if len(s) > 2 else 0.8))
 
+    def ov_at(self, item_t, lst, line_end=None):
+        for o in lst or []:
+            at = line_end + o.get('shift', 0) if o.get('at') == 'end' else item_t + float(o.get('at', 0)); self.overlays.append((at, o))
+
+    def emoji_png(self, ch, size):
+        from PIL import Image, ImageDraw, ImageFont
+        f = os.path.join(self.work, f'emoji_{ord(ch[0]):x}_{size}.png')
+        if not os.path.exists(f):
+            font = ImageFont.truetype('/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf', 109)
+            im = Image.new('RGBA', (160, 160), (0, 0, 0, 0)); ImageDraw.Draw(im).text((10, 10), ch, font=font, embedded_color=True)
+            im = im.crop(im.getbbox()); im.resize((size, int(size * im.height / im.width)), Image.LANCZOS).save(f)
+        return f
+
     def line(self, it, pool):
         L = self.lines[str(it['line'])]; t0 = self.t
         self.narr.append((t0, L['dur'], L['file']))
@@ -197,9 +211,10 @@ class Builder:
         self.shots(specs, L['dur'] + GAP + it.get('hold', 0))
         st = it.get('stamp')
         for s in ([st] if isinstance(st, dict) else st or []):
-            a = t0 + s.get('at', 0.3); self.stamps.append((a, a + s.get('dur', 2.6), s['text']))
+            a = t0 + s.get('at', 0.3) if s.get('at') != 'end' else t0 + L['dur'] - 0.2
+            self.stamps.append((a, a + s.get('dur', 2.6), s['text'], s.get('color', 'red')))
             if s.get('sfx'): self.sfx.append((a, s['sfx'], s.get('gain', 0.7)))
-        self.sfx_at(t0, it.get('sfx'), t0 + L['dur'])
+        self.sfx_at(t0, it.get('sfx'), t0 + L['dur']); self.ov_at(t0, it.get('overlays'), t0 + L['dur'])
 
     def pool_specs(self, pool):
         """rotate through the section pool so each line starts on a different piece of footage."""
@@ -209,7 +224,7 @@ class Builder:
     def moment(self, it):
         c, a, b = it['moment']; t0 = self.t; spec = {'clip': c, **{k: it[k] for k in ('crop', 'fit', 'tint') if k in it}}
         d = self.render(spec, a, b - a, fx=[tuple(x) for x in it.get('fx', [])], label=it.get('label'), audio=it.get('audio', 1.0))
-        self.moments.append((t0, d)); self.sfx_at(t0, it.get('sfx'))
+        self.moments.append((t0, d)); self.sfx_at(t0, it.get('sfx')); self.ov_at(t0, it.get('overlays'), t0 + d)
         if it.get('tx'):
             for w in json.load(open(it['tx']))['words']:
                 if w.get('p', 1) >= 0.45 and a <= w['s'] and w['e'] <= b:
@@ -229,7 +244,7 @@ class Builder:
                 if 'line' in it: self.line(it, pool)
                 elif 'moment' in it: self.moment(it)
                 elif 'info' in it:
-                    t0 = self.t; self.info(it, it.get('dur', 2.4)); self.sfx_at(t0, it.get('sfx'))
+                    t0 = self.t; self.info(it, it.get('dur', 2.4)); self.sfx_at(t0, it.get('sfx')); self.ov_at(t0, it.get('overlays'), self.t)
                     self.moments.append((t0, it.get('dur', 2.4)))
                 elif 'file' in it:
                     t0 = self.t; self.file(it['file'], it.get('keep_audio', False)); self.sfx_at(t0, it.get('sfx'))
@@ -240,8 +255,21 @@ class Builder:
         T = dur(track); print(f'track {T / 60:.2f} min, {len(self.parts)} pieces', flush=True)
         mix = self.mix(track, T)
         ass = os.path.join(self.work, 'subs.ass'); write_ass(ass, self.words, self.stamps)
-        sh([FF, '-v', 'error', '-y', '-i', track, '-i', mix, '-filter_complex',
-            f"[0:v]ass={ass}:fontsdir={os.path.dirname(FONT)},format=yuv420p[v]", '-map', '[v]', '-map', '1:a', '-map_metadata', '-1',
+        fc = f"[0:v]ass={ass}:fontsdir={os.path.dirname(FONT)}[b0]"; ins = []
+        POS = {'tr': ('W-w-70', '170'), 'tl': ('70', '170'), 'br': ('W-w-70', 'H-h-230'), 'bl': ('70', 'H-h-230'), 'c': ('(W-w)/2', '(H-h)/2'),
+               'cr': ('W-w-90', '(H-h)/2'), 'cl': ('90', '(H-h)/2')}
+        ovs = [(a, o) for a, o in self.overlays if 0 <= a < T]
+        for k, (at, o) in enumerate(ovs):
+            d = float(o.get('dur', 1.6)); size = int(o.get('size', 260)); idx = 2 + k
+            if o.get('gif'): ins += ['-ignore_loop', '0', '-t', f'{d:.2f}', '-i', o['gif']]
+            else: ins += ['-loop', '1', '-t', f'{d:.2f}', '-framerate', str(FPS), '-i', self.emoji_png(o['emoji'], size)]
+            x, y = POS.get(o.get('pos', 'tr'), POS['tr']) if isinstance(o.get('pos', 'tr'), str) else map(str, o['pos'])
+            fc += (f";[{idx}:v]scale={size}:-1,format=rgba,fade=t=in:st=0:d=0.12:alpha=1,fade=t=out:st={max(0.1, d - 0.22):.2f}:d=0.2:alpha=1,"
+                   f"setpts=PTS-STARTPTS+{at:.3f}/TB[g{k}];[b{k}][g{k}]overlay=x={x}:y='{y}+36*exp(-7*max(0\\,t-{at:.2f}))*cos(16*max(0\\,t-{at:.2f}))':"
+                   f"enable='between(t,{at:.2f},{at + d:.2f})':eof_action=pass[b{k + 1}]")
+        fc += f";[b{len(ovs)}]format=yuv420p[v]"
+        fcs = os.path.join(self.work, 'final_filter.txt'); open(fcs, 'w').write(fc)
+        sh([FF, '-v', 'error', '-y', '-i', track, '-i', mix, *ins, '-filter_complex_script', fcs, '-map', '[v]', '-map', '1:a', '-map_metadata', '-1',
             '-map_chapters', '-1', '-dn', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-profile:v', 'high', '-c:a', 'aac', '-b:a', '320k',
             '-ar', '48000', '-shortest', '-movflags', '+faststart', self.out])
         D = dur(self.out); cov = sum(d for _, d, _ in self.narr) / D
@@ -383,8 +411,11 @@ Style: Stamp,Anton,118,&H00FFFFFF,&H00FFFFFF,&H003A34E8,&H003A34E8,0,0,0,0,100,1
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     ev = []
-    for a, b, txt in stamps:
-        ev.append(f"Dialogue: 2,{ass_t(a)},{ass_t(b)},Stamp,,0,0,0,,{{\\fad(60,220)\\fscx140\\fscy140\\t(0,140,\\fscx96\\fscy96)\\t(140,220,\\fscx100\\fscy100)}}{esc(txt.upper())}")
+    BOX = {'red': ('&H003A34E8&', '&H00FFFFFF&'), 'green': ('&H0040C83C&', '&H00FFFFFF&'), 'yellow': ('&H0000D4FF&', '&H00101010&'),
+           'purple': ('&H00FF4691&', '&H00FFFFFF&')}
+    for st in stamps:
+        a, b, txt = st[:3]; box, fg = BOX.get(st[3] if len(st) > 3 else 'red', BOX['red'])
+        ev.append(f"Dialogue: 2,{ass_t(a)},{ass_t(b)},Stamp,,0,0,0,,{{\\3c{box}\\4c{box}\\1c{fg}\\fad(60,220)\\fscx140\\fscy140\\t(0,140,\\fscx96\\fscy96)\\t(140,220,\\fscx100\\fscy100)}}{esc(txt.upper())}")
     chunks, cur = [], []
     for w in sorted(words, key=lambda x: x['s']):
         if cur and (len(cur) == 3 or w['s'] - cur[-1]['e'] > 0.4 or re.search(r'[.!?,…]$', cur[-1]['w']) or w.get('who') != cur[-1].get('who')): chunks.append(cur); cur = []
