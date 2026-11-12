@@ -9,6 +9,7 @@ The daily run picks a trending topic by itself (the owner's choice). Anything ad
 ## Queue
 
 ## Done
+- [x] FRB 20240304B, the most distant fast radio burst — 2026-11-12, "This Flash Travelled 10 Billion Years to Reach Earth" / "This Signal Is Older Than the Sun #Shorts"
 - [x] A new world was just found beyond Pluto (2026 ED138) — 2026-11-11, "A New World Was Just Found Beyond Pluto" / "This World Hid in Plain Sight for 10 Years #Shorts"
 - [x] SpaceX Starship Flight 15 double catch — 2026-11-10, "SpaceX Is About to Catch a Spaceship With Chopsticks" / "SpaceX Wants to Catch BOTH Halves of Its Rocket #Shorts"
 - [x] The man who sold the Eiffel Tower — 2026-11-08 (made by hand)

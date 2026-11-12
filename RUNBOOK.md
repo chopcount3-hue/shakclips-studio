@@ -143,6 +143,9 @@ cd $P && ./voice.sh                     # house voice: Chatterbox Turbo + michae
 ```
 **Run this step alone:** no renders, Whisper jobs or other heavy work at the same time. Chatterbox plus a render exceeds the
 7 GB RAM, and the kernel kills the voice (seen twice on 2026-11-12; `voice.sh` then falls back to Kokoro).
+Even alone, one long Chatterbox run grows past 6 GB and was OOM-killed at paragraph 17 on 2026-11-12. If `voice/ENGINE` says
+Kokoro after a kill, re-run the house voice in chunks (fresh process per 8 paragraphs), then the normal polish chain:
+`/home/claude/venvs/cbx/bin/python $STUDIO/tts/cbx_chunks.py 8 && echo chatterbox-turbo > voice/ENGINE && $STUDIO/tts/voice_post.sh`
 
 QA (redo if it fails):
 - `voice/ENGINE` says `chatterbox-turbo`. If it says `kokoro-am_michael`, the fallback ran: carry on, and report it in step 14.

@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000;width:1920px;height:1080px;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script src="timing.js"></script><script src="core.js"></script><script src="extra.js"></script><script src="cosmic.js"></script><script src="scale.js"></script><script src="shots.js"></script>
+<script>
+const X = ctx;
+function word(str, x, y, size, grad, align) {
+  X.save(); X.font = `900 ${size}px "Inter Display"`; X.textAlign = align || 'left'; X.lineJoin = 'round'; X.miterLimit = 2;
+  // extrude
+  for (let i = 10; i > 0; i--) { X.fillStyle = i > 2 ? '#3a1606' : '#05070c'; X.fillText(str, x + i * 1.2, y + i * 1.6); }
+  X.shadowColor = 'rgba(0,0,0,0.9)'; X.shadowBlur = 40; X.shadowOffsetY = 14;
+  X.lineWidth = size * 0.2; X.strokeStyle = '#ffffff'; X.strokeText(str, x, y);
+  X.lineWidth = size * 0.12; X.strokeStyle = '#05070c'; X.strokeText(str, x, y); X.shadowColor = 'transparent';
+  const g = X.createLinearGradient(0, y - size * 0.8, 0, y); g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1]); X.fillStyle = g; X.fillText(str, x, y); X.restore();
+}
+function pill(txt, cx, cy, size, bg, col, rot) {
+  X.save(); X.translate(cx, cy); X.rotate(rot || 0); X.font = `900 ${size}px "Inter Display"`;
+  const w = X.measureText(txt).width + size * 1.1, h = size * 1.55;
+  X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 30; X.shadowOffsetY = 10;
+  X.beginPath(); X.roundRect(-w / 2, -h / 2, w, h, 18); X.fillStyle = bg; X.fill(); X.shadowColor = 'transparent';
+  X.lineWidth = 8; X.strokeStyle = '#fff'; X.stroke();
+  X.fillStyle = col; X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillText(txt, 0, size * 0.05); X.restore();
+}
+window.draw = async () => {
+  await document.fonts.load('900 200px "Inter Display"');
+  const t = 3.0;
+  space(t, { density: 2.2, neb: 0.55, hues: ['#4a3aa8', '#a83a8a'] });
+  dwarf(1610, 230, 150, { t, seed: 9 });
+  COS.glow(1640, 215, 260, '#ffc46b', 0.5);
+  // the streak: galaxy (top right) -> Earth (bottom left)
+  X.save(); const g = X.createLinearGradient(1600, 230, 700, 690); g.addColorStop(0, 'rgba(255,196,107,0.05)'); g.addColorStop(1, 'rgba(255,240,210,0.95)');
+  X.strokeStyle = g; X.lineCap = 'round'; X.lineWidth = 26; X.beginPath(); X.moveTo(1600, 230); X.lineTo(700, 690); X.stroke(); X.lineWidth = 8; X.strokeStyle = 'rgba(255,255,255,0.9)'; X.stroke(); X.restore();
+  COS.planet(330, 980, 520, 'earth', { light: COS.light(-30, 25), spin: 70, clouds: true });
+  COS.glow(700, 690, 380, '#ffc46b', 0.7); COS.glow(700, 690, 120, '#fff4e0', 0.88);
+  // motion sparks
+  X.save(); X.strokeStyle = 'rgba(255,230,180,0.8)'; X.lineCap = 'round'; [[-60, -90, 160], [40, -130, 110], [-120, -20, 90], [70, -40, 130]].forEach(([dx, dy, l]) => { X.lineWidth = 6; X.beginPath(); X.moveTo(700 + dx, 690 + dy); X.lineTo(700 + dx + l * 0.89, 690 + dy - l * 0.45); X.stroke(); }); X.restore();
+  COS.vignette(0.55);
+  word('OLDER THAN', 1860, 790, 140, ['#ffffff', '#d6e4ff'], 'right');
+  word('THE SUN', 1860, 990, 215, ['#FFE07A', '#FF9A2E'], 'right');
+  pill('10 BILLION+ YEARS', 520, 120, 62, '#E8343A', '#fff', -0.04);
+  // curved arrow: badge -> the flash
+  X.save(); X.strokeStyle = '#fff'; X.lineWidth = 16; X.lineCap = 'round'; X.lineJoin = 'round'; X.shadowColor = 'rgba(0,0,0,0.7)'; X.shadowBlur = 16;
+  X.beginPath(); X.moveTo(560, 200); X.quadraticCurveTo(780, 330, 720, 560); X.stroke();
+  X.beginPath(); X.moveTo(680, 520); X.lineTo(718, 580); X.lineTo(768, 530); X.stroke(); X.restore();
+  X.save(); X.font = '150px "Noto Color Emoji"'; X.textAlign = 'center'; X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 20; X.fillText('🤯', 1150, 560); X.restore();
+};
+</script></body></html>
