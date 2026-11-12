@@ -57,7 +57,8 @@ def best_face(p):
 def cutout(im):
     from rembg import remove, new_session
     out = remove(im, session=new_session('isnet-general-use'))
-    bb = out.getbbox(); return out.crop(bb) if bb else out
+    r, g, b, a = out.split(); a = a.point(lambda v: 0 if v < 70 else min(255, int(v * 1.15)))   # drop the faint halo rembg leaves
+    out = Image.merge('RGBA', (r, g, b, a)); bb = a.getbbox(); return out.crop(bb) if bb else out
 
 def sticker(rgba, border=9, shadow=18):
     a = rgba.split()[-1]

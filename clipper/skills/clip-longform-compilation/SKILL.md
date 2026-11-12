@@ -72,3 +72,14 @@ Narrated, topic-based long-forms (60–70% commentary, real clips, no animation)
   limiter −1.5 dBFS, AAC 320k.
 - **Captions** use the script's spelling timed by Whisper's words (names come out right), years and numbers as digits.
 - **Crop** burned-in captions, tickers and logos per clip in `clipopts`; vertical clips get `fit` (blurred fill).
+
+## Channel voice and reaction layout (Shak Replay, 12 Nov 2026)
+- **Voice:** the owner picked Google Gemini TTS **Fenrir** (free tier, key in `~/.config/watch/.env`). Use `tts_gemini.py`:
+  give lines a `group` (one group per section) so each section is ONE natural take, cut back into lines with Whisper. The free
+  tier allows only a few requests a minute and per day, so a 5-minute video should be about 6 requests.
+- **Reaction layout:** `cam: [x, y, w, h]` in `clipopts` shows the streamer's webcam big on the left with the game in a small
+  framed window on the right, over a blurred copy of the frame. Find the webcam box by eye on a 10% grid frame taken at the
+  moment's own time (layouts change inside a clip). `crop: [0, 0, 1, 0.87]` on full-cam clips removes clip makers' burned subtitles.
+- Moments with `tx` (the clip's Whisper JSON) get captions of what the streamer says (swears masked), in a different
+  highlight colour from the narration.
+- The owner makes thumbnails himself: suggest thumbnail text and offer clean frames, don't design thumbnails.

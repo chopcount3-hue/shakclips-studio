@@ -97,7 +97,13 @@ class Builder:
         if replay:
             post.append(self.text_filter('REPLAY', 'x=w-tw-70:y=56', 58, 'white', border=5, enable='lt(mod(t,0.8),0.55)'))
             post.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=white@0.6:t=fill:enable='lt(t,0.07)'")
-        if o.get('fit'):
+        if o.get('cam'):
+            cx, cy, cw, chh = o['cam']; CH = int(H2 * 0.80)
+            fc = (f"[0:v]{','.join(pre)},split=3[b][f][g];[b]scale={W2}:{H2}:force_original_aspect_ratio=increase,crop={W2}:{H2},boxblur=30:2,"
+                  f"eq=brightness=-0.28:saturation=0.6[bg];[f]crop=iw*{cw}:ih*{chh}:iw*{cx}:ih*{cy},scale='min(1150,iw*{CH}/ih)':-2,"
+                  f"pad=iw+18:ih+18:9:9:white[fg];[g]scale=720:-2,pad=iw+12:ih+12:6:6:white[gi];"
+                  f"[bg][fg]overlay=150:(H-h)/2[t1];[t1][gi]overlay=W-w-150:190,{mv},{','.join(post)}[v]")
+        elif o.get('fit'):
             fc = (f"[0:v]{','.join(pre)},split[b][f];[b]scale={W2}:{H2}:force_original_aspect_ratio=increase,crop={W2}:{H2},boxblur=28:2,"
                   f"eq=brightness=-0.18:saturation=0.7[bg];[f]scale=-2:{int(H2 * 0.96)}[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,{mv},{','.join(post)}[v]")
         else:
@@ -143,7 +149,7 @@ class Builder:
             o = self.opts({'clip': bgc}); pre = [f"crop=iw*{o['crop'][2]}:ih*{o['crop'][3]}:iw*{o['crop'][0]}:ih*{o['crop'][1]}"] if o.get('crop') else []
             inp = ['-ss', f'{bt:.2f}', '-t', f'{d + 0.1:.2f}', '-i', self.clip(bgc)]
             fc = (f"[0:v]{','.join(pre + [f'fps={FPS}'])},scale={W2}:{H2}:force_original_aspect_ratio=increase,crop={W2}:{H2},{zoom},"
-                  f"boxblur=22:2,hue=s=0.25,colorchannelmixer=rr=1.1:gg=0.6:bb=0.6,eq=brightness=-0.2:contrast=1.1,vignette=PI/3.5,{','.join(vf)}[v]")
+                  f"boxblur=22:2,hue=s=0.25,{'colorchannelmixer=rr=1.05:gg=0.5:bb=1.15' if self.p.get('info_tint') == 'vice' else 'colorchannelmixer=rr=1.1:gg=0.6:bb=0.6'},eq=brightness=-0.2:contrast=1.1,vignette=PI/3.5,{','.join(vf)}[v]")
         else:
             inp = ['-f', 'lavfi', '-t', f'{d + 0.1:.2f}', '-i', f'color=c=0x140608:s={W}x{H}:r={FPS}']
             fc = f"[0:v]vignette=PI/3.5,{','.join(vf)}[v]"
@@ -204,6 +210,10 @@ class Builder:
         c, a, b = it['moment']; t0 = self.t; spec = {'clip': c, **{k: it[k] for k in ('crop', 'fit', 'tint') if k in it}}
         d = self.render(spec, a, b - a, fx=[tuple(x) for x in it.get('fx', [])], label=it.get('label'), audio=it.get('audio', 1.0))
         self.moments.append((t0, d)); self.sfx_at(t0, it.get('sfx'))
+        if it.get('tx'):
+            for w in json.load(open(it['tx']))['words']:
+                if w.get('p', 1) >= 0.45 and a <= w['s'] and w['e'] <= b:
+                    self.words.append({'w': mask(w['w']), 's': t0 + w['s'] - a, 'e': t0 + w['e'] - a, 'who': 'clip'})
         if it.get('replay'):
             ra, rb = it['replay'] if isinstance(it['replay'], list) else (a, b)
             self.sfx.append((self.t, 'tape_rewind', 0.35)); t1 = self.t
@@ -318,6 +328,10 @@ NUM = {('twenty', 'ten'): '2010', ('twenty', 'fifteen'): '2015', ('twenty', 'six
        ('two', 'hundred', 'and', 'twenty-six'): '226', ('one', 'hundred', 'and', 'fifty-fourth'): '154TH', ('fourteen',): '14',
        ('forty-one',): '41', ('fourteen-year-old',): '14-YEAR-OLD', ('six-month-old',): '6-MONTH-OLD', ('two-match',): '2-MATCH',
        ('one-match',): '1-MATCH', ('one-year',): '1-YEAR', ('sixth',): '6TH'}
+SWEARS = ('fuck', 'shit', 'bitch', 'nigga', 'nigger', 'pussy', 'dick', 'cunt', 'ass')
+def mask(w):
+    k = re.sub(r"[^a-z]", '', w.lower())
+    return (w[0] + '*' * (len(k) - 1)) if any(k.startswith(x) for x in SWEARS) and k not in ('assist', 'assume', 'asset', 'dickens') else w
 def norm(w): return re.sub(r"[^a-z']", '', w.lower())
 def key(w): return re.sub(r"[^a-z'\-]", '', w.lower())
 
@@ -372,8 +386,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     for a, b, txt in stamps:
         ev.append(f"Dialogue: 2,{ass_t(a)},{ass_t(b)},Stamp,,0,0,0,,{{\\fad(60,220)\\fscx140\\fscy140\\t(0,140,\\fscx96\\fscy96)\\t(140,220,\\fscx100\\fscy100)}}{esc(txt.upper())}")
     chunks, cur = [], []
-    for w in words:
-        if cur and (len(cur) == 3 or w['s'] - cur[-1]['e'] > 0.4 or re.search(r'[.!?,…]$', cur[-1]['w'])): chunks.append(cur); cur = []
+    for w in sorted(words, key=lambda x: x['s']):
+        if cur and (len(cur) == 3 or w['s'] - cur[-1]['e'] > 0.4 or re.search(r'[.!?,…]$', cur[-1]['w']) or w.get('who') != cur[-1].get('who')): chunks.append(cur); cur = []
         cur.append(w)
     if cur: chunks.append(cur)
     for ci, ch in enumerate(chunks):
@@ -381,7 +395,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         for k, w in enumerate(ch):
             t0 = w['s']; t1 = ch[k + 1]['s'] if k + 1 < len(ch) else min(nxt, ch[-1]['e'] + 0.5)
             if t1 - t0 < 0.04: continue
-            txt = ' '.join((f"{{\\c&H4AD2FF&}}{esc(x['w'].upper())}{{\\c&H00FFFFFF&}}" if j == k else esc(x['w'].upper())) for j, x in enumerate(ch))
+            hi = '&H00F0FF&' if ch[0].get('who') == 'clip' else '&H4AD2FF&'
+            txt = ' '.join((f"{{\\c{hi}}}{esc(x['w'].upper())}{{\\c&H00FFFFFF&}}" if j == k else esc(x['w'].upper())) for j, x in enumerate(ch))
             pop = '\\t(0,80,\\fscx105\\fscy105)\\t(80,150,\\fscx100\\fscy100)' if k == 0 else ''
             ev.append(f"Dialogue: 1,{ass_t(t0)},{ass_t(t1)},Cap,,0,0,0,,{{\\pos({W // 2},{int(H * 0.885)}){pop}}}{txt}")
     open(path, 'w').write(head + '\n'.join(ev) + '\n')
