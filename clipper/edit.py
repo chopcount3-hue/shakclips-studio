@@ -289,6 +289,14 @@ def main():
         R.ass_file(ass, cw, c.get('hook', ''), cap_y, plan.get('font', 'Luckiest Guy'), plan.get('accent', '&H4AD2FF&'), 2.8)
         if plan.get('cap_mode') == 'single': single_words(ass, cw, cap_y, plan)
         duck = '+'.join(f'between(t,{t - 0.1:.2f},{t + nd + 0.15:.2f})' for t, nd, _, _ in narr)
+        # bleep: [src_a, src_b] spans of source audio to silence (swears/slurs in game or trailer dialogue), with an optional beep
+        mutes = []
+        for ba, bb in c.get('bleep', []):
+            for a, b, t0, s in tl:
+                if s == 1.0 and ba < b and bb > a: mutes.append((t0 + max(ba, a) - a, t0 + min(bb, b) - a))
+        mexpr = '+'.join(f'between(t,{x:.2f},{y:.2f})' for x, y in mutes)
+        if mutes:
+            sfx +=[(x, {'name': c.get('bleep_sfx', 'censored'), 'gain': 0.35}) for x, y in mutes if c.get('bleep_sfx', 'censored')]
         marks = []
         for m in c.get('marks', []):
             t = float(m['out_t']) if 'out_t' in m else to_out(float(m['src_t']))
@@ -356,18 +364,19 @@ def main():
                    f"enable='between(t,{t:.2f},{t + d:.2f})':eof_action=pass[vg{j}];")
             vlast = f'[vg{j}]'; idx += 1
         fc += f"{vlast}ass={ass}:fontsdir={os.path.expanduser('~/.fonts')},format=yuv420p[vo]"
-        fc += f";[0:a]aformat=sample_rates=48000:channel_layouts=stereo" + (f",volume='if({duck},0.22,1)':eval=frame" if duck else '') + "[ga]"
+        gvol = '*'.join(([f'if({duck},0.22,1)'] if duck else []) + ([f'if({mexpr},0,1)'] if mexpr else []))
+        fc += f";[0:a]aformat=sample_rates=48000:channel_layouts=stereo" + (f",volume='{gvol}':eval=frame" if gvol else '') + "[ga]"
         for j, (t, x) in enumerate(sfx):
             ins += ['-i', R.sfx_path(x['name'], plan)]; ms = int(t * 1000)
             fc += f";[{idx}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={ms}|{ms},volume={float(x.get('gain', 0.9)):.2f}[s{j}]"; mix.append(f'[s{j}]'); idx += 1
         mu = c.get('music', plan.get('music'))
         if mu:
-            mp = os.path.join(outdir, '_music', f"{mu.get('style', 'phonk')}_{mu.get('bpm', 130)}_{mu.get('seed', 1)}.wav")
+            mp = mu.get('file') or os.path.join(outdir, '_music', f"{mu.get('style', 'phonk')}_{mu.get('bpm', 130)}_{mu.get('seed', 1)}.wav")
             if not os.path.exists(mp):
                 os.makedirs(os.path.dirname(mp), exist_ok=True)
                 sh([sys.executable, os.path.join(HERE, 'music.py'), mp, '--seconds', '70', '--bpm', str(mu.get('bpm', 130)),
                     '--seed', str(mu.get('seed', 1)), '--style', mu.get('style', 'phonk')])
-            ins += ['-stream_loop', '-1', '-i', mp]; g = float(mu.get('gain', 0.22))
+            ins += ['-stream_loop', '-1', *(['-ss', str(mu['from'])] if mu.get('from') else []), '-i', mp]; g = float(mu.get('gain', 0.22))
             fc += (f";[{idx}:a]aformat=sample_rates=48000:channel_layouts=stereo,atrim=0:{dcur:.2f},afade=t=in:d=0.4,afade=t=out:st={max(0, dcur - 1.5):.2f}:d=1.5,"
                    f"volume='{g}*if({duck or 0},0.45,1)':eval=frame[mus]"); mix.append('[mus]'); idx += 1
         for j, (t, nd, f, _) in enumerate(narr):

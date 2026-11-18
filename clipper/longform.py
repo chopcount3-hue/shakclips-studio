@@ -360,11 +360,13 @@ class Builder:
         # music bed: full between lines, duck_db lower under narration; falls 1.0 s before a line, rises 1.2 s after it
         mu = self.p.get('music')
         if mu:
-            mp = os.path.join(self.work, 'music.wav')
+            mp = mu.get('file') or os.path.join(self.work, 'music.wav')
             if not os.path.exists(mp):
                 sh([sys.executable, os.path.join(HERE, 'music.py'), mp, '--seconds', int(T) + 3, '--bpm', mu.get('bpm', 84), '--seed', mu.get('seed', 7),
                     '--style', mu.get('style', 'trap')])
-            m = self.load(mp)[:n]; m = np.pad(m, ((0, n - len(m)), (0, 0)))
+            m = self.load(mp)[int(mu.get('from', 0) * SR):]              # library track (music.file) or generated bed
+            if len(m) < n: m = np.tile(m, (n // max(len(m), 1) + 1, 1))   # loop a short track to the video length
+            m = m[:n]
             full = 10 ** ((mu.get('full_lufs', -21) - meter.integrated_loudness(m[: int(min(T, 120) * SR)])) / 20)
             under = full * 10 ** (-mu.get('duck_db', 14) / 20)
             kr = 100; tt = np.arange(int(T * kr) + kr) / kr; env = np.full(len(tt), full, np.float32)
