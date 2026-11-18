@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000;width:1920px;height:1080px;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script src="timing.js"></script><script src="core.js"></script><script src="extra.js"></script><script src="cosmic.js"></script><script src="scale.js"></script><script src="shots.js"></script>
+<script>
+const X = ctx;
+function word(str, x, y, size, grad, align) {
+  X.save(); X.font = `900 ${size}px "Inter Display"`; X.textAlign = align || 'left'; X.lineJoin = 'round'; X.miterLimit = 2;
+  // extrude
+  for (let i = 10; i > 0; i--) { X.fillStyle = i > 2 ? '#3a1606' : '#05070c'; X.fillText(str, x + i * 1.2, y + i * 1.6); }
+  X.shadowColor = 'rgba(0,0,0,0.9)'; X.shadowBlur = 40; X.shadowOffsetY = 14;
+  X.lineWidth = size * 0.2; X.strokeStyle = '#ffffff'; X.strokeText(str, x, y);
+  X.lineWidth = size * 0.12; X.strokeStyle = '#05070c'; X.strokeText(str, x, y); X.shadowColor = 'transparent';
+  const g = X.createLinearGradient(0, y - size * 0.8, 0, y); g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1]); X.fillStyle = g; X.fillText(str, x, y); X.restore();
+}
+function pill(txt, cx, cy, size, bg, col, rot) {
+  X.save(); X.translate(cx, cy); X.rotate(rot || 0); X.font = `900 ${size}px "Inter Display"`;
+  const w = X.measureText(txt).width + size * 1.1, h = size * 1.55;
+  X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 30; X.shadowOffsetY = 10;
+  X.beginPath(); X.roundRect(-w / 2, -h / 2, w, h, 18); X.fillStyle = bg; X.fill(); X.shadowColor = 'transparent';
+  X.lineWidth = 8; X.strokeStyle = '#fff'; X.stroke();
+  X.fillStyle = col; X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillText(txt, 0, size * 0.05); X.restore();
+}
+window.draw = async () => {
+  await document.fonts.load('900 200px "Inter Display"');
+  const t = 3.0;
+  space(t, { density: 2.0, neb: 0.5, hues: ['#7a2a3a', '#2a2a6a'], nebSeed: 4 });
+  // left: the giant, blazing; right: the same spot, empty but for a black hole and a red dust glow
+  sGiant(560, 560, 400, t);
+  X.save(); X.fillStyle = 'rgba(2,3,8,0.86)'; X.beginPath(); X.moveTo(1080, 0); X.lineTo(W, 0); X.lineTo(W, H); X.lineTo(980, H); X.closePath(); X.fill(); X.restore();
+  X.save(); X.strokeStyle = 'rgba(255,255,255,0.9)'; X.lineWidth = 10; X.setLineDash([34, 22]); X.beginPath(); X.moveTo(1080, 0); X.lineTo(980, H); X.stroke(); X.restore();
+  dustGlow(1480, 600, 300, t, 0.9); bareBH(1480, 600, 90);
+  // infall sparks streaking toward the hole
+  X.save(); X.strokeStyle = 'rgba(255,200,150,0.8)'; X.lineCap = 'round'; [[-260, -160], [-300, 40], [-200, 200], [240, -200], [280, 120]].forEach(([dx, dy]) => { X.lineWidth = 6; X.beginPath(); X.moveTo(1480 + dx, 600 + dy); X.lineTo(1480 + dx * 0.55, 600 + dy * 0.55); X.stroke(); }); X.restore();
+  COS.vignette(0.5);
+  word('NO', 70, 230, 210, ['#ffffff', '#d6e4ff'], 'left');
+  word('EXPLOSION?', 70, 420, 190, ['#FFE07A', '#FF9A2E'], 'left');
+  pill('10,000× FAINTER', 1480, 950, 64, '#E8343A', '#fff', -0.04);
+  // curved arrow: badge -> the empty spot
+  X.save(); X.strokeStyle = '#fff'; X.lineWidth = 16; X.lineCap = 'round'; X.lineJoin = 'round'; X.shadowColor = 'rgba(0,0,0,0.7)'; X.shadowBlur = 16;
+  X.beginPath(); X.moveTo(1240, 880); X.quadraticCurveTo(1150, 760, 1330, 680); X.stroke();
+  X.beginPath(); X.moveTo(1270, 660); X.lineTo(1335, 678); X.lineTo(1300, 738); X.stroke(); X.restore();
+  X.save(); X.font = '150px "Noto Color Emoji"'; X.textAlign = 'center'; X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 20; X.fillText('😱', 1790, 200); X.restore();
+};
+</script></body></html>
