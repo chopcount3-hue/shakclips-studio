@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000;width:1920px;height:1080px;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas><script src="../timing.js"></script><script src="../core.js"></script><script src="../extra.js"></script><script src="../cosmic.js"></script><script src="../scale.js"></script><script src="../shots.js"></script>
+<script>
+const X = ctx;
+function word(str, x, y, size, grad, align) {
+  X.save(); X.font = `900 ${size}px "Inter Display"`; X.textAlign = align || 'left'; X.lineJoin = 'round'; X.miterLimit = 2;
+  // extrude
+  for (let i = 10; i > 0; i--) { X.fillStyle = i > 2 ? '#3a1606' : '#05070c'; X.fillText(str, x + i * 1.2, y + i * 1.6); }
+  X.shadowColor = 'rgba(0,0,0,0.9)'; X.shadowBlur = 40; X.shadowOffsetY = 14;
+  X.lineWidth = size * 0.2; X.strokeStyle = '#ffffff'; X.strokeText(str, x, y);
+  X.lineWidth = size * 0.12; X.strokeStyle = '#05070c'; X.strokeText(str, x, y); X.shadowColor = 'transparent';
+  const g = X.createLinearGradient(0, y - size * 0.8, 0, y); g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1]); X.fillStyle = g; X.fillText(str, x, y); X.restore();
+}
+function pill(txt, cx, cy, size, bg, col, rot) {
+  X.save(); X.translate(cx, cy); X.rotate(rot || 0); X.font = `900 ${size}px "Inter Display"`;
+  const w = X.measureText(txt).width + size * 1.1, h = size * 1.55;
+  X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 30; X.shadowOffsetY = 10;
+  X.beginPath(); X.roundRect(-w / 2, -h / 2, w, h, 18); X.fillStyle = bg; X.fill(); X.shadowColor = 'transparent';
+  X.lineWidth = 8; X.strokeStyle = '#fff'; X.stroke();
+  X.fillStyle = col; X.textAlign = 'center'; X.textBaseline = 'middle'; X.fillText(txt, 0, size * 0.05); X.restore();
+}
+window.draw = async () => {
+  await document.fonts.load('900 200px "Inter Display"');
+  const t = 3.0;
+  X.clearRect(0, 0, W, H);
+  rock(700, 600, 440, { phi: 0.6, seed: 491, incl: 18, roll: 8, L: v3n([-0.85, 0.3, 0.45]), amb: 0.06, n: 5, halo: false });
+  const off = document.createElement('canvas'); off.width = W; off.height = H; off.getContext('2d').drawImage(cv, 0, 0);
+  X.clearRect(0, 0, W, H);
+  space(t, { density: 2.0, neb: 0.55, hues: ['#1a3a7a', '#3a1a5a'], nebSeed: 9 });
+  COS.glow(-150, 380, 1100, '#ffcf80', 0.32); COS.glow(-60, 380, 420, '#fff2d0', 0.35);
+  // motion arcs around the equator, behind and in front
+  const arcs = (front) => { X.save(); X.lineCap = 'round'; for (let i = 0; i < 6; i++) { const rx = 520 + i * 26, ry = 120 + i * 9; X.strokeStyle = `rgba(255,255,255,${0.5 - i * 0.07})`; X.lineWidth = 9 - i; X.beginPath(); front ? X.ellipse(700, 640, rx, ry, -0.12, 0.15 * Math.PI, 0.85 * Math.PI) : X.ellipse(700, 640, rx, ry, -0.12, 1.15 * Math.PI, 1.85 * Math.PI); X.stroke(); } X.restore(); };
+  arcs(false);
+  X.save(); X.filter = 'blur(0.8px)'; X.drawImage(off, 0, 0); X.restore();
+  arcs(true);
+  // spin arrow
+  X.save(); X.strokeStyle = '#FFD24A'; X.lineWidth = 22; X.lineCap = 'round'; X.shadowColor = 'rgba(0,0,0,0.7)'; X.shadowBlur = 18;
+  X.beginPath(); X.ellipse(700, 600, 600, 170, -0.12, 0.05 * Math.PI, 0.95 * Math.PI); X.stroke();
+  X.beginPath(); X.moveTo(72, 646); X.lineTo(146, 674); X.lineTo(84, 722); X.closePath(); X.fillStyle = '#FFD24A'; X.fill(); X.restore();
+  // the astronaut, flung off with speed lines
+  X.save(); X.strokeStyle = 'rgba(255,255,255,0.75)'; X.lineCap = 'round'; for (let i = 0; i < 6; i++) { X.lineWidth = 7; X.beginPath(); X.moveTo(1150 - i * 18, 520 + i * 26); X.lineTo(1290 - i * 10, 430 + i * 22); X.stroke(); } X.restore();
+  COS.glow(1420, 400, 160, '#bfe0ff', 0.35);
+  astro(1440, 470, 1.05, -0.9, { armL: 2.6, armR: -2.4, kick: 1 });
+  COS.vignette(0.45);
+  word("YOU'D", 1180, 210, 170, ['#ffffff', '#d6e4ff'], 'left');
+  word('FLY OFF', 1060, 1000, 190, ['#FFE07A', '#FF9A2E'], 'left');
+  pill('2.5 KM WIDE', 330, 140, 70, '#E8343A', '#fff', -0.05);
+  X.save(); X.font = '150px "Noto Color Emoji"'; X.textAlign = 'center'; X.shadowColor = 'rgba(0,0,0,0.6)'; X.shadowBlur = 20; X.fillText('😱', 1800, 640); X.restore();
+};
+</script></body></html>

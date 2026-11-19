@@ -9,6 +9,7 @@ The daily run picks a trending topic by itself (the owner's choice). Anything ad
 ## Queue
 
 ## Done
+- [x] Asteroid 491384, the largest ultra-fast rotator (Rubin, Oct 2026) — 2026-11-19, "This Asteroid Spins Every 4 Minutes. It Should Have Torn Apart." / "A Mountain-Sized Rock That Spins Every 4 Minutes #Shorts"
 - [x] Failed supernovas and the 10-solar-mass black hole peak — 2026-11-18, "The Stars That Vanish Without Exploding" / "This Star Didn't Explode. It Just Vanished. #Shorts"
 - [x] FRB 20240304B, the most distant fast radio burst — 2026-11-12, "This Flash Travelled 10 Billion Years to Reach Earth" / "This Signal Is Older Than the Sun #Shorts"
 - [x] A new world was just found beyond Pluto (2026 ED138) — 2026-11-11, "A New World Was Just Found Beyond Pluto" / "This World Hid in Plain Sight for 10 Years #Shorts"
