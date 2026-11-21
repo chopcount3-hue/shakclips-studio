@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "videoId": null,
+  "url": null,
+  "status": "verification_required",
+  "scheduledFor": "2026-11-21T16:00:00Z",
+  "error": "vidIQ returned youtube_mfa: YouTube verification required before publishing. Draft is saved (postId 3799c18d-02e3-4811-b368-ad97aa8ecbf0, publicationId f89333f8-0239-446f-aa3c-348906295afc, uploadId 12aa0c23-f75d-4198-bb5e-f40c851df127). Complete the vidIQ YouTube verification, then re-run vidiq_social_post_publish with postId and revision e564d680.",
+  "checkedAt": "2026-11-21T09:23:00Z"
+}
