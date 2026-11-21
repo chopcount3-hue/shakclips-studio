@@ -97,6 +97,8 @@ vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUr
   licensed under CC BY 4.0 – https://creativecommons.org/licenses/by/4.0/`; 4-6 hashtags. Long video: add chapters
   (00:00 + each moment's start from long.json timeline) after the hook line.
 - Tags: gta 6, gta vi, gta 6 gameplay, gta 6 funny moments, <streamer>, gta 6 clips, grand theft auto 6, twitch clips (+ shorts).
+- vidiq_social_post_publish only runs after the owner approves the finished draft. On an unattended run, leave every video as a
+  draft, record the postIds in posts.csv, and PushNotification the owner with titles and times so they can reply "post them".
 - If publish returns `youtube_mfa` / verification required: copy the verification link, send it with PushNotification
   ("Tap to verify SHAK REPLAY, pick shakreplay account, tick every box"), wait up to 20 min re-trying publish every 2 min,
   then leave the rest as drafts and list them in the report.

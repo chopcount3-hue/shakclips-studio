@@ -1,0 +1,336 @@
+{
+ "source": "/home/claude/gtaday/clips/ohnepixel_16.mp4",
+ "transcript": "/home/claude/gtaday/tx/ohnepixel_16.fixed.json",
+ "asr": "",
+ "min_word_prob": 0.5,
+ "min_narration": 0,
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "OH": "yellow",
+  "MY": "yellow",
+  "GOSH": "yellow",
+  "GOD": "yellow",
+  "WOW": "yellow",
+  "BRO": "yellow",
+  "CHAT": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "YO": "yellow",
+  "HOLY": "yellow",
+  "BRUH": "yellow",
+  "HUH": "yellow",
+  "GTA": "green",
+  "SIX": "green",
+  "6": "green",
+  "VI": "green",
+  "GOOD": "green",
+  "INSANE": "green",
+  "CRAZY": "green",
+  "PLAYING": "green",
+  "GAME": "green",
+  "FINALLY": "green",
+  "YES": "green",
+  "GRAPHICS": "green",
+  "BEAUTIFUL": "green",
+  "GO": "green",
+  "FIRE": "green",
+  "REAL": "green",
+  "WE": "green",
+  "W": "green",
+  "NO": "red",
+  "NAH": "red",
+  "CAN'T": "red",
+  "PLEASE": "red",
+  "STOP": "red",
+  "RUN": "red",
+  "COPS": "red",
+  "POLICE": "red",
+  "DEAD": "red",
+  "DIED": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/clipper/sfx/made",
+  "/home/claude/clipper/sfx/drive",
+  "/home/claude/clipper/sfx/cc0"
+ ],
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "layout": "split",
+ "top": [
+  350,
+  715,
+  371,
+  330
+ ],
+ "bottom": [
+  650,
+  80,
+  1000,
+  889
+ ],
+ "music": {
+  "file": "/home/claude/clipper/bgm/funny/quirky_dog.mp3",
+  "gain": 0.07,
+  "from": 0
+ },
+ "clips": [
+  {
+   "title": "He Promised He Wouldn't Crash in GTA 6 💀 #gta6",
+   "hook": "\"I WON'T CRASH ONCE\"",
+   "ranges": [
+    [
+     0.0,
+     4.2
+    ],
+    [
+     12.4,
+     14.2
+    ],
+    [
+     16.0,
+     19.0
+    ],
+    [
+     21.5,
+     24.5
+    ],
+    [
+     26.5,
+     29.5
+    ],
+    [
+     29.6,
+     33.2
+    ],
+    [
+     35.0,
+     45.0
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 0.4,
+     "text": "LOCKED IN 🔒",
+     "color": "green",
+     "sfx": "pop",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 2.2,
+     "text": "NOT ONE CRASH?",
+     "color": "yellow",
+     "sfx": "what",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 12.5,
+     "text": "3... 2... 1...",
+     "color": "white",
+     "sfx": "tick_tock",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 16.3,
+     "text": "SO FAR SO GOOD",
+     "color": "green",
+     "sfx": "pop",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 21.8,
+     "text": "CAREFUL...",
+     "color": "yellow",
+     "sfx": "heartbeat",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 26.8,
+     "text": "TOO FAST 😬",
+     "color": "red",
+     "sfx": "riser",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 31.1,
+     "text": "\"NOT MY FAULT\"",
+     "color": "yellow",
+     "sfx": "record_scratch",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 35.5,
+     "text": "ON THE WALL 💀",
+     "color": "red",
+     "sfx": "bonk",
+     "gain": 0.45,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 40.0,
+     "text": "CLEAN DRIVING 10/10",
+     "color": "white",
+     "sfx": "rimshot",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 1.0,
+     "emoji": "🚗",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 13.0,
+     "gif": "/home/claude/clipper/stickers/prayer.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 18.0,
+     "emoji": "😎",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 23.0,
+     "gif": "/home/claude/clipper/stickers/look_at_this.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 28.5,
+     "emoji": "😬",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 32.0,
+     "gif": "/home/claude/clipper/stickers/troll1.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 37.0,
+     "gif": "/home/claude/clipper/stickers/mona_laugh.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 42.0,
+     "emoji": "💀",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 12.4,
+     "type": "punch"
+    },
+    {
+     "src_t": 16.0,
+     "type": "punch"
+    },
+    {
+     "src_t": 21.5,
+     "type": "punch"
+    },
+    {
+     "src_t": 26.5,
+     "type": "punch"
+    },
+    {
+     "src_t": 30.0,
+     "type": "shake"
+    },
+    {
+     "src_t": 30.2,
+     "type": "flash"
+    },
+    {
+     "src_t": 35.0,
+     "type": "shake"
+    },
+    {
+     "src_t": 41.0,
+     "type": "tint_y"
+    }
+   ],
+   "sfx": [],
+   "bleep": [],
+   "max_len": 59,
+   "min_len": 6,
+   "max_untouched": 4.0,
+   "jump_cuts": false,
+   "teaser": [
+    29.8,
+    32.4
+   ]
+  }
+ ]
+}

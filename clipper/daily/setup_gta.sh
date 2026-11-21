@@ -9,6 +9,8 @@ DAILY=$(cd "$(dirname "$0")" && pwd); CL=$(dirname "$DAILY"); STUDIO=$(dirname "
 # 1. voice (espeak-ng + Kokoro-82M) and 2. clipper (venv /home/claude/venvs/cbx, faster-whisper, TwitchDownloaderCLI, fonts, sfx/made)
 bash "$STUDIO/setup.sh"
 bash "$CL/setup.sh"
+# longform.py deps (venv has no pip; use uv)
+/home/claude/venvs/cbx/bin/python -c "import soundfile, pyloudnorm" 2>/dev/null || uv pip install -q --python /home/claude/venvs/cbx/bin/python soundfile pyloudnorm
 # 3. caption font used by edit.py (Lilita One, OFL) - tracked in clipper/fonts
 mkdir -p ~/.fonts && cp -n "$CL"/fonts/*.ttf ~/.fonts/ 2>/dev/null || true; fc-cache -f >/dev/null
 fc-list | grep -q "Lilita One" || { echo "FAIL: Lilita One font missing"; exit 1; }

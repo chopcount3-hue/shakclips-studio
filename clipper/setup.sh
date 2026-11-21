@@ -27,5 +27,5 @@ for f in apache/luckiestguy/LuckiestGuy-Regular.ttf ofl/anton/Anton-Regular.ttf 
 done; fc-cache -f >/dev/null
 # our own synthesized SFX (regenerated, deterministic)
 [ -s "$HERE/sfx/made/boom.wav" ] || python3 "$HERE/sfx/comedy_sfx.py" "$HERE/sfx/made"
-"$V/bin/python" -c "import faster_whisper, mediapipe, streamlink, yt_dlp" && "$HERE/bin/TwitchDownloaderCLI" --version >/dev/null
+"$V/bin/python" -c "import faster_whisper, mediapipe, streamlink, yt_dlp" && { "$HERE/bin/TwitchDownloaderCLI" --version >/dev/null 2>&1 || [ -x "$HERE/bin/TwitchDownloaderCLI" ]; }   # --version exits 1 on 1.56.5
 echo "CLIPPER SETUP OK"
