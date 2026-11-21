@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Today's GTA VI clip pool: the most-viewed Twitch clips of the last N hours, minus anything already used.
+usage: python3 find.py [--hours 30] [--top 30]      -> $WORK/cands.json (ranked), printed table
+GQL needs no key (public web client id). Game-level clips only return the first 100 (later pages fail an integrity check),
+so the pool is widened with user.clips for every login in streamers.txt plus whoever is live in the category now."""
+import argparse, concurrent.futures as cf, datetime as dt, json, os, re, sys, urllib.request
+HERE = os.path.dirname(os.path.abspath(__file__)); WORK = os.environ.get('WORK', '/home/claude/gtaday')
+GAME = 'Grand Theft Auto VI'
+F = 'slug title viewCount durationSeconds createdAt language videoOffsetSeconds broadcaster { login displayName } game { name }'
+
+def gql(q):
+    req = urllib.request.Request('https://gql.twitch.tv/gql', json.dumps({'query': q}).encode(),
+                                 {'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko', 'Content-Type': 'application/json'})
+    for _ in range(3):
+        try: return json.load(urllib.request.urlopen(req, timeout=60))
+        except Exception: pass
+    return {}
+
+def main():
+    ap = argparse.ArgumentParser(); ap.add_argument('--hours', type=float, default=30); ap.add_argument('--top', type=int, default=30)
+    a = ap.parse_args(); os.makedirs(WORK, exist_ok=True)
+    used = set(json.load(open(os.path.join(HERE, 'used.json')))) if os.path.exists(os.path.join(HERE, 'used.json')) else set()
+    users = [u for l in open(os.path.join(HERE, 'streamers.txt')) if not l.startswith('#') for u in l.split()]
+    r = gql('{ game(name: "%s") { streams(first: 100) { edges { node { broadcaster { login } } } } } }' % GAME)
+    live = [e['node']['broadcaster']['login'] for e in (((r.get('data') or {}).get('game') or {}).get('streams') or {}).get('edges', []) if e['node']['broadcaster']]
+    users = list(dict.fromkeys(live + users))
+    pool = {}
+    def add(nodes):
+        for n in nodes or []:
+            if n and n.get('game') and n['game']['name'] == GAME: pool[n['slug']] = n
+    for crit in ('period: LAST_DAY, sort: VIEWS_DESC', 'period: LAST_DAY, sort: VIEWS_DESC, languages: [EN]', 'period: LAST_DAY, sort: TRENDING'):
+        r = gql('{ game(name: "%s") { clips(first: 100, criteria: {%s}) { edges { node { %s } } } } }' % (GAME, crit, F))
+        add([e['node'] for e in ((((r.get('data') or {}).get('game') or {}).get('clips') or {}).get('edges') or [])])
+    def uc(login):
+        r = gql('{ user(login: "%s") { clips(first: 100, criteria: {period: LAST_DAY, sort: VIEWS_DESC}) { edges { node { %s } } } } }' % (login, F))
+        try: return [e['node'] for e in r['data']['user']['clips']['edges']]
+        except Exception: return []
+    with cf.ThreadPoolExecutor(8) as ex:
+        for nodes in ex.map(uc, users): add(nodes)
+    cut = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=a.hours)).isoformat()
+    NSFW = re.compile(r'porn|goon|jiggl|gyat|freaky|bricked|nsfw|strip|naked|nude|boob|tits|thirst|sex|horny|onlyfans|n[i1]gg|slur', re.I)
+    xs = [n for n in pool.values() if n['createdAt'] >= cut[:19] and n['slug'] not in used and n['durationSeconds'] >= 12
+          and not NSFW.search(n['title'] or '')]
+    # rank: English first (the channel's audience), then views; at most 4 per streamer so one stream can't fill the day
+    xs.sort(key=lambda n: ((n['language'] or '').lower() != 'en', -n['viewCount']))
+    per, out = {}, []
+    for n in xs:
+        u = n['broadcaster']['login']
+        if per.get(u, 0) >= 4: continue
+        per[u] = per.get(u, 0) + 1; out.append(n)
+        if len(out) >= a.top: break
+    for k, n in enumerate(out): n['name'] = f"{n['broadcaster']['login']}_{k:02d}"
+    json.dump(out, open(os.path.join(WORK, 'cands.json'), 'w'), indent=1, ensure_ascii=False)
+    print(f'{len(users)} streamers ({len(live)} live), pool {len(pool)}, fresh unused {len(xs)}, kept {len(out)}')
+    for n in out:
+        print(f"{n['name']:<22} {n['viewCount']:>7} views {n['durationSeconds']:>3.0f}s {n['language']} | {n['title'][:70]}")
+
+if __name__ == '__main__':
+    main()

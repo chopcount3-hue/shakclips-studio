@@ -1,0 +1,284 @@
+{
+ "source": "$WORK/clips/squeex_15.mp4",
+ "transcript": "$WORK/tx/squeex_15.fixed.json",
+ "asr": "",
+ "min_word_prob": 0.5,
+ "min_narration": 0,
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "OH": "yellow",
+  "MY": "yellow",
+  "GOSH": "yellow",
+  "GOD": "yellow",
+  "WOW": "yellow",
+  "BRO": "yellow",
+  "CHAT": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "YO": "yellow",
+  "HOLY": "yellow",
+  "BRUH": "yellow",
+  "HUH": "yellow",
+  "GTA": "green",
+  "SIX": "green",
+  "6": "green",
+  "VI": "green",
+  "GOOD": "green",
+  "INSANE": "green",
+  "CRAZY": "green",
+  "PLAYING": "green",
+  "GAME": "green",
+  "FINALLY": "green",
+  "YES": "green",
+  "GRAPHICS": "green",
+  "BEAUTIFUL": "green",
+  "GO": "green",
+  "FIRE": "green",
+  "REAL": "green",
+  "WE": "green",
+  "W": "green",
+  "NO": "red",
+  "NAH": "red",
+  "CAN'T": "red",
+  "PLEASE": "red",
+  "STOP": "red",
+  "RUN": "red",
+  "COPS": "red",
+  "POLICE": "red",
+  "DEAD": "red",
+  "DIED": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/wt-clipper/clipper/sfx/made",
+  "/home/claude/wt-clipper/clipper/sfx/drive",
+  "/home/claude/wt-clipper/clipper/sfx/cc0"
+ ],
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "layout": "split",
+ "top": [
+  42,
+  230,
+  356,
+  316
+ ],
+ "bottom": [
+  510,
+  180,
+  900,
+  800
+ ],
+ "music": {
+  "file": "/home/claude/wt-clipper/clipper/bgm/funny/sneaky_snitch.mp3",
+  "gain": 0.08,
+  "from": 0
+ },
+ "clips": [
+  {
+   "title": "His 'Cool Trick' in GTA 6 Went Wrong 💀 #gta6",
+   "hook": "HIS 'COOL TRICK' 🏍️",
+   "ranges": [
+    [
+     1.3,
+     5.0
+    ],
+    [
+     9.0,
+     12.0
+    ],
+    [
+     14.8,
+     18.0
+    ],
+    [
+     22.5,
+     26.0
+    ],
+    [
+     30.0,
+     41.0
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 1.6,
+     "text": "COOL TRICK INCOMING",
+     "color": "white",
+     "sfx": "pop",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 9.2,
+     "text": "WHEELIE MODE",
+     "color": "yellow",
+     "sfx": "whoosh_transition",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 15.2,
+     "text": "MAX SPEED",
+     "color": "green",
+     "sfx": "riser",
+     "gain": 0.35,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 23.0,
+     "text": "CHAT IS WATCHING 👀",
+     "color": "yellow",
+     "sfx": "pop",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 31.0,
+     "text": "WAIT...",
+     "color": "yellow",
+     "sfx": "what",
+     "gain": 0.45,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 34.3,
+     "text": "THE TRUCK 💀",
+     "color": "red",
+     "sfx": "record_scratch",
+     "gain": 0.5,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    },
+    {
+     "src_t": 38.0,
+     "text": "CLIP THAT 😭",
+     "color": "white",
+     "sfx": "pop",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.12,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 2.0,
+     "emoji": "🏍️",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 10.0,
+     "gif": "/home/claude/wt-clipper/clipper/stickers/this_is_it.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 16.0,
+     "emoji": "🔥",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 24.0,
+     "gif": "/home/claude/wt-clipper/clipper/stickers/look_at_this.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 35.0,
+     "gif": "/home/claude/wt-clipper/clipper/stickers/troll1.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 39.4,
+     "emoji": "💀",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 9.0,
+     "type": "punch"
+    },
+    {
+     "src_t": 15.2,
+     "type": "punch"
+    },
+    {
+     "src_t": 22.6,
+     "type": "punch"
+    },
+    {
+     "src_t": 30.5,
+     "type": "punch"
+    },
+    {
+     "src_t": 34.3,
+     "type": "shake"
+    },
+    {
+     "src_t": 34.5,
+     "type": "flash"
+    },
+    {
+     "src_t": 39.3,
+     "type": "tint_r"
+    }
+   ],
+   "sfx": [],
+   "bleep": [],
+   "max_len": 59,
+   "min_len": 6,
+   "max_untouched": 4.0,
+   "jump_cuts": false,
+   "teaser": [
+    34.0,
+    36.4
+   ]
+  }
+ ]
+}
