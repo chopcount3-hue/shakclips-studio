@@ -2,8 +2,11 @@
   "ok": false,
   "videoId": null,
   "url": null,
-  "status": "verification_required",
+  "status": "verification_required (youtube_mfa); destination still draft, draft revision 40f8e1db with planned publishAt 2026-11-21T16:00:00Z",
   "scheduledFor": "2026-11-21T16:00:00Z",
-  "error": "vidIQ returned youtube_mfa: YouTube verification required before publishing. Draft is saved (postId 3799c18d-02e3-4811-b368-ad97aa8ecbf0, publicationId f89333f8-0239-446f-aa3c-348906295afc, uploadId 12aa0c23-f75d-4198-bb5e-f40c851df127). Complete the vidIQ YouTube verification, then re-run vidiq_social_post_publish with postId and revision e564d680.",
-  "checkedAt": "2026-11-21T09:23:00Z"
+  "error": "youtube_mfa: YouTube verification is required",
+  "verifyUrl": "https://mcp.vidiq.com/mcp/mfa/youtube/start?elicitation_id=f79b1d81-75b2-4556-8cdc-c5208c5eac55&handoff_token=ElEhhZ91UCh2WFFGYD8Qz7uVQuallVXQw2cU3pIy1Oz",
+  "raw_publish": "{\"postId\":\"3799c18d-02e3-4811-b368-ad97aa8ecbf0\",\"status\":\"verification_required\",\"kind\":\"youtube_mfa\",\"destinations\":[{\"platform\":\"YOUTUBE\",\"platformAccountId\":\"UCgOUG3BF0gV_RBMX8pb3ceQ\",\"publicationId\":\"f89333f8-0239-446f-aa3c-348906295afc\",\"status\":\"draft\",\"scheduledFor\":null,\"postUrl\":null}],\"next\":\"Show the verification widget or link and wait for the user. Then call vidiq_social_post_publish again with the same arguments; destinations that already started are not sent or charged twice.\",\"message\":\"YouTube verification is required.\\n\\nOpen this link to continue: https://mcp.vidiq.com/mcp/mfa/youtube/start?elicitation_id=f79b1d81-75b2-4556-8cdc-c5208c5eac55&handoff_token=ElEhhZ91UCh2WFFGYD8Qz7uVQuallVXQw2cU3pIy1Oz\\n\\nShow the returned authorization link to the user alongside the widget, if available. Only the user should open the link in their browser; do not fetch it on their behalf. Wait for the user to complete authorization before retrying the blocked action in the same vidIQ connection. Tell the user to tick every permission box on Google's screen.\"}",
+  "raw_account": "{\"platform\":\"YOUTUBE\",\"platformAccountId\":\"UCgOUG3BF0gV_RBMX8pb3ceQ\",\"username\":\"@shakreplay\",\"displayName\":\"SHAK REPLAY\",\"avatarUrl\":\"https://yt3.ggpht.com/-QJjhs46LR8Jk2nqjasLdRLg_VTiu--4veY1hBi-JP9LgiiAUWEel5jSwtpfCSYnPdmQGvgWN0o=s800-c-k-c0x00ffffff-no-rj\",\"source\":\"youtube\",\"connectionActive\":true,\"canPublish\":true,\"scopes\":[],\"reconnect\":null}",
+  "checkedAt": "2026-11-21T09:23:07Z"
 }
