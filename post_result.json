@@ -1,13 +1,53 @@
 {
-  "ok": true,
-  "videoId": "F8slF5RBDgQ",
-  "url": "https://www.youtube.com/watch?v=F8slF5RBDgQ",
-  "status": "completed (already published in the previous run; not re-published to avoid a duplicate). Uploaded with planned public time 2026-11-21T16:00:00Z.",
-  "scheduledFor": "2026-11-21T16:00:00Z",
-  "error": null,
-  "verifyUrl": null,
-  "linkErrorNote": "The old verification link (elicitation_id f79b1d81...) most likely errored because it was already stale/consumed: the publish succeeded without verification at ~09:26Z, so no MFA is pending and no new link was issued. Nothing for the user to verify.",
-  "raw_publish": "NOT CALLED this run (destination already completed). Raw status: {\"destinations\":[{\"publicationId\":\"f89333f8-0239-446f-aa3c-348906295afc\",\"postId\":\"3799c18d-02e3-4811-b368-ad97aa8ecbf0\",\"platform\":\"YOUTUBE\",\"platformAccountId\":\"UCgOUG3BF0gV_RBMX8pb3ceQ\",\"status\":\"completed\",\"scheduledFor\":null,\"postUrl\":\"https://www.youtube.com/watch?v=F8slF5RBDgQ\",\"failureCode\":null,\"failureReason\":null,\"stage\":null,\"percent\":null,\"attempts\":1}],\"finished\":true}",
-  "raw_account": "{\"platform\":\"YOUTUBE\",\"platformAccountId\":\"UCgOUG3BF0gV_RBMX8pb3ceQ\",\"username\":\"@shakreplay\",\"displayName\":\"SHAK REPLAY\",\"source\":\"youtube\",\"connectionActive\":true,\"canPublish\":true,\"scopes\":[],\"reconnect\":null}",
-  "checkedAt": "2026-11-21T09:26:17Z"
+  "checkedAt": "2026-11-21T16:05:58Z",
+  "results": [
+    {
+      "postId": "6831b0cd-e0f3-42cc-bac8-21dc93606a65",
+      "title": "Speed Picked the WRONG Save in GTA 6 😭",
+      "scheduledFor": "2026-11-21T17:00:00Z",
+      "status": "scheduled",
+      "url": "https://www.youtube.com/watch?v=SliXXblB6N4",
+      "error": null
+    },
+    {
+      "postId": "ddfd8dba-cf54-4129-8ed5-7a082b2c4500",
+      "title": "He Promised He Wouldn't Crash in GTA 6 💀",
+      "scheduledFor": "2026-11-21T18:00:00Z",
+      "status": "scheduled",
+      "url": "https://www.youtube.com/watch?v=N3u2G_4TOIU",
+      "error": null
+    },
+    {
+      "postId": "9d20581b-eaaa-4d26-9d18-6330152e6e7c",
+      "title": "GTA 6 Streamers' Funniest Moments Today (IShowSpeed, Lacy, xQc...)",
+      "scheduledFor": "2026-11-21T20:00:00Z",
+      "status": "failed",
+      "url": null,
+      "error": "vidIQ free plan daily limit (3 YouTube uploads) reached; nothing uploaded. Retry after 2026-11-22T08:00:00Z or upgrade vidIQ."
+    },
+    {
+      "postId": "d13d3cde-58fe-4f73-b27f-d61477b3f09f",
+      "title": "Lacy Found a FURRY Loose in GTA 6 💀",
+      "scheduledFor": "2026-11-21T21:00:00Z",
+      "status": "failed",
+      "url": null,
+      "error": "vidIQ free plan daily limit (3 YouTube uploads) reached; nothing uploaded. Retry after 2026-11-22T08:00:00Z or upgrade vidIQ."
+    },
+    {
+      "postId": "81926069-eea2-43b1-acba-0b38bc2779e8",
+      "title": "This GTA 6 Gas Station Glitch Makes No Sense 😭",
+      "scheduledFor": "2026-11-22T00:00:00Z",
+      "status": "failed",
+      "url": null,
+      "error": "vidIQ free plan daily limit (3 YouTube uploads) reached; nothing uploaded. Retry after 2026-11-22T08:00:00Z or upgrade vidIQ."
+    },
+    {
+      "postId": "c36d82f5-ca83-4eb6-af3c-6f948188a831",
+      "title": "He Didn't Even Move... GTA 6 NPCs Are Wild 💀",
+      "scheduledFor": "2026-11-22T02:30:00Z",
+      "status": "failed",
+      "url": null,
+      "error": "vidIQ free plan daily limit (3 YouTube uploads) reached; nothing uploaded. Retry after 2026-11-22T08:00:00Z or upgrade vidIQ."
+    }
+  ]
 }
