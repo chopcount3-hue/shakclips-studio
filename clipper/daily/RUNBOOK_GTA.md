@@ -7,7 +7,7 @@ The run is unattended: never stop to ask; take the sensible choice, note it in t
 ## 0. Setup (fresh workspace, ~10 min)
 ```bash
 cd /home/claude && [ -d studio ] || git clone -q -b gta-clipper https://github.com/chopcount3-hue/shakclips-studio.git studio
-cd studio && git pull -q --rebase && bash clipper/daily/setup_gta.sh && source /home/claude/gtaday/env.sh
+cd studio && git pull -q --rebase origin gta-clipper && bash clipper/daily/setup_gta.sh && source /home/claude/gtaday/env.sh
 D=clipper/daily      # all commands below run from /home/claude/studio
 ```
 Load the vidIQ tools once with ToolSearch: vidiq_social_account_list, vidiq_video_upload, vidiq_social_post_draft_create,
@@ -42,6 +42,16 @@ Pick 5 Shorts (4 if today's slot list already has a video – see the run messag
   Cristiano Ronaldo content (the streamer StableRonaldo is fine). Prefer: a clear payoff (crash, glitch, scare, fail, big reaction),
   English talking, webcam visible. Different streamers across the 5 Shorts.
 - The long video may reuse today's Short clips (longer cuts) plus other good ones. Never use a slug already in used.json.
+- **Low competition only (owner, 21 Nov: "try not to make content which has high competition").** find.py already ranks
+  mid-size streamers above the mega streamers in `mega.txt`. Before locking a Short, run vidiq_youtube_search for
+  "<streamer> gta 6" plus 2-3 key words of the moment, and look at uploads from the last 3 days. If 3 or more channels
+  already posted this same moment, or one copy already has 100k+ views, drop it and take the next candidate. Log the check
+  (query, how many copies found) in `days/<date>/competition.md`. Add a streamer to mega.txt when their clips keep
+  failing this check, and remove one that keeps passing.
+- Angle beats source: when the same streamer is crowded, prefer a specific angle that few channels cover (a glitch, an NPC
+  or police-AI reaction, a hidden detail, a physics fail) over "streamer reacts" moments everyone clips.
+- Long video title: run vidiq_keyword_research on 3-5 candidate phrases ("gta 6 funny moments", "gta 6 streamer
+  fails", "gta 6 glitches today", ...) and build the title around a phrase with real volume and LOW competition.
 
 ## 4. Webcam boxes
 `$PY $D/frame.py <name> <t>` saves `$WORK/frames/<name>_<t>.jpg` with a 100 px grid (1920x1080 coords). Read it and write

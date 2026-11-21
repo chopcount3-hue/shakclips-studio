@@ -38,11 +38,15 @@ def main():
     with cf.ThreadPoolExecutor(8) as ex:
         for nodes in ex.map(uc, users): add(nodes)
     cut = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=a.hours)).isoformat()
-    NSFW = re.compile(r'porn|goon|jiggl|gyat|freaky|bricked|nsfw|strip|naked|nude|boob|tits|thirst|sex|horny|onlyfans|n[i1]gg|slur', re.I)
+    NSFW = re.compile(r'porn|goon|jiggl|gyat|freaky|bricked|nsfw|strip|naked|nude|boob|tits|thirst|sex|horny|onlyfans|n[i1]gg|slur|violen|gore|blood', re.I)
     xs = [n for n in pool.values() if n['createdAt'] >= cut[:19] and n['slug'] not in used and n['durationSeconds'] >= 12
           and not NSFW.search(n['title'] or '')]
     # rank: English first (the channel's audience), then views; at most 4 per streamer so one stream can't fill the day
-    xs.sort(key=lambda n: ((n['language'] or '').lower() != 'en', -n['viewCount']))
+    # Low competition first (owner, 21 Nov): the mega streamers' viral clips are re-uploaded by hundreds of clip channels
+    # within hours, so English clips from mid-size streamers rank first; mega clips stay in the pool, behind them.
+    MEGA = {l.strip().lower() for l in open(os.path.join(HERE, 'mega.txt')) if l.strip() and not l.startswith('#')} if os.path.exists(os.path.join(HERE, 'mega.txt')) else set()
+    for n in xs: n['mega'] = n['broadcaster']['login'].lower() in MEGA
+    xs.sort(key=lambda n: ((n['language'] or '').lower() != 'en', n['mega'], -n['viewCount']))
     per, out = {}, []
     for n in xs:
         u = n['broadcaster']['login']
