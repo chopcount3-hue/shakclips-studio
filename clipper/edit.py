@@ -67,17 +67,25 @@ def keep_ranges(c, words, src):
 def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
     """one segment in the vertical layout at 30 fps; zoom = punch-in; fx = [(t_rel, type)]; slow = 2 for half speed."""
     p = json.loads(sh(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', src]).stdout)['streams'][0]
-    vf, _ = R.video_filter(plan, p['width'], p['height'])
-    chain = [f'fps={FPS}']
-    if zoom != 1.0: chain.append(f"scale={int(W * zoom) // 2 * 2}:{int(H * zoom) // 2 * 2},crop={W}:{H}")
     shakes = [t for t, k in fx if k == 'shake']; flashes = [t for t, k in fx if k == 'flash']; punches = [t for t, k in fx if k == 'punch']
-    if punches:
-        z = '+'.join(f"0.15*exp(-(t-{t:.2f})*7)*gte(t,{t:.2f})*lt(t,{t + 0.9:.2f})" for t in punches)
-        chain.append(f"scale=w='trunc({W}*(1+{z})/2)*2':h='trunc({H}*(1+{z})/2)*2':eval=frame,crop={W}:{H}")
-    if shakes:
-        sx = '+'.join(f"between(t,{t:.2f},{t + 0.4:.2f})*22*sin(t*95)*exp(-(t-{t:.2f})*6)" for t in shakes)
-        sy = '+'.join(f"between(t,{t:.2f},{t + 0.4:.2f})*16*cos(t*80)*exp(-(t-{t:.2f})*6)" for t in shakes)
-        chain.append(f"scale={W + 64}:{H + 114},crop={W}:{H}:x='32+{sx}':y='57+{sy}'")
+    def zchain(w, h):
+        """zoom / punch-in / shake for a w x h picture"""
+        c = []
+        if zoom != 1.0: c.append(f"scale={int(w * zoom) // 2 * 2}:{int(h * zoom) // 2 * 2},crop={w}:{h}")
+        if punches:
+            z = '+'.join(f"0.15*exp(-(t-{t:.2f})*7)*gte(t,{t:.2f})*lt(t,{t + 0.9:.2f})" for t in punches)
+            c.append(f"scale=w='trunc({w}*(1+{z})/2)*2':h='trunc({h}*(1+{z})/2)*2':eval=frame,crop={w}:{h}")
+        if shakes:
+            sx = '+'.join(f"between(t,{t:.2f},{t + 0.4:.2f})*22*sin(t*95)*exp(-(t-{t:.2f})*6)" for t in shakes)
+            sy = '+'.join(f"between(t,{t:.2f},{t + 0.4:.2f})*16*cos(t*80)*exp(-(t-{t:.2f})*6)" for t in shakes)
+            py = int(64 * h / w) // 2 * 2
+            c.append(f"scale={w + 64}:{h + py},crop={w}:{h}:x='32+{sx}':y='{py // 2}+{sy}'")
+        return c
+    framed = plan.get('layout') == 'framed'
+    if framed and slow != 1.0: vf, _ = R.video_filter(plan, p['width'], p['height'], win_fx=lambda w, h: [f'setpts={slow}*PTS'] + zchain(w, h))
+    elif framed: vf, _ = R.video_filter(plan, p['width'], p['height'], win_fx=zchain)
+    else: vf, _ = R.video_filter(plan, p['width'], p['height'])
+    chain = [f'fps={FPS}'] + ([] if framed else zchain(W, H))
     TINT = {'tint': '0x52FF2E', 'tint_y': '0xFFD400', 'tint_r': '0xFF2E2E', 'tint_p': '0xB04CFF'}
     for t, k in fx:
         if k in TINT:
@@ -87,7 +95,7 @@ def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
         chain.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=white@0.85:t=fill:enable='between(t,{t:.2f},{t + 0.07:.2f})'")
         chain.append(f"drawbox=x=0:y=0:w={W}:h={H}:color=white@0.35:t=fill:enable='between(t,{t + 0.07:.2f},{t + 0.14:.2f})'")
     if slow != 1.0:
-        chain.insert(0, f'setpts={slow}*PTS')
+        if not framed: chain.insert(0, f'setpts={slow}*PTS')
         chain += ["eq=brightness=0.06:gamma=1.35:saturation=1.25:contrast=1.05", "vignette=PI/5"]
     if tag:
         chain.append(f"drawtext=fontfile={os.path.expanduser('~/.fonts/Anton-Regular.ttf')}:text='{tag}':fontsize=70:fontcolor=white:borderw=6:bordercolor=black:"

@@ -22,7 +22,7 @@ fi
   https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task
 # caption + hook fonts (OFL / Apache-2.0)
 mkdir -p ~/.fonts
-for f in apache/luckiestguy/LuckiestGuy-Regular.ttf ofl/anton/Anton-Regular.ttf ofl/bangers/Bangers-Regular.ttf; do
+for f in apache/luckiestguy/LuckiestGuy-Regular.ttf ofl/anton/Anton-Regular.ttf ofl/bangers/Bangers-Regular.ttf ofl/bebasneue/BebasNeue-Regular.ttf; do
   [ -s ~/.fonts/$(basename $f) ] || curl -fsSL -o ~/.fonts/$(basename $f) https://raw.githubusercontent.com/google/fonts/main/$f
 done; fc-cache -f >/dev/null
 # our own synthesized SFX (regenerated, deterministic)

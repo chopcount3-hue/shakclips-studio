@@ -1,9 +1,30 @@
 # Plan helpers for the daily GTA 6 Shorts (edit.py reference style). Import from a plan script:
 #   import sys; sys.path.insert(0, '/home/claude/clipper/daily'); from lib import *
-import json, os, re
+import json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 WORK = os.environ.get('WORK', '/home/claude/gtaday'); CL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HQ = WORK + '/clips/'; TX = WORK + '/tx/'; G = CL + '/stickers/'; BGM = CL + '/bgm/'
 BOXF = WORK + '/boxes.json'
+# The owner's own SFX pack (owner, 21 Nov: "you are not using the sfx i gave you"). Its 148 low-risk sounds come FIRST;
+# the 30 marked "avoid" in sfx/user/index.md (branded game sounds, music, creator voice clips) are left out (Content ID).
+USER_SAFE = WORK + '/sfx_user_safe'
+def _user_safe():
+    os.makedirs(USER_SAFE, exist_ok=True)
+    for l in open(CL + '/sfx/user/index.md'):
+        c = [x.strip() for x in l.strip().strip('|').split('|')]
+        if len(c) >= 5 and c[0].endswith('.ogg') and c[4] == 'low':
+            d = os.path.join(USER_SAFE, c[0])
+            if not os.path.exists(d): os.symlink(CL + '/sfx/user/' + c[0], d)
+_user_safe()
+SFX_DIRS = [USER_SAFE, CL + '/sfx/made', CL + '/sfx/drive', CL + '/sfx/cc0']
+# old synthetic names -> the owner's sound for the same job (so older plans and habits still pick his pack)
+OWN = {'pop': 'poink', 'riser': 'rising', 'record_scratch': 'dj_scratch', 'boom': 'bass_boosted', 'bonk': 'bamboo_hit',
+       'sad_trombone': 'wah_wah_wah', 'airhorn': 'air_r_horn', 'buzzer_wrong': 'wrong', 'ding_correct': 'correct',
+       'cha_ching': 'cash_register', 'rimshot': 'ba_dum_tss', 'drumroll_crash': 'drum_roll', 'dun_dun_duun': 'dun_dun_dunnn',
+       'tick_tock': 'ticking_clock', 'boing': 'spring_cartoon', 'slide_up': 'slide_whistle', 'slide_down': 'cartoon_deflate',
+       'zip_away': 'goofy_cartoon_dash_1', 'clown_honk': 'bike_horn', 'wow_choir': 'wow_1', 'glitch': 'tape_rewind',
+       'whoosh': 'whoosh_transition', 'swoosh': 'swipe_swoosh_transition', 'laugh': 'audience_laughing', 'fail': 'fail_titanic'}
+def own(name): return OWN.get(name, name)
 SWEAR = re.compile(r"^(fuck|fucking|fucked|fuckin|motherfuck|motherfucker|motherfucking|bitch|nigga|nigger|dick|pussy|cunt|faggot|retard)\W*$", re.I)
 GREEN = ['GTA', 'SIX', '6', 'VI', 'GOOD', 'INSANE', 'CRAZY', 'PLAYING', 'GAME', 'FINALLY', 'YES', 'GRAPHICS', 'BEAUTIFUL', 'GO', 'FIRE', 'REAL', 'WE', 'W']
 YELLOW = ['OH', 'MY', 'GOSH', 'GOD', 'WOW', 'BRO', 'CHAT', 'WAIT', 'WHAT', 'YO', 'HOLY', 'BRUH', 'HUH']
@@ -24,8 +45,8 @@ def bleeps(f, ranges):
             out.append([round(w['s'] - 0.03, 2), round(w['e'] + 0.03, 2)])
     return out
 
-def note(t, text, color='yellow', sfx='pop', gain=0.45, dur=1.5, y=0.12, rot=-3):
-    return dict(src_t=t, text=text, color=color, sfx=sfx, gain=gain, dur=dur, y=y, rot=rot)
+def note(t, text, color='yellow', sfx='poink', gain=0.45, dur=1.5, y=0.12, rot=-3):
+    return dict(src_t=t, text=text, color=color, sfx=own(sfx), gain=gain, dur=dur, y=y, rot=rot)
 def gif(t, name, pos=BR, size=250, dur=1.6): return dict(src_t=t, gif=G + name + '.gif', pos=pos, size=size, dur=dur)
 def emo(t, ch, pos=BR, size=210, dur=1.4): return dict(src_t=t, emoji=ch, pos=pos, size=size, dur=dur)
 def fx(t, kind): return {'src_t': t, 'type': kind}   # punch | shake | flash | tint | tint_y | tint_r
@@ -41,18 +62,35 @@ def fixed(f, rep=None):
         out.append(dict(w, p=1.0))
     path = TX + f + '.fixed.json'; json.dump({'segments': [{'s': 0, 'e': 9999, 't': '', 'words': out}]}, open(path, 'w')); return path
 
-def short(f, title, hook, ranges, notes, stickers, fxs, box=None, teaser=None, music=None, sfx=(), extra_bleep=(), rep=None, **k):
+def streamer_name(f):
+    """display name for clip f (login_NN) from $WORK/cands.json, else the login"""
+    try:
+        for c in json.load(open(WORK + '/cands.json')):
+            if c.get('name') == f: return c['broadcaster'].get('displayName') or c['broadcaster']['login']
+    except Exception: pass
+    return f.rsplit('_', 1)[0]
+
+def short(f, title, hook, ranges, notes, stickers, fxs, box=None, teaser=None, music=None, sfx=(), extra_bleep=(), rep=None, frame=True, context=None, **k):
     """one Short from clip f. box = key in $WORK/boxes.json ({"top": [x,y,w,h] webcam, "bottom": [x,y,w,h] game, 1920x1080
-    coords, bottom box kept above y=1000 because Twitch burns a caption pill there}); box=None -> 'blur' layout (no webcam)."""
+    coords, bottom box kept above y=1000 because Twitch burns a caption pill there}); box=None -> 'blur' layout (no webcam).
+    With a box the Short uses the branded frame (frame_style.py): aim the top box at aspect ~1.5 (cam window 1020x680)
+    and the bottom box at ~1.28 (game window 1020x796); other aspects are centre-cropped. frame=False -> plain split.
+    context = the frame's title bar, on screen the whole video: what the clip is about in 4-9 words, no punchline,
+    *stars* make a word yellow, e.g. "SQUEEX SAID WATCH THIS *COOL TRICK*...". Default: the title without hashtags."""
     b = boxes().get(box) if box else None
     p = {'source': HQ + f + '.mp4', 'transcript': fixed(f, rep), 'asr': '', 'min_word_prob': 0.5, 'min_narration': 0,
          'cap_mode': 'single', 'cap_size': 132, 'cap_colors': COLS, 'hook_size': 80, 'note_size': 92,
-         'sfx_dirs': [CL + '/sfx/made', CL + '/sfx/drive', CL + '/sfx/cc0'],
+         'sfx_dirs': SFX_DIRS,
          'cut_sfx': {'name': 'swipe_swoosh_transition', 'gain': 0.22, 'every': 3}}
-    if b: p.update(layout='split', top=b['top'], bottom=b['bottom'])
+    if b and frame:   # branded Shak Replay frame (default when the streamer has a webcam)
+        import frame_style as FS
+        login = f.rsplit('_', 1)[0]; name = streamer_name(f)
+        p.update(layout='framed', top=b['top'], bottom=b['bottom'],
+                 frame={'png': FS.make(login, name, context if context is not None else re.sub(r'#\S+', '', title).strip()), 'cam': list(FS.CAM), 'game': list(FS.GAME), 'cap_y': FS.CAP_Y})
+    elif b: p.update(layout='split', top=b['top'], bottom=b['bottom'])
     else: p.update(layout='blur')
     if music: p['music'] = {'file': BGM + music[0], 'gain': music[1], 'from': music[2]}
-    c = dict(title=title, hook=hook, ranges=ranges, notes=notes, stickers=stickers, fx=fxs, sfx=list(sfx),
+    c = dict(title=title, hook=hook, ranges=ranges, notes=notes, stickers=stickers, fx=fxs, sfx=[dict(x, name=own(x['name'])) if isinstance(x, dict) and 'name' in x else x for x in sfx],
              bleep=bleeps(f, ranges) + list(extra_bleep), max_len=59, min_len=6, max_untouched=4.0, jump_cuts=False, **k)
     if teaser: c['teaser'] = teaser
     p['clips'] = [c]; return p

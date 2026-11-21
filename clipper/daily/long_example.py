@@ -6,7 +6,7 @@
 # 5) bash clipper/daily/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94
 import json, os, sys
 WORK = os.environ.get('WORK', '/home/claude/gtaday') + '/'; CL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, CL + '/daily'); from lib import words
+sys.path.insert(0, CL + '/daily'); from lib import words, own   # importing lib also builds $WORK/sfx_user_safe (owner's safe SFX)
 def tx(f):
     """moment captions from the clip's Whisper words (read the .txt first; fix words with lib.fixed if needed)"""
     p = WORK + 'tx/' + f + '.fixed_long.json'; json.dump({'words': [dict(w, p=1.0) for w in words(f)]}, open(p, 'w')); return p
@@ -24,6 +24,6 @@ items = [
  {'line': 'z0', 'shots': [S('caseoh__00', 3, 8, [0.2, 0.1, 0.75, 0.75])], 'hold': 1.0},
 ]
 plan = {'lines': [WORK + 'long/narr/lines.json'], 'clips': clips, 'clipopts': {}, 'info_tint': 'vice',
-        'sfx_dirs': [CL + '/sfx/made', CL + '/sfx/drive', CL + '/sfx/cc0'],
+        'sfx_dirs': [WORK + '/sfx_user_safe', CL + '/sfx/made', CL + '/sfx/drive', CL + '/sfx/cc0'],   # owner's pack first (import lib builds sfx_user_safe)
         'music': {'file': CL + '/bgm/funny/pixelland.mp3', 'full_lufs': -23, 'duck_db': 13}, 'sections': [{'items': items}]}
 json.dump(plan, open(WORK + 'long/plan.json', 'w'), indent=1); print('plan ->', WORK + 'long/plan.json')

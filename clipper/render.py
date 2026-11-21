@@ -88,12 +88,21 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             ev.append(f"Dialogue: 1,{ass_t(t0)},{ass_t(t1)},Cap,,0,0,0,,{{\\pos({W // 2},{cap_y}){pop}}}{txt}")
     open(path, 'w').write(head + '\n'.join(ev) + '\n')
 
-def video_filter(plan, src_w, src_h):
+def video_filter(plan, src_w, src_h, win_fx=None):
+    """win_fx(w, h) -> [filters]: zoom/punch/shake applied inside each window of the 'framed' layout (frame stays still)"""
     lay = plan.get('layout', 'blur')
     if lay == 'split':   # reference style: top half = streamer cam box, bottom half = what they watch; both fill 1080x960
         tx, ty, tw, th = plan['top']; bx, by, bw, bh = plan['bottom']; hh = H // 2
         return (f"[0:v]split[a][b];[a]crop={tw}:{th}:{tx}:{ty},scale={W}:{hh}:force_original_aspect_ratio=increase,crop={W}:{hh}[t];"
                 f"[b]crop={bw}:{bh}:{bx}:{by},scale={W}:{hh}:force_original_aspect_ratio=increase,crop={W}:{hh}[u];[t][u]vstack,setsar=1[v]"), hh
+    if lay == 'framed':  # Shak Replay branded frame (daily/frame_style.py): webcam window on top, gameplay window below
+        fr = plan['frame']; cx, cy, cw, ch = fr['cam']; gx, gy, gw, gh = fr['game']
+        tx, ty, tw, th = plan['top']; bx, by, bw, bh = plan['bottom']
+        wf = lambda w, h: ''.join(',' + x for x in (win_fx(w, h) if win_fx else []))
+        return (f"[0:v]split[a][b];[a]crop={tw}:{th}:{tx}:{ty},scale={cw}:{ch}:force_original_aspect_ratio=increase,crop={cw}:{ch}{wf(cw, ch)},setsar=1[t];"
+                f"[b]crop={bw}:{bh}:{bx}:{by},scale={gw}:{gh}:force_original_aspect_ratio=increase,crop={gw}:{gh}{wf(gw, gh)},setsar=1[u];"
+                f"color=c=0x0b0618:s={W}x{H}:r=30[bg];[bg][t]overlay={cx}:{cy}:shortest=1[x1];[x1][u]overlay={gx}:{gy}[x2];"
+                f"movie={fr['png']},format=rgba[fr];[x2][fr]overlay=0:0,setsar=1[v]"), int(fr.get('cap_y', H // 2))
     if lay == 'crop':
         cx = plan.get('crop_x', 0.5); z = float(plan.get('crop_zoom', 1.0)); cy = float(plan.get('crop_y', 0.5))
         return f"[0:v]scale=-2:{int(H * z) // 2 * 2},crop={W}:{H}:(iw-{W})*{cx}:(ih-{H})*{cy},setsar=1[v]", int(H * 0.66)

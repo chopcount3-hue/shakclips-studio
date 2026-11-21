@@ -1,4 +1,13 @@
-# Shak Replay daily run – GTA 6 streamer clips (5 Shorts + 1 long video, US audience)
+# Shak Replay daily run – GTA 6 streamer clips (2 Shorts + 1 long video, US audience)
+
+**Upload limit:** vidIQ's FREE plan allows **3 YouTube uploads per day**, and the count resets at 08:00 UTC. So every day
+is **2 Shorts + 1 long video** (owner's choice, 21 Nov). **Backlog first:** any row in posts.csv whose url starts
+"NOT UPLOADED" is a finished vidIQ draft (postId in the row). Publish those first: at most 2 Shorts + 1 long per day
+in total, oldest first. Make new videos only for the slots the backlog leaves empty (for example, a backlog of 2 Shorts
+means make only the long video today). If a publish still fails with the daily-limit error, leave the row as NOT UPLOADED
+for tomorrow and say so in the report.
+**Standing approval:** the owner approved fully automatic publishing. A video that passes the checks is published right
+away. Never leave a passing video as a draft waiting for approval.
 
 Channel: **SHAK REPLAY** (@shakreplay), vidIQ/YouTube platformAccountId **UCgOUG3BF0gV_RBMX8pb3ceQ**.
 NEVER post anywhere else (never to "Shak clips 3d" / chopcount3). Repo: chopcount3-hue/shakclips-studio, branch **gta-clipper**.
@@ -37,10 +46,10 @@ $PY $D/pull.py $(python3 -c "import json;print(' '.join(c['name'] for c in json.
 If fewer than 8 clips survive, re-run find.py with `--hours 48`.
 
 ## 3. Choose (look at every sheet – Read `$WORK/sheets/<name>.jpg` – and read `$WORK/tx/<name>.txt`)
-Pick 5 Shorts (4 if today's slot list already has a video – see the run message) and 6-9 moments for the long video.
+Pick as many new Shorts as today's empty Short slots (2 minus the backlog) plus 1-2 spares, and 6-9 moments for the long video (if the long slot is empty).
 - Reject: blood/gore, shooting civilians up close, sexual content, slurs, long silence, menus/loading, chat spam with slurs on screen,
   Cristiano Ronaldo content (the streamer StableRonaldo is fine). Prefer: a clear payoff (crash, glitch, scare, fail, big reaction),
-  English talking, webcam visible. Different streamers across the 5 Shorts.
+  English talking, webcam visible. Different streamers across the day's Shorts.
 - The long video may reuse today's Short clips (longer cuts) plus other good ones. Never use a slug already in used.json.
 - **Low competition only (owner, 21 Nov: "try not to make content which has high competition").** find.py already ranks
   mid-size streamers above the mega streamers in `mega.txt`. Before locking a Short, run vidiq_youtube_search for
@@ -55,25 +64,38 @@ Pick 5 Shorts (4 if today's slot list already has a video – see the run messag
 
 ## 4. Webcam boxes
 `$PY $D/frame.py <name> <t>` saves `$WORK/frames/<name>_<t>.jpg` with a 100 px grid (1920x1080 coords). Read it and write
-`$WORK/boxes.json`: `{"<key>": {"top": [x,y,w,h] webcam, "bottom": [x,y,w,h] game}}`. Both boxes must be aspect w/h ≈ 1.125.
+`$WORK/boxes.json`: `{"<key>": {"top": [x,y,w,h] webcam, "bottom": [x,y,w,h] game}}`. Shorts use the branded Shak Replay
+frame (`frame_style.py`; owner's design request 21 Nov): the webcam window is 1020x680, so aim the top box at aspect ≈ 1.5
+(face centred, head not cut). The gameplay window is 1020x796, so aim the bottom box at ≈ 1.28. Other aspects get centre-cropped.
 Keep the top box inside the cam (no chat/game) and the bottom box above y=1000 (Twitch caption pill) and off chat overlays,
 centred on the action. No cam -> leave the key out (blur layout).
 
 ## 5. Plan and render the Shorts
-Write `$WORK/make_day.py` like `$D/days/2026-11-21/make_first.py` (see lib.py for note/gif/emo/fx/short). Per Short:
+Write `$WORK/make_day.py` like `$D/days/2026-11-21/make_framed.py` (see lib.py for note/gif/emo/fx/short). Per Short:
+- `context="..."`: the frame's title bar, on screen for the whole video (owner: "a text context that gives idea [what]
+  each video is about"). 4-9 words, says what's going on WITHOUT giving away the punchline, and puts the streamer's name
+  first when it helps. `*stars*` turn a word yellow, e.g. `"Squeex said watch this *cool trick* at full speed..."`.
+- **SFX = the owner's own pack** (owner, 21 Nov: "you are not using the sfx i gave you"). lib.py puts its 148 safe sounds
+  first (`$WORK/sfx_user_safe`) and maps old synthetic names to his (`own()`). Pick by job: impact `punch`, `bamboo_hit`,
+  `bone_crack`; fail `bruh`, `wah_wah_wah`, `fail_titanic`, `wrong`, `dissapointed`; shock `what`, `nani`, `wow_1`, `scream`;
+  suspense `dun_dun_dunnn`, `drum_roll`, `ticking_clock`, `heartbeat`, `mystery`; win `tadaa`, `correct`, `cash_register`,
+  `celebration`; funny `audience_laughing`, `ba_dum_tss`, `bike_horn`, `quack`, `cartoon_bounce`, `slide_whistle`;
+  moves `whoosh_transition`, `fast_swish_transition`, `goofy_cartoon_dash_1`, `cartoon_flying_in`; notes `poink`, `bloop`,
+  `ting`, `lphone_ding`; rewind `tape_rewind`, `dj_scratch`. Never use a sound marked "avoid" in sfx/user/index.md.
 teaser of the payoff first (2-2.5 s), ranges that cut dead time (18-40 s total), a note/sticker/fx at least every 3 s,
 music from `clipper/bgm/<mood>/` (`funny`, `action_epic`, `vice_city_80s`, `trap_hiphop`, `mystery`, `chill`) at gain 0.06-0.10.
 Stickers: `clipper/stickers/*.gif` (index.md). SFX names: `ls clipper/sfx/made clipper/sfx/drive clipper/sfx/cc0`.
 ```bash
-python3 $WORK/make_day.py && bash $D/render_shorts.sh k1 k2 k3 k4 k5      # every line must end "-> PASS"
-for k in k1 k2 k3 k4 k5; do f=$(ls $WORK/shorts/$k/*.mp4 | head -1); ffmpeg -v error -y -i "$f" -vf "fps=8/$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f"),scale=270:-1,tile=8x1" -frames:v 1 $WORK/review_$k.jpg; done
+python3 $WORK/make_day.py && bash $D/render_shorts.sh k1 k2      # every line must end "-> PASS"
+for k in k1 k2; do f=$(ls $WORK/shorts/$k/*.mp4 | head -1); ffmpeg -v error -y -i "$f" -vf "fps=8/$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f"),scale=270:-1,tile=8x1" -frames:v 1 $WORK/review_$k.jpg; done
 ```
-Read every review sheet. Check: cam framed (face not cut), action visible in the bottom box, captions readable and not
+Read every review sheet. Check: the frame's context title reads well (2 lines max, no punchline), cam framed (face not
+cut by the window), action visible in the gameplay window, captions readable in the lane between the windows and not
 covering faces, no chat/slur text, the teaser makes sense, nothing gory. Fix and re-render anything wrong, and write each
 defect + fix into LEARNINGS.md "Craft notes".
 
 ## 6. Long video (5-7 min, "GTA 6 Streamer Moments of the Day" style)
-Follow `$D/long_example.py`: Kokoro narration (am_michael, speed 1.08) for a cold-open hook, a 1-sentence setup before
+Follow `$D/long_example.py` (its sfx_dirs put the owner's pack first): Kokoro narration (am_michael, speed 1.08) for a cold-open hook, a 1-sentence setup before
 each moment (who, what to watch for – never describe the punchline), short reactions between, and an outro (subscribe +
 tomorrow tease). Commentary share must be ≥ 25 % (longform prints it). Order moments so the best one is last and tease it
 in the cold open. Then `bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94` (must be < 100 MB).
@@ -81,8 +103,8 @@ Spot-check 6 frames of long_fit.mp4 the same way as step 5. Write the scripts in
 
 ## 7. Post (vidIQ) – US peak times
 ```bash
-python3 $D/slots.py        # 5 Short slots + 1 long slot (ET -> UTC); past slots roll to tomorrow
-cp the 5 Shorts and long_fit.mp4 to $WORK/up/ with simple names (sr_<date>_s1.mp4 ... sr_<date>_long.mp4)
+python3 $D/slots.py        # 2 Short slots (11:00, 18:00 ET) + 1 long slot (15:00 ET) -> UTC; past slots roll to tomorrow
+cp today's new Shorts and long_fit.mp4 to $WORK/up/ with simple names (sr_<date>_s1.mp4 ... sr_<date>_long.mp4)
 bash $D/host.sh $WORK/up/*.mp4      # ONE call with ALL files (each call force-replaces the branch) -> public URLs
 ```
 For each file, in slot order: vidiq_video_upload(url) and wait until it's ready -> vidiq_social_post_draft_create with one
@@ -111,7 +133,7 @@ vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUr
 ## 9. Self-review and commit
 Re-read LEARNINGS.md: today's log entry says what was posted, the experiment, and 1-2 things to try tomorrow.
 ```bash
-git add clipper/daily && git commit -qm "Shak Replay <date>: 5 Shorts + long, learnings" && git pull -q --rebase && git push -q origin gta-clipper
+git add clipper/daily && git commit -qm "Shak Replay <date>: 2 Shorts + long, learnings" && git pull -q --rebase && git push -q origin gta-clipper
 ```
 Commit messages end with the attribution lines your session's system reminder gives (if any).
 

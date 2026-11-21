@@ -27,6 +27,10 @@ Ideas queue (pick the top one when no experiment is running):
 - question title ("Why did...?") vs statement title
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-21 (owner feedback): "you are not using the sfx i gave you, you are using bot type sfx" -> the owner's pack
+  (sfx/user, 148 safe sounds) is now first in every edit; the synthetic sfx/made sounds are only a fallback.
+- 2026-11-21 (owner request): every webcam Short uses the branded frame (frame_style.py) with a context title bar that
+  says what the video is about. Punch-ins and shakes happen inside the windows so the frame never moves.
 - 2026-11-21: sparse speech clip (squeex) -> captions only on 4 words; carried it with 7 notes + 6 stickers. Choose clips
   with more talking when possible: captions are what keeps people watching with sound off.
 
@@ -37,6 +41,10 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-21 (evening, owner chat)
+- vidIQ FREE plan = 3 YouTube uploads/day (resets 08:00 UTC). Owner chose 2 Shorts + 1 long per day.
+- Posted today: squeex_trick (F8slF5RBDgQ), speed_save (SliXXblB6N4, 12 PM ET), pixel_crash (N3u2G_4TOIU, 1 PM ET).
+  The other 4 drafts were dropped (old style). Tomorrow = first day in the new frame with the owner's SFX.
 ### 2026-11-21 (run 2, 10:50 UTC)
 - No stats yet: squeex_trick is scheduled 16:00 UTC today, so nothing has been live 20 h. stats.csv stays empty; first real read tomorrow.
 - Trend check (vidIQ trending Shorts, "gta 6 streamer", last 3 days): winners name a big streamer + a "FIRST streamer to..." claim
