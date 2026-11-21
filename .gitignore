@@ -4,3 +4,4 @@ scenes/
 pv/
 node_modules/
 __pycache__/
+clipper/bin/
