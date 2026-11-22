@@ -13,6 +13,8 @@ spec = {
   "circle": [cx, cy, r],                                 # optional, source px: ring the key detail
   "arrow": true,                                         # optional: arrow from the words to the circle
   "number": "#1",                                        # optional (long countdowns): big badge
+  "zoom": {"src": [cx, cy], "factor": 3, "at": [x, y], "r": 240},   # optional (long): magnifier bubble of a tiny detail,
+                                                         #   src in source px, at/r on the 1920x1080 canvas; ring on src
   "accent": "yellow" | "red" | "cyan" | "pink" | "green"
 }"""
 import json, os, subprocess, sys, math, tempfile
@@ -34,9 +36,10 @@ def grab(spec):
     return Image.open(out).convert('RGB')
 
 def grade(im):
-    im = ImageOps.autocontrast(im, cutoff=1)                              # dusk / night frames get lifted
     g = ImageOps.grayscale(im).resize((64, 36)); lum = sum(g.getpixel((x, y)) for x in range(64) for y in range(36)) / (64 * 36)
-    im = ImageEnhance.Brightness(im).enhance(min(1.3, max(1.0, 112 / max(lum, 1))))
+    if lum < 120:                                                         # only dusk / night frames get lifted
+        im = ImageOps.autocontrast(im, cutoff=1)
+        im = ImageEnhance.Brightness(im).enhance(min(1.3, max(1.0, 112 / max(lum, 1))))
     im = ImageEnhance.Color(im).enhance(1.4); im = ImageEnhance.Contrast(im).enhance(1.14)
     return im.filter(ImageFilter.UnsharpMask(radius=2, percent=110, threshold=2))
 
@@ -143,6 +146,19 @@ def make(spec, out):
                 a1 = (p[0] - (r + 26) * math.cos(ang), p[1] - (r + 26) * math.sin(ang))
                 if math.dist(a0, a1) > 140: arrow(img, a0, a1)
         if spec.get('number'): number_badge(img, spec['number'], 1720, 260, 130, acc)
+        if spec.get('zoom'):   # magnifier: small ring on the detail, a thick connector, a big bubble with the detail enlarged
+            z = spec['zoom']; zc = to_canvas(z['src'], s, ox, oy); R = z.get('r', 240); bx, by = z['at']; f = z.get('factor', 3)
+            half = R / (s * f); g = grade(src)
+            patch = g.crop((int(z['src'][0] - half), int(z['src'][1] - half), int(z['src'][0] + half), int(z['src'][1] + half))).resize((2 * R, 2 * R), Image.LANCZOS)
+            patch = ImageEnhance.Sharpness(patch).enhance(1.6)
+            mask = Image.new('L', (2 * R, 2 * R), 0); ImageDraw.Draw(mask).ellipse([0, 0, 2 * R - 1, 2 * R - 1], fill=255)
+            d = ImageDraw.Draw(img); sr = z.get('ring', 60)
+            for col, w_ in (((0, 0, 0), 30), ((255, 255, 255), 16)): d.line([zc, (bx, by)], fill=col, width=w_)
+            sh = Image.new('RGBA', img.size, (0, 0, 0, 0)); ImageDraw.Draw(sh).ellipse([bx - R - 6, by - R + 10, bx + R + 18, by + R + 26], fill=(0, 0, 0, 170))
+            img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(16)))
+            d = ImageDraw.Draw(img); d.ellipse([bx - R - 16, by - R - 16, bx + R + 16, by + R + 16], fill=(255, 255, 255))
+            img.paste(patch, (bx - R, by - R), mask); ImageDraw.Draw(img).ellipse([bx - R, by - R, bx + R, by + R], outline=(0, 0, 0), width=6)
+            ring(img, zc[0], zc[1], sr)
         brand(img, 1490, 40, 52) if not spec.get('no_brand') else None
         final = img.convert('RGB').resize((1280, 720), Image.LANCZOS)
     else:

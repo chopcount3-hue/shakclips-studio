@@ -110,9 +110,16 @@ Make it with `$D/thumb.py spec.json out.jpg`, kind "long", 1280x720 (spec format
 - **Frame:** the funniest or most visual instant (the crash, the glitch, the moment just before it). Gameplay only: never a
   streamer's face or a photo of a real person. Get the source-pixel `crop` (leave out webcam, chat, minimap) and the
   `circle` [cx, cy, r] around the key detail from a `frame.py <name> <t>` grid frame.
-- **Words:** 1-2 lines, 1-3 words each, built on curiosity and emotion ("TRUST ME *BRO*", "THEY WERE *NOT READY*", "WAIT FOR
-  *IT*"). Never repeat the title's words, and never give away the punchline. `*word*` = accent colour. The video must
-  actually contain what the thumbnail promises.
+- **Clickbait is allowed** (owner, 22 Nov: "you are allowed to make clickbait so that people must watch our video"). Go
+  hard: shock, mystery, a dare or a question. Pick the single most unbelievable instant in the video, ring it, magnify it
+  with `zoom` if it's small, and ask about it ("WHY IS IT *FLYING?!*", "THE GAME *BROKE*", "DON'T *LOOK*", "HE LOST
+  *90 HOURS?!*"). The one hard line: what the thumbnail shows or claims must really happen in the video. YouTube removes
+  misleading thumbnails and holds back their reach, and a viewer who feels tricked leaves in seconds and kills
+  retention. So exaggerate the reaction, never invent the event.
+- **Words:** 1-2 lines, 1-3 words each, curiosity and emotion. Never repeat the title's words, and never answer the
+  question the thumbnail asks. `*word*` = accent colour (red for danger or shock, yellow for hype).
+- **Example that worked well in review:** 22 Nov long q7Wck99d2gc, `days/2026-11-22/thumbs/q7Wck99d2gc.json`: a binocular
+  frame of a person floating in the sky, ring + zoom bubble, "WHY IS IT *FLYING?!*", badges JERMA / LIRIK / LACY.
 - **Badges:** up to 3 of the biggest streamer names in the video (popular names are what people click).
 - Read `out.jpg` AND `out_qa.jpg` (small sizes on white and dark backgrounds, greyscale). Fix it if the words are hard
   to read at the smallest size, the circle covers the words, or the subject is cut off. Then add any lesson to LEARNINGS.md.
