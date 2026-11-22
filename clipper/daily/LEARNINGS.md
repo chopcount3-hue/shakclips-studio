@@ -22,6 +22,7 @@ supporting. Everything not proven yet is an experiment.
 | 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | pending |
 
 Ideas queue (pick the top one when no experiment is running):
+- thumbnail words: emotion ("NOT READY") vs dare ("TRUST ME BRO") vs question ("WHY?!"); circle vs no circle
 - hook_size 80 vs 104 (on 21 Nov the hook label looked small on the cam half of the split layout)
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 - funny music bed vs no music (original game audio only)
