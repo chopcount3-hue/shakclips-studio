@@ -42,11 +42,13 @@ def main():
     xs = [n for n in pool.values() if n['createdAt'] >= cut[:19] and n['slug'] not in used and n['durationSeconds'] >= 12
           and not NSFW.search(n['title'] or '')]
     # rank: English first (the channel's audience), then views; at most 4 per streamer so one stream can't fill the day
-    # Low competition first (owner, 21 Nov): the mega streamers' viral clips are re-uploaded by hundreds of clip channels
-    # within hours, so English clips from mid-size streamers rank first; mega clips stay in the pool, behind them.
-    MEGA = {l.strip().lower() for l in open(os.path.join(HERE, 'mega.txt')) if l.strip() and not l.startswith('#')} if os.path.exists(os.path.join(HERE, 'mega.txt')) else set()
-    for n in xs: n['mega'] = n['broadcaster']['login'].lower() in MEGA
-    xs.sort(key=lambda n: ((n['language'] or '').lower() != 'en', n['mega'], -n['viewCount']))
+    # Popular creators only (owner, 22 Nov: "no one watches low popular creators"): keep clips from popular.txt; fall back
+    # to other streamers only when fewer than 12 popular clips exist. English first, then most-viewed.
+    PF = os.path.join(HERE, 'popular.txt')
+    POP = {l.strip().lower() for l in open(PF) if l.strip() and not l.startswith('#')} if os.path.exists(PF) else set()
+    for n in xs: n['popular'] = n['broadcaster']['login'].lower() in POP
+    if sum(n['popular'] for n in xs) >= 12: xs = [n for n in xs if n['popular']]
+    xs.sort(key=lambda n: ((n['language'] or '').lower() != 'en', not n['popular'], -n['viewCount']))
     per, out = {}, []
     for n in xs:
         u = n['broadcaster']['login']

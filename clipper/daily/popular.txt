@@ -1,0 +1,57 @@
+# Popular creators ONLY (owner, 22 Nov: "make popular creators only because no one watches low popular creators").
+# find.py keeps clips from these logins first; other streamers are used only if fewer than 12 popular clips exist.
+# Add a name when a big streamer starts playing GTA 6; the YouTube re-upload check (RUNBOOK step 3) still skips a moment
+# that 3+ channels already posted, so pick another moment from the same popular streamer instead.
+kaicenat
+ishowspeed
+xqc
+jynxzi
+caseoh_
+adinross
+fanum
+lacy
+stableronaldo
+clix
+jasontheween
+summit1g
+sodapoppin
+moistcr1tikal
+hasanabi
+ludwig
+agent00
+plaqueboymax
+zackrawrr
+emiru
+jerma985
+lirik
+nmplol
+mizkif
+esfandtv
+dougdoug
+ninja
+tfue
+nadeshot
+sypherpk
+shroud
+timthetatman
+nickmercs
+sketch
+dukedennis
+rayasianboy
+brucedropemoff
+fuslie
+valkyrae
+pokimane
+sykkuno
+ironmouse
+yourragegaming
+n3on
+silky
+marlon
+darkviperau
+theburntpeanut
+ohnepixel
+forsen
+squeex
+extraemily
+cohhcarnage

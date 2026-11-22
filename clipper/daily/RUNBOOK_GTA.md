@@ -51,14 +51,15 @@ Pick as many new Shorts as today's empty Short slots (2 minus the backlog) plus 
   Cristiano Ronaldo content (the streamer StableRonaldo is fine). Prefer: a clear payoff (crash, glitch, scare, fail, big reaction),
   English talking, webcam visible. Different streamers across the day's Shorts.
 - The long video may reuse today's Short clips (longer cuts) plus other good ones. Never use a slug already in used.json.
-- **Low competition only (owner, 21 Nov: "try not to make content which has high competition").** find.py already ranks
-  mid-size streamers above the mega streamers in `mega.txt`. Before locking a Short, run vidiq_youtube_search for
+- **Popular creators only (owner, 22 Nov: "no one watches low popular creators").** find.py keeps clips from
+  `popular.txt` (big, well-known streamers) and ranks them English-first by views. Put the streamer's name in the title
+  and the frame's context line; the name is what people search and click.
+- **Still avoid copies (owner, 21 Nov: "not ... high competition").** Before locking a Short, run vidiq_youtube_search for
   "<streamer> gta 6" plus 2-3 key words of the moment, and look at uploads from the last 3 days. If 3 or more channels
-  already posted this same moment, or one copy already has 100k+ views, drop it and take the next candidate. Log the check
-  (query, how many copies found) in `days/<date>/competition.md`. Add a streamer to mega.txt when their clips keep
-  failing this check, and remove one that keeps passing.
-- Angle beats source: when the same streamer is crowded, prefer a specific angle that few channels cover (a glitch, an NPC
-  or police-AI reaction, a hidden detail, a physics fail) over "streamer reacts" moments everyone clips.
+  already posted this same moment, or one copy already has 100k+ views, take a DIFFERENT moment from a popular streamer
+  (they have many clips a day). Log the check in `days/<date>/competition.md`.
+- Angle: when a popular streamer's top clip is crowded, take his less-clipped moments: a glitch, an NPC or police-AI
+  reaction, a physics fail, a rage moment from later in the stream.
 - Long video title: run vidiq_keyword_research on 3-5 candidate phrases ("gta 6 funny moments", "gta 6 streamer
   fails", "gta 6 glitches today", ...) and build the title around a phrase with real volume and LOW competition.
 

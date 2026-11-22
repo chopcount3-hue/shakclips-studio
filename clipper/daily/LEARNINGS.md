@@ -11,7 +11,7 @@ supporting. Everything not proven yet is an experiment.
 4. Something new on screen at least every 3 s (note, sticker, punch, shake, cut): the originality check allows 4 s max.
 5. Split layout (webcam top, game bottom) whenever the streamer has a cam; blur layout only for no-cam clips.
 6. Title = curiosity + "GTA 6" + 1 emoji, under 60 characters, then #gta6 #shorts. Never put the punchline in the title.
-7. Low competition: mid-size streamers first; skip any moment that 3+ channels (or one 100k+ copy) already posted (RUNBOOK step 3).
+7. Popular creators only (owner, 22 Nov); skip a moment that 3+ channels (or one 100k+ copy) already posted and take another moment from a popular streamer.
 8. Ad-safe only: no blood, gore, sexual content or slurs; bleep strong swears (lib.bleeps does it from the transcript).
 
 ## Experiments (one new variable per day; record the result here)
