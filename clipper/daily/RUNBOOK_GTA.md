@@ -104,32 +104,31 @@ in the cold open. Then `bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fi
 Spot-check 6 frames of long_fit.mp4 the same way as step 5. Write the scripts in English for a US viewer.
 
 ## 6b. Thumbnails (owner, 22 Nov: "make also thumbnails professional level and interesting")
-One per video with `$D/thumb.py spec.json out.jpg` (spec format in its docstring; examples in `days/2026-11-22/thumbs/`).
-- **Long video:** 1280x720. **Short:** 1080x1920. YouTube often shows Shorts cropped to about 3:2, so the name badge, the
-  words and the circled subject must sit inside the middle band, y 600-1320.
+**LONG VIDEO ONLY** (owner, 22 Nov: "only for long form videos"). Shorts get NO custom thumbnail.
+Make it with `$D/thumb.py spec.json out.jpg`, kind "long", 1280x720 (spec format in its docstring; example in
+`days/2026-11-22/thumbs/example_long.json`).
 - **Frame:** the funniest or most visual instant (the crash, the glitch, the moment just before it). Gameplay only: never a
   streamer's face or a photo of a real person. Get the source-pixel `crop` (leave out webcam, chat, minimap) and the
   `circle` [cx, cy, r] around the key detail from a `frame.py <name> <t>` grid frame.
 - **Words:** 1-2 lines, 1-3 words each, built on curiosity and emotion ("TRUST ME *BRO*", "THEY WERE *NOT READY*", "WAIT FOR
   *IT*"). Never repeat the title's words, and never give away the punchline. `*word*` = accent colour. The video must
   actually contain what the thumbnail promises.
-- **Badge:** the streamer's name (popular names are what people click). The long video gets up to 3 names.
-- Read `out.jpg` AND `out_qa.jpg` (small sizes on white and dark backgrounds, greyscale, 3:2 band). Fix it if the words
-  are hard to read at the smallest size, the circle covers the words, or the subject is cut off. Then add any lesson to
-  LEARNINGS.md.
-- Host the thumbnails in the SAME host.sh call as the videos.
+- **Badges:** up to 3 of the biggest streamer names in the video (popular names are what people click).
+- Read `out.jpg` AND `out_qa.jpg` (small sizes on white and dark backgrounds, greyscale). Fix it if the words are hard
+  to read at the smallest size, the circle covers the words, or the subject is cut off. Then add any lesson to LEARNINGS.md.
+- Host the thumbnail in the SAME host.sh call as the videos.
 
 ## 7. Post (vidIQ) – US peak times
 ```bash
 python3 $D/slots.py        # 2 Short slots (11:00, 18:00 ET) + 1 long slot (15:00 ET) -> UTC; past slots roll to tomorrow
-cp today's new Shorts, long_fit.mp4 and their thumbnails (sr_<date>_s1_thumb.jpg ...) to $WORK/up/ with simple names (sr_<date>_s1.mp4 ... sr_<date>_long.mp4)
-bash $D/host.sh $WORK/up/*      # ONE call with ALL files (videos + thumbnails) (each call force-replaces the branch) -> public URLs
+cp today's new Shorts, long_fit.mp4 and the long video's thumbnail (sr_<date>_long_thumb.jpg) to $WORK/up/ with simple names (sr_<date>_s1.mp4 ... sr_<date>_long.mp4)
+bash $D/host.sh $WORK/up/*      # ONE call with ALL files (videos + long thumbnail) (each call force-replaces the branch) -> public URLs
 ```
 For each file, in slot order: vidiq_video_upload(url) and wait until it's ready -> vidiq_social_post_draft_create with one
 YOUTUBE destination (platformAccountId UCgOUG3BF0gV_RBMX8pb3ceQ): title, description, tags, categoryId 20, madeForKids false,
 scheduled for its slot (publishAt + the privacyStatus the schema requires; YouTube keeps it private until then) ->
 vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUrl.
-- Thumbnail: before drafting, call vidiq_upload_image(image=<the thumbnail's raw URL>) and put the returned imageId in
+- Long video thumbnail (Shorts: none): before drafting, call vidiq_upload_image(image=<the thumbnail's raw URL>) and put the returned imageId in
   the YouTube destination's `thumbnailImageId`. YouTube accepts custom thumbnails only from phone-verified channels. A
   refused thumbnail does not fail the upload: note it in the report ("verify the channel at youtube.com/verify").
 - Short title: < 60 chars, curiosity + "GTA 6" + 1 emoji + `#gta6 #shorts`. Long title: < 70 chars, US-search friendly
