@@ -95,6 +95,7 @@ covering faces, no chat/slur text, the teaser makes sense, nothing gory. Fix and
 defect + fix into LEARNINGS.md "Craft notes".
 
 ## 6. Long video (5-7 min, "GTA 6 Streamer Moments of the Day" style)
+First `python3 $D/bleep_clips.py <the long video's clips>` (longform.py does not bleep moment audio) and use the *_bl.mp4 copies.
 Follow `$D/long_example.py` (its sfx_dirs put the owner's pack first): Kokoro narration (am_michael, speed 1.08) for a cold-open hook, a 1-sentence setup before
 each moment (who, what to watch for – never describe the punchline), short reactions between, and an outro (subscribe +
 tomorrow tease). Commentary share must be ≥ 25 % (longform prints it). Order moments so the best one is last and tease it
@@ -119,8 +120,8 @@ vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUr
   licensed under CC BY 4.0 – https://creativecommons.org/licenses/by/4.0/`; 4-6 hashtags. Long video: add chapters
   (00:00 + each moment's start from long.json timeline) after the hook line.
 - Tags: gta 6, gta vi, gta 6 gameplay, gta 6 funny moments, <streamer>, gta 6 clips, grand theft auto 6, twitch clips (+ shorts).
-- vidiq_social_post_publish only runs after the owner approves the finished draft. On an unattended run, leave every video as a
-  draft, record the postIds in posts.csv, and PushNotification the owner with titles and times so they can reply "post them".
+- Standing approval (owner, 21 Nov): every draft that passes the checks is published right away with vidiq_social_post_publish,
+  including on unattended runs. Never leave a passing video as a draft waiting for approval.
 - If publish returns `youtube_mfa` / verification required: copy the verification link, send it with PushNotification
   ("Tap to verify SHAK REPLAY, pick shakreplay account, tick every box"), wait up to 20 min re-trying publish every 2 min,
   then leave the rest as drafts and list them in the report.

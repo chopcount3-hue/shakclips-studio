@@ -18,11 +18,12 @@ supporting. Everything not proven yet is an experiment.
 | started | variable | variants | how judged | result |
 |---|---|---|---|---|
 | 2026-11-21 | baseline | squeex_trick: crash teaser + 5 ranges, 26 s, funny music | views and avg % viewed at 48 h | pending |
-| 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | pending |
+| 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | early read 22 Nov (~15 h): A speed_save 1081 vs B pixel_crash 9; squeex (no name, baseline) 1045. Leaning A, final at 48 h (23 Nov) |
+| 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | pending |
 
 Ideas queue (pick the top one when no experiment is running):
 - hook_size 80 vs 104 (on 21 Nov the hook label looked small on the cam half of the split layout)
-- 20-25 s vs 35-45 s Shorts
+- upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 - funny music bed vs no music (original game audio only)
 - question title ("Why did...?") vs statement title
 
@@ -37,10 +38,25 @@ Ideas queue (pick the top one when no experiment is running):
 - 2026-11-21b: burned-in Twitch captions / NPC subtitles show swears and crude lines even when the audio is bleeped
   (zoreee_10 "asshole", zoreee_07 crude NPC line). Fix: cut those ranges instead of bleeping, and check the sheet text, not just the transcript.
 - 2026-11-21b: a 1.5 s note just before a cut ran on top of the next note. Fix: dur=0.7 for notes placed < 1.5 s before a range end.
+- 2026-11-22: the frame's context title wraps to 2 lines and the notes at y=0.12 covered line 2. Fix: notes at y=0.175 in
+  framed Shorts (make_day.py wraps note() with that default). Check the first review frame for this every day.
+- 2026-11-22: longform.py masks swear captions but does NOT bleep the audio of moments. Fix: run bleep_clips.py on the day's
+  long-video clips and point plan['clips'] at the *_bl.mp4 copies.
 - 2026-11-21b: longform.py needs soundfile + pyloudnorm in the cbx venv (missing on a fresh workspace); setup_gta.sh now installs them with uv.
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-22 (08:15 UTC run)
+- Early numbers (~15 h live, not yet the 20 h minimum): squeex_trick 1045 views / 16 likes, speed_save 1081 / 11, pixel_crash 9 / 0.
+  pixel_crash barely got a Shorts-feed test. Likely causes: posted 1 h after speed_save (3 Shorts in 2 h), the only no-name
+  vague title ("He Promised..."), slowest open (31 s). Lesson: space Shorts 3+ h apart (slots now 11:00 / 18:00 ET) and name the streamer.
+- Trend check: winners right now are "<Streamer> did X in GTA 6" story titles, ranking compilations, and 16-30 s cuts;
+  NickEh30 and N3on are rising, Speed/Kai are saturated.
+- Competition check skipped Joe Bartolozzi pigeon (13 copies), LIRIK CJ reflection (5), Fuslie twig arm (9), WoolieVersus cage bug (4).
+  Passed: jshrobz swamp crash (0 copies) and Dunc bicycle (1 copy, 0 views). Mid-size streamers' viral clips get copied within hours too:
+  the check matters for everyone, not just mega.txt.
+- Posted (scheduled, all published via vidIQ): jshrobz_crash ENfy0l9ex7Y (A, 23 s, 11:00 ET), long q7Wck99d2gc "GTA 6 Funniest Moments" (8 moments, 5:34, 33% narration, 15:00 ET), dunc_bike IC9wWhPVwqk (B, 32 s, 18:00 ET).
+- Experiment: Short length A (18-25 s) vs B (32-40 s). Tomorrow: final 48 h read of name-in-title test; try a NickEh30 / N3on angle if a clip passes the check.
 ### 2026-11-21 (evening, owner chat)
 - vidIQ FREE plan = 3 YouTube uploads/day (resets 08:00 UTC). Owner chose 2 Shorts + 1 long per day.
 - Posted today: squeex_trick (F8slF5RBDgQ), speed_save (SliXXblB6N4, 12 PM ET), pixel_crash (N3u2G_4TOIU, 1 PM ET).

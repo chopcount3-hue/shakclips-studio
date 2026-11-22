@@ -1,1 +1,4 @@
 date_checked_utc,video_id,kind,hours_live,views,likes,comments,avg_view_pct,avg_view_s,subs_gained,source
+2026-11-22T08:20Z,F8slF5RBDgQ,short,16.3,1045,16,0,,,,vidiq_get_videos_by_ids (early read <20h; analytics API returned no rows yet)
+2026-11-22T08:20Z,SliXXblB6N4,short,15.3,1081,11,0,,,,vidiq_get_videos_by_ids (early read <20h)
+2026-11-22T08:20Z,N3u2G_4TOIU,short,14.3,9,0,0,,,,vidiq_get_videos_by_ids (early read <20h)
