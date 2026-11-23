@@ -81,7 +81,10 @@ def text_lines(canvas, lines, box, accent, max_size, rot=-3, align='left'):
 def ring(canvas, cx, cy, r, accent=(255, 48, 64)):
     d = ImageDraw.Draw(canvas); t = max(10, r // 9)
     g = Image.new('RGBA', canvas.size, (0, 0, 0, 0)); ImageDraw.Draw(g).ellipse([cx - r, cy - r, cx + r, cy + r], outline=accent + (255,), width=t * 2)
-    canvas.alpha_composite(g.filter(ImageFilter.GaussianBlur(t)))
+    g = g.filter(ImageFilter.GaussianBlur(t)); inside = Image.new('L', canvas.size, 0)
+    ImageDraw.Draw(inside).ellipse([cx - r + t, cy - r + t, cx + r - t, cy + r - t], fill=255)
+    a = g.getchannel('A'); a.paste(0, mask=inside); g.putalpha(a)            # glow outside only: the subject stays clean
+    canvas.alpha_composite(g)
     d.ellipse([cx - r - t // 2, cy - r - t // 2, cx + r + t // 2, cy + r + t // 2], outline=(255, 255, 255), width=t // 2 + 2)
     d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=accent, width=t)
 

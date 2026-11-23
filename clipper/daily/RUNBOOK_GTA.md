@@ -116,10 +116,15 @@ Make it with `$D/thumb.py spec.json out.jpg`, kind "long", 1280x720 (spec format
   *90 HOURS?!*"). The one hard line: what the thumbnail shows or claims must really happen in the video. YouTube removes
   misleading thumbnails and holds back their reach, and a viewer who feels tricked leaves in seconds and kills
   retention. So exaggerate the reaction, never invent the event.
+- **Lead with the biggest name** (owner, 23 Nov: "add i showspeed in the thumbnail so that it gets more views"). If
+  IShowSpeed (or another top name: Kai Cenat, xQc, Jynxzi, CaseOh) is in the video, build the thumbnail on HIS moment, put
+  his name in the words (`"*SPEED* FOUND", "AN *ALIEN?!*"`), and make his badge the first one. Names only, never his
+  face or photo.
 - **Words:** 1-2 lines, 1-3 words each, curiosity and emotion. Never repeat the title's words, and never answer the
   question the thumbnail asks. `*word*` = accent colour (red for danger or shock, yellow for hype).
-- **Example that worked well in review:** 22 Nov long q7Wck99d2gc, `days/2026-11-22/thumbs/q7Wck99d2gc.json`: a binocular
-  frame of a person floating in the sky, ring + zoom bubble, "WHY IS IT *FLYING?!*", badges JERMA / LIRIK / LACY.
+- **Examples:** 23 Nov long AfYP7wzr1S8 (`days/2026-11-23/thumbs/AfYP7wzr1S8_speed.json`): the alien on the table
+  with a ring on its eye, "*SPEED* FOUND / AN *ALIEN?!*", badges ISHOWSPEED / XQC / JERMA. 22 Nov long q7Wck99d2gc, `days/2026-11-22/thumbs/q7Wck99d2gc.json`: a binocular
+  frame of a person floating in the sky, ring + zoom bubble (spec coordinates are always 1920x1080: thumb.py scales 720p clips up), "WHY IS IT *FLYING?!*", badges JERMA / LIRIK / LACY.
 - **Badges:** up to 3 of the biggest streamer names in the video (popular names are what people click).
 - Read `out.jpg` AND `out_qa.jpg` (small sizes on white and dark backgrounds, greyscale). Fix it if the words are hard
   to read at the smallest size, the circle covers the words, or the subject is cut off. Then add any lesson to LEARNINGS.md.
