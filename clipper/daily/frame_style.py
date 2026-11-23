@@ -84,7 +84,10 @@ def header(img, context=''):
     # context title: what this video is about; *word* = yellow highlight; auto-fits 1-2 lines
     ctx = re.sub(r'[^\x20-\x7E\u2019\u2018]', '', context or '').strip()
     if not ctx: return img
-    words = [(w.strip('*'), w.startswith('*') or w.endswith('*')) for w in ctx.upper().split()]
+    words, on = [], False   # *multi word spans*, also when punctuation follows the closing star ("*this exit*...")
+    for w in ctx.upper().split():
+        st = w.startswith('*'); en = w.rstrip('.,!?:;…').endswith('*') and (len(w.strip('.,!?:;…')) > 1)
+        words.append((w.replace('*', ''), on or st or en)); on = (on or st) and not en
     box_top, box_bot, maxw = 74, 192, W - 100
     for size in range(64, 33, -2):
         fc = font('LilitaOne-Regular.ttf', size); lines = wrap(d, words, fc, maxw)

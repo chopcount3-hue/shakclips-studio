@@ -32,7 +32,7 @@ def font(name, size):
 def grab(spec):
     if spec.get('image'): return Image.open(os.path.expandvars(spec['image'])).convert('RGB')
     src = os.path.expandvars(spec['src']); out = tempfile.mktemp(suffix='.png')
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(spec['t']), '-i', src, '-frames:v', '1', out], check=True)
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(spec['t']), '-i', src, '-frames:v', '1', '-vf', 'scale=1920:1080', out], check=True)   # 720p clips too: spec coords are 1920x1080
     return Image.open(out).convert('RGB')
 
 def grade(im):

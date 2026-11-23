@@ -10,25 +10,32 @@ supporting. Everything not proven yet is an experiment.
 3. Cut dead driving or walking: keep ranges where something is said or happens; a Short should land at 18-40 s.
 4. Something new on screen at least every 3 s (note, sticker, punch, shake, cut): the originality check allows 4 s max.
 5. Split layout (webcam top, game bottom) whenever the streamer has a cam; blur layout only for no-cam clips.
-6. Title = curiosity + "GTA 6" + 1 emoji, under 60 characters, then #gta6 #shorts. Never put the punchline in the title.
+6. Title = streamer name FIRST + curiosity + "GTA 6" + 1 emoji, under 60 characters, then #gta6 #shorts. Never put the punchline
+   in the title. (Name test closed 23 Nov: named Speed 1506 vs unnamed pixel 9 at ~39 h; named jshrobz 1029 and dunc 416 also got feed pushes.)
 7. Popular creators only (owner, 22 Nov); skip a moment that 3+ channels (or one 100k+ copy) already posted and take another moment from a popular streamer.
 8. Ad-safe only: no blood, gore, sexual content or slurs; bleep strong swears (lib.bleeps does it from the transcript).
 
 ## Experiments (one new variable per day; record the result here)
 | started | variable | variants | how judged | result |
 |---|---|---|---|---|
-| 2026-11-21 | baseline | squeex_trick: crash teaser + 5 ranges, 26 s, funny music | views and avg % viewed at 48 h | pending |
-| 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | early read 22 Nov (~15 h): A speed_save 1081 vs B pixel_crash 9; squeex (no name, baseline) 1045. Leaning A, final at 48 h (23 Nov) |
-| 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | pending |
+| 2026-11-21 | baseline | squeex_trick: crash teaser + 5 ranges, 26 s, funny music | views and avg % viewed at 48 h | 1073 views / 16 likes @40 h (avg % not available) |
+| 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | CLOSED 23 Nov (~39 h): A speed_save 1506 vs B pixel_crash 9 (squeex, no name, 1073). A wins -> rule 6 |
+| 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | early 23 Nov: A 1029 @16 h (64 vph) vs B 416 @9 h (46 vph); final 24 Nov |
+| 2026-11-23 | Short title form | A: question ("Why Did DarkViperAU Say 'It's My Bad'...?" 20 s) vs B: statement ("MoistCr1TiKaL Found the PERFECT Hiding Spot..." 27 s); both name-first, framed | views at 24/48 h | pending |
 
 Ideas queue (pick the top one when no experiment is running):
 - long-video thumbnail words: emotion ("NOT READY") vs dare ("TRUST ME BRO") vs question ("WHY?!"); circle vs no circle
 - hook_size 80 vs 104 (on 21 Nov the hook label looked small on the cam half of the split layout)
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 - funny music bed vs no music (original game audio only)
-- question title ("Why did...?") vs statement title
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-23: context `*this exit*...` rendered "EXIT*..." (frame_style only saw a star at the very end of a word). Fixed: star
+  spans can cover several words and may be followed by punctuation. frame_style caches PNGs in $WORK/frames_style: delete it after a change.
+- 2026-11-23: thumb.py read crop/circle as source px, so a 720p clip (ishowspeed_01) gave a broken thumbnail. Fixed: grab()
+  scales every frame to 1920x1080 first. Always check the clip's resolution when a thumbnail looks off.
+- 2026-11-23: moist cam box ran 40 px below the webcam and showed pool water in the cam window. Read the cam's bottom edge, not the overlay.
+- 2026-11-23: thumbnail ring r=250 cut the words ("THEY HID" touched the ring); r~175 on the subject keeps words and ring apart.
 - 2026-11-21 (owner feedback): "you are not using the sfx i gave you, you are using bot type sfx" -> the owner's pack
   (sfx/user, 148 safe sounds) is now first in every edit; the synthetic sfx/made sounds are only a fallback.
 - 2026-11-21 (owner request): every webcam Short uses the branded frame (frame_style.py) with a context title bar that
@@ -47,6 +54,15 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-23 (08:13 UTC run)
+- Stats (~39 h): speed_save 1506 / 12 likes (best), squeex_trick 1073 / 16, pixel_crash 9. Early: jshrobz_crash 1029 @16 h (best vph 64),
+  dunc_bike 416 @9 h, long q7Wck99d2gc only 2 views @12 h (new channel's long-form gets no browse push yet: it needs search terms + time).
+  Analytics API still returns no rows (retention unknown). Main lesson: name-first titles get the Shorts-feed test; the unnamed one died.
+- Trend check: winners are 12-25 s, "<Streamer> Finds/Caused X in GTA 6" (Lacy hidden feature 37k, Kai Cenat kid 8k, "50 hours to beat GTA 6" 37k).
+- Competition: popular clips (Speed alien, Jerma dog, xQc crash, Cohh quad) got 8-10 copies in ~12 h. Took big names' LOW-view clips instead.
+- Posted (all published via vidIQ, scheduled): darkviper_exit lF0D7XGFWIA (A question title, 20 s, 11:00 ET), long "GTA 6 Moments That Broke Streamers Today" (8 moments, kw "gta 6 moments" vol 83 / comp 45,
+  15:00 ET, AfYP7wzr1S8, thumbnail "THEY HID THIS?!" on the Speed alien), moist_pool 7ztXHQU5P_8 (B statement title, 27 s, 18:00 ET).
+- Experiment: question vs statement Short title. Tomorrow: final length read (jshrobz vs dunc) and first read of the long video at ~36 h.
 ### 2026-11-22 (08:15 UTC run)
 - Early numbers (~15 h live, not yet the 20 h minimum): squeex_trick 1045 views / 16 likes, speed_save 1081 / 11, pixel_crash 9 / 0.
   pixel_crash barely got a Shorts-feed test. Likely causes: posted 1 h after speed_save (3 Shorts in 2 h), the only no-name

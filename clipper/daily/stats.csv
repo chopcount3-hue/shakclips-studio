@@ -2,3 +2,9 @@ date_checked_utc,video_id,kind,hours_live,views,likes,comments,avg_view_pct,avg_
 2026-11-22T08:20Z,F8slF5RBDgQ,short,16.3,1045,16,0,,,,vidiq_get_videos_by_ids (early read <20h; analytics API returned no rows yet)
 2026-11-22T08:20Z,SliXXblB6N4,short,15.3,1081,11,0,,,,vidiq_get_videos_by_ids (early read <20h)
 2026-11-22T08:20Z,N3u2G_4TOIU,short,14.3,9,0,0,,,,vidiq_get_videos_by_ids (early read <20h)
+2026-11-23T08:20Z,F8slF5RBDgQ,short,40.3,1073,16,0,,,,vidiq_get_videos_by_ids (analytics API returned no rows)
+2026-11-23T08:20Z,SliXXblB6N4,short,39.3,1506,12,0,,,,vidiq_get_videos_by_ids
+2026-11-23T08:20Z,N3u2G_4TOIU,short,38.3,9,0,0,,,,vidiq_get_videos_by_ids
+2026-11-23T08:20Z,ENfy0l9ex7Y,short,16.3,1029,4,0,,,,vidiq_get_videos_by_ids (early read <20h)
+2026-11-23T08:20Z,q7Wck99d2gc,long,12.3,2,0,0,,,,vidiq_get_videos_by_ids (early read <20h)
+2026-11-23T08:20Z,IC9wWhPVwqk,short,9.3,416,6,0,,,,vidiq_get_videos_by_ids (early read <20h)
