@@ -40,7 +40,7 @@ If it is missing, still make the videos, skip posting, and report it (step 10).
 
 ## 2. Find and pull today's clips
 ```bash
-python3 $D/find.py --hours 30 --top 40          # -> $WORK/cands.json, English first, NSFW titles filtered, used.json excluded
+python3 $D/find.py --hours 30 --top 40          # -> $WORK/cands.json: shorts_creators.txt clips first (7 days, shorts_ok), then popular (30 h); NSFW titles filtered, used.json excluded
 $PY $D/pull.py $(python3 -c "import json;print(' '.join(c['name'] for c in json.load(open('$WORK/cands.json'))[:18]))")
 ```
 If fewer than 8 clips survive, re-run find.py with `--hours 48`.
@@ -51,6 +51,11 @@ Pick as many new Shorts as today's empty Short slots (2 minus the backlog) plus 
   Cristiano Ronaldo content (the streamer StableRonaldo is fine). Prefer: a clear payoff (crash, glitch, scare, fail, big reaction),
   English talking, webcam visible. Different streamers across the day's Shorts.
 - The long video may reuse today's Short clips (longer cuts) plus other good ones. Never use a slug already in used.json.
+- **SHORTS: only the creators in `shorts_creators.txt`** (owner, 23 Nov: Kai Cenat, IShowSpeed, Fanum + "3-4 more
+  popular"). Today that's Kai Cenat, IShowSpeed, Fanum, Agent00, ChrisNxtDoor, CaseOh and Jynxzi. Use only candidates
+  with `"shorts_ok": true` (marked `S` in find.py's table; 7-day lookback). Put the creator's name in the title and the
+  context line. If no shorts_ok clip passes the checks, post fewer Shorts that day; never fill a Short with another
+  creator. Rakai and Duke Dennis aren't on Twitch, so they can't be clipped here.
 - **Popular creators only (owner, 22 Nov: "no one watches low popular creators").** find.py keeps clips from
   `popular.txt` (big, well-known streamers) and ranks them English-first by views. Put the streamer's name in the title
   and the frame's context line; the name is what people search and click.

@@ -1,0 +1,12 @@
+# SHORTS come ONLY from these creators (owner, 23 Nov: "shorts from tomorrow will be regarding only kai cenat, ishowspeed,
+# rakai, fanum and 3-4 more popular youtubers"). find.py looks back 7 days for them (some stream on YouTube part of the week,
+# so their newest Twitch clips can be days old) and ranks them first; each candidate gets "shorts_ok": true.
+# Rakai and Duke Dennis are not on Twitch (YouTube/Kick only, and YouTube can't be downloaded from the cloud), so they
+# can't be clipped here. Added instead: Agent00, ChrisNxtDoor (Kai's AMP crew), CaseOh, Jynxzi.
+kaicenat
+ishowspeed
+fanum
+agent00
+chrisnxtdoor
+caseoh_
+jynxzi
