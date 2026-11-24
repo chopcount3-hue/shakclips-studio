@@ -8,7 +8,10 @@ Pick the frame first: compare 6-8 timestamps (edge variance + brightness) and ta
 usage: python3 thumb_hero.py spec.json out.jpg     (also writes out_qa.jpg)
 spec = {"src": "$WORK/clips/x.mp4", "t": 7.6, "crop": [x, y, w, h] (source px, 16:9, no webcam/chat/minimap),
         "ring": [cx, cy, r] (source px), "name": "CASEOH", "words": ["NO *WAY?!*"], "accent": "yellow",
-        "badge": "GTA 6"}"""
+        "badge": "GTA 6",
+        "face": "photos/ishowspeed-shock.jpg"}   # optional: an OWNER-SUPPLIED reaction photo (repo photos/ folder) ->
+                                                 # cut out unedited (thumb/cutout.py), white sticker edge, right side 85% height;
+                                                 # the GTA 6 badge then moves left. Never use a face grabbed from a clip or the web."""
 import json, os, sys
 from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -32,6 +35,23 @@ def gta_badge(img, x, y, text='GTA 6', size=150):
                                     stroke_width=max(6, size // 16), stroke_fill=(40, 0, 40))
     return x + w, y + h
 
+def add_face(img, path):
+    import cv2, numpy as np
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'thumb'))
+    ns = {}; src_txt = open(os.path.join(sys.path[0], 'cutout.py')).read().split('\nt = ')[0]; exec(src_txt, ns); cut = ns['cut']   # cutout.py runs a demo below the function
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    src = cv2.imread(path if os.path.isabs(path) else os.path.join(root, path)); h, w = src.shape[:2]
+    rgba = Image.fromarray(cut(src, (int(w * 0.04), int(h * 0.03), int(w * 0.92), int(h * 0.97))), 'RGBA')
+    bb = rgba.getchannel('A').getbbox(); rgba = rgba.crop(bb)
+    th = int(H * 0.85); k = min(th / rgba.height, 1.15 * max(1, 1)); fw, fh = int(rgba.width * th / rgba.height), th
+    rgba = rgba.resize((fw, fh), Image.LANCZOS)
+    a = rgba.getchannel('A'); edge = a.filter(ImageFilter.MaxFilter(17))
+    sticker = Image.new('RGBA', rgba.size, (255, 255, 255, 0)); sticker.putalpha(edge)
+    shadow = Image.new('RGBA', rgba.size, (0, 0, 0, 0)); shadow.putalpha(edge.point(lambda v: int(v * 0.45))); shadow = shadow.filter(ImageFilter.GaussianBlur(24))
+    x0 = W - fw + int(fw * 0.08); y0 = H - fh
+    for layer in (shadow, sticker, rgba): img.alpha_composite(layer, (x0, y0))
+    return img
+
 def make(spec, out):
     acc = T.ACC[spec.get('accent', 'yellow')]
     im = T.grab(spec); x, y, cw, ch = spec['crop']; im = T.grade(im.crop((x, y, x + cw, y + ch)))
@@ -43,11 +63,13 @@ def make(spec, out):
     img.alpha_composite(band)
     if spec.get('ring'):
         cx, cy, r = spec['ring']; T.ring(img, int((cx - x) * s), int((cy - y) * s), int(r * s), accent=T.ACC['red'])
+    if spec.get('face'):
+        img = add_face(img, spec['face']); spec['badge_side'] = 'left'
     side = spec.get('badge_side', 'left'); bx0 = 110 if side == 'left' else W - 620
     bx, by = gta_badge(img, bx0, 190 if side == 'right' else 80, spec.get('badge', 'GTA 6'), 150)
     T.pill(img, bx0, by + 34, [spec['name']], 72)
     n = len(spec['words']); T.text_lines(img, spec['words'], (110, H - 70 - 250 * n, 1420, 250 * n), acc, 300, rot=-3)
-    T.brand(img, W - 360 if side == 'left' else 110, 60, 46)
+    if not spec.get('face'): T.brand(img, W - 360 if side == 'left' else 110, 60, 46)
     final = img.convert('RGB').resize((1280, 720), Image.LANCZOS); final.save(out, quality=93)
     T.qa(final, out.replace('.jpg', '_qa.jpg'), 'long'); print(out, os.path.getsize(out) // 1024, 'KB')
 

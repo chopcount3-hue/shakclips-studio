@@ -115,8 +115,10 @@ ONE big, bright, SHARP gameplay frame of the most visual moment (prefer the bigg
 the most-viewed clip): grab 6-8 timestamps around the peak, score edge variance + brightness, Read a contact sheet, take
 the clearest. Then a red ring on the action, a big pink->orange "GTA 6" badge (our own typography: never paste Rockstar's
 logo artwork), the streamer pill under it, and 1-2 HUGE words at the bottom ("NO *WAY?!*", "HOW?!", "IT'S *REAL?!*").
-Max 3 elements, glance test at 160 px (Read out_qa). Streamer faces: only a reaction photo the OWNER supplies (photos/
-folder in the repo), cut out unedited per the skill's section 5; never grab faces from clips or the web.
+Max 3 elements, glance test at 160 px (Read out_qa). Streamer faces (owner wants Speed / Kai etc. on thumbnails): use a reaction photo the OWNER supplied in the repo's photos/
+folder, named after the Twitch login (photos/ishowspeed-*.jpg, photos/kaicenat-*.jpg...). If one exists for a streamer in
+the video, set "face": "photos/<file>" in the spec: thumb_hero.py cuts it out unedited and puts it on the right. Never grab
+a face from the clips or the web; if no photo is there, build without a face and say so in the report.
 
 - **Frame:** the funniest or most visual instant (the crash, the glitch, the moment just before it). Gameplay only: never a
   streamer's face or a photo of a real person. Get the source-pixel `crop` (leave out webcam, chat, minimap) and the
