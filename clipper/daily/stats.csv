@@ -8,3 +8,12 @@ date_checked_utc,video_id,kind,hours_live,views,likes,comments,avg_view_pct,avg_
 2026-11-23T08:20Z,ENfy0l9ex7Y,short,16.3,1029,4,0,,,,vidiq_get_videos_by_ids (early read <20h)
 2026-11-23T08:20Z,q7Wck99d2gc,long,12.3,2,0,0,,,,vidiq_get_videos_by_ids (early read <20h)
 2026-11-23T08:20Z,IC9wWhPVwqk,short,9.3,416,6,0,,,,vidiq_get_videos_by_ids (early read <20h)
+2026-11-24T06:42Z,F8slF5RBDgQ,short,62.7,1089,16,0,63.69,17,0,vidiq_get_videos_by_ids; retention/subs = YT Analytics 21 Nov only (523 engaged)
+2026-11-24T06:42Z,SliXXblB6N4,short,61.7,3044,14,0,88.76,15,0,vidiq_get_videos_by_ids; retention/subs = YT Analytics 21 Nov only (445 engaged); ~1838 views @46h
+2026-11-24T06:42Z,N3u2G_4TOIU,short,60.7,9,0,0,66.5,20,0,vidiq_get_videos_by_ids; YT Analytics 21 Nov only
+2026-11-24T06:42Z,ENfy0l9ex7Y,short,38.7,1072,4,0,,,,vidiq_get_videos_by_ids (analytics no rows after 21 Nov)
+2026-11-24T06:42Z,q7Wck99d2gc,long,34.7,2,0,0,,,,vidiq_get_videos_by_ids (CTR n/a: extension not connected)
+2026-11-24T06:42Z,IC9wWhPVwqk,short,31.7,634,7,1,,,,vidiq_get_videos_by_ids
+2026-11-24T06:42Z,lF0D7XGFWIA,short,14.7,972,10,0,,,,vidiq_get_videos_by_ids (949 @7h then flat)
+2026-11-24T06:42Z,AfYP7wzr1S8,long,10.7,1,0,0,,,,vidiq_get_videos_by_ids (custom thumb; CTR n/a)
+2026-11-24T06:42Z,7ztXHQU5P_8,short,7.7,545,4,0,,,,vidiq_get_videos_by_ids (early read <20h)

@@ -20,7 +20,7 @@ supporting. Everything not proven yet is an experiment.
 |---|---|---|---|---|
 | 2026-11-21 | baseline | squeex_trick: crash teaser + 5 ranges, 26 s, funny music | views and avg % viewed at 48 h | 1073 views / 16 likes @40 h (avg % not available) |
 | 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | CLOSED 23 Nov (~39 h): A speed_save 1506 vs B pixel_crash 9 (squeex, no name, 1073). A wins -> rule 6 |
-| 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | early 23 Nov: A 1029 @16 h (64 vph) vs B 416 @9 h (46 vph); final 24 Nov |
+| 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | CLOSED 24 Nov: A jshrobz 1072 @39 h vs B dunc 634 @32 h. A (18-25 s) wins |
 | 2026-11-23 | Short title form | A: question ("Why Did DarkViperAU Say 'It's My Bad'...?" 20 s) vs B: statement ("MoistCr1TiKaL Found the PERFECT Hiding Spot..." 27 s); both name-first, framed | views at 24/48 h | pending |
 
 Ideas queue (pick the top one when no experiment is running):
@@ -54,6 +54,11 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-24 (06:42 UTC, 2-day trial review -> review_2day.md)
+- Verdict MIXED. Every named Short gets a ~1k feed test in 16 h (Squeex 1,089, Jshrobz 1,072, DarkViper 972); only Speed (18 s, 88.8% viewed) broke out: 3,044, with a 2nd wave on day 3.
+- Long videos dead: q7Wck99d2gc 2 views @35 h, AfYP7wzr1S8 (custom thumb) 1 view @11 h. CTR unknown (extension not connected). Subs 13 -> 14 (+1). ~5.9k channel views in 48 h.
+- Frame vs plain: same ~1k at 16 h, no lift yet. Popular vs mid-size: popular slightly faster early, too young to call. Length: 24 s Jshrobz 1,072 vs 33 s Dunc 634 -> shorter wins (close the length experiment: A).
+- Change: replace the daily long with a 3rd Short; keep 15-24 s, name-first, popular creators; connect the vidIQ extension. vidIQ credits ran out mid-run (video_stats failed): limit daily credit-using calls.
 ### 2026-11-23 (08:13 UTC run)
 - Stats (~39 h): speed_save 1506 / 12 likes (best), squeex_trick 1073 / 16, pixel_crash 9. Early: jshrobz_crash 1029 @16 h (best vph 64),
   dunc_bike 416 @9 h, long q7Wck99d2gc only 2 views @12 h (new channel's long-form gets no browse push yet: it needs search terms + time).
