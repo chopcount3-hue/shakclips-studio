@@ -109,6 +109,13 @@ in the cold open. Then `bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fi
 Spot-check 6 frames of long_fit.mp4 the same way as step 5. Write the scripts in English for a US viewer.
 
 ## 6b. Thumbnails (owner, 22 Nov: "make also thumbnails professional level and interesting")
+**DEFAULT STYLE since 24 Nov (owner: "thumbnails are not catchy, we get 0 views"; "take a screenshot of the most viewed,
+best part of the video, edit it, make it catchy, clickbait"):** use `$D/thumb_split.py spec.json out.jpg` (example
+`days/2026-11-24/thumbs/long_v2.json`). Panel 1 (left, ~56%) = the biggest name's moment with a red ring; panel 2 (right)
+= the most-viewed clip in the video (highest Twitch views) at its most visual instant. A yellow slanted divider, one name
+pill per panel, and 2-3 HUGE words across the bottom ("IT'S *REAL?!*", "HOW?!", "NO WAY"). Pick BRIGHT, sharp frames: check
+4 nearby timestamps side by side first (the 23-24 Nov single-frame night thumbnails were dark and blurry). Read out.jpg and
+out_qa.jpg; the words must read at the 160 px size. Fall back to thumb.py (kind long) only when one moment is far stronger.
 **LONG VIDEO ONLY** (owner, 22 Nov: "only for long form videos"). Shorts get NO custom thumbnail.
 Make it with `$D/thumb.py spec.json out.jpg`, kind "long", 1280x720 (spec format in its docstring; example in
 `days/2026-11-22/thumbs/example_long.json`).

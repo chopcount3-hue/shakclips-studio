@@ -1,0 +1,3 @@
+{"panels": [{"src": "$WORK/clips/kaicenat_14.mp4", "t": 15.0, "crop": [520, 180, 760, 700], "name": "KAI CENAT", "circle": [880, 500, 185], "focus": [0.5, 0.5]},
+            {"src": "$WORK/clips/caseoh__08.mp4", "t": 7.9, "crop": [320, 60, 1300, 980], "name": "CASEOH", "focus": [0.48, 0.42]}],
+ "split": 0.56, "lines": ["IT'S *REAL?!*"], "accent": "yellow"}

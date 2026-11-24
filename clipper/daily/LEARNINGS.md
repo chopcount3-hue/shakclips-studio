@@ -31,6 +31,9 @@ Ideas queue (pick the top one when no experiment is running):
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-24 (owner feedback): "thumbnails are not catchy". The single dark night frame (Kai skunk ape, KAI FOUND BIGFOOT?!) read
+  as a brown blob at small size. New default: thumb_split.py, two bright moments side by side (biggest name + most-viewed clip),
+  huge 2-word hook at the bottom. Always compare 4 nearby frames and take the sharpest, brightest one.
 - 2026-11-24: boxes were written from the frame.py grid's DISPLAY pixels (1440 wide) instead of its 1920 labels, so CaseOh's cam
   window showed only beanie + beard. Fix: always read the yellow/cyan label numbers, never the image pixel position.
 - 2026-11-24: cut-out (no-border) webcams like Jynxzi's sit right under the notes: notes at y=0.175 covered his eyes. With a
