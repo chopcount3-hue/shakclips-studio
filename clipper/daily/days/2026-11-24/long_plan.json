@@ -1,0 +1,566 @@
+{
+ "lines": [
+  "/home/claude/gtaday/long/narr/lines.json"
+ ],
+ "clips": {
+  "ishowspeed_06": "/home/claude/gtaday/clips/ishowspeed_06_bl.mp4",
+  "fanum_27": "/home/claude/gtaday/clips/fanum_27_bl.mp4",
+  "caseoh__13": "/home/claude/gtaday/clips/caseoh__13_bl.mp4",
+  "lirik_31": "/home/claude/gtaday/clips/lirik_31_bl.mp4",
+  "jynxzi_15": "/home/claude/gtaday/clips/jynxzi_15_bl.mp4",
+  "cohhcarnage_30": "/home/claude/gtaday/clips/cohhcarnage_30_bl.mp4",
+  "caseoh__08": "/home/claude/gtaday/clips/caseoh__08_bl.mp4",
+  "kaicenat_14": "/home/claude/gtaday/clips/kaicenat_14_bl.mp4"
+ },
+ "clipopts": {},
+ "info_tint": "vice",
+ "sfx_dirs": [
+  "/home/claude/gtaday//sfx_user_safe",
+  "/home/claude/studio/clipper/sfx/made",
+  "/home/claude/studio/clipper/sfx/drive",
+  "/home/claude/studio/clipper/sfx/cc0"
+ ],
+ "music": {
+  "file": "/home/claude/studio/clipper/bgm/vice_city_80s/voltaic.mp3",
+  "full_lufs": -23,
+  "duck_db": 13
+ },
+ "sections": [
+  {
+   "items": [
+    {
+     "line": "h0",
+     "shots": [
+      {
+       "clip": "caseoh__08",
+       "a": 6.5,
+       "b": 10.0,
+       "crop": [
+        0.0,
+        0.09,
+        0.86,
+        0.86
+       ]
+      },
+      {
+       "clip": "cohhcarnage_30",
+       "a": 3,
+       "b": 8,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      },
+      {
+       "clip": "kaicenat_14",
+       "a": 13,
+       "b": 17,
+       "crop": [
+        0.17,
+        0.02,
+        0.83,
+        0.83
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "GTA 6 \u00b7 DAY 6",
+      "at": 0.3,
+      "dur": 2.4,
+      "color": "purple",
+      "sfx": "camera_shutter"
+     }
+    },
+    {
+     "line": "a1",
+     "shots": [
+      {
+       "clip": "ishowspeed_06",
+       "a": 0.0,
+       "b": 3.0,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#8 \u00b7 ISHOWSPEED",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "ishowspeed_06",
+      0.0,
+      14.0
+     ],
+     "tx": "/home/claude/gtaday/tx/ishowspeed_06.fixed_long.json",
+     "audio": 1.25,
+     "label": "ISHOWSPEED",
+     "crop": [
+      0.05,
+      0.0,
+      0.9,
+      0.9
+     ]
+    },
+    {
+     "line": "r1",
+     "shots": [
+      {
+       "clip": "ishowspeed_06",
+       "a": 9.0,
+       "b": 13.0,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a2",
+     "shots": [
+      {
+       "clip": "fanum_27",
+       "a": 0.0,
+       "b": 4.5,
+       "crop": [
+        0.0,
+        0.1,
+        0.8,
+        0.8
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#7 \u00b7 FANUM",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "fanum_27",
+      0.0,
+      20.0
+     ],
+     "tx": "/home/claude/gtaday/tx/fanum_27.fixed_long.json",
+     "audio": 1.25,
+     "label": "FANUM",
+     "crop": [
+      0.0,
+      0.1,
+      0.8,
+      0.8
+     ],
+     "replay": [
+      6.0,
+      11.0
+     ]
+    },
+    {
+     "line": "r2",
+     "shots": [
+      {
+       "clip": "fanum_27",
+       "a": 15.0,
+       "b": 19.0,
+       "crop": [
+        0.0,
+        0.1,
+        0.8,
+        0.8
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a3",
+     "shots": [
+      {
+       "clip": "caseoh__13",
+       "a": 0.0,
+       "b": 3.5,
+       "crop": [
+        0.0,
+        0.09,
+        0.86,
+        0.86
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#6 \u00b7 CASEOH",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "caseoh__13",
+      0.0,
+      22.0
+     ],
+     "tx": "/home/claude/gtaday/tx/caseoh__13.fixed_long.json",
+     "audio": 1.25,
+     "label": "CASEOH",
+     "crop": [
+      0.0,
+      0.09,
+      0.86,
+      0.86
+     ]
+    },
+    {
+     "line": "r3",
+     "shots": [
+      {
+       "clip": "caseoh__13",
+       "a": 12.0,
+       "b": 16.0,
+       "crop": [
+        0.0,
+        0.09,
+        0.86,
+        0.86
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a4",
+     "shots": [
+      {
+       "clip": "lirik_31",
+       "a": 9.0,
+       "b": 15.0,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#5 \u00b7 LIRIK",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "lirik_31",
+      9.0,
+      34.0
+     ],
+     "tx": "/home/claude/gtaday/tx/lirik_31.fixed_long.json",
+     "audio": 1.25,
+     "label": "LIRIK",
+     "crop": [
+      0.05,
+      0.0,
+      0.9,
+      0.9
+     ],
+     "replay": [
+      20.5,
+      24.5
+     ]
+    },
+    {
+     "line": "r4",
+     "shots": [
+      {
+       "clip": "lirik_31",
+       "a": 26.0,
+       "b": 30.0,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a5",
+     "shots": [
+      {
+       "clip": "jynxzi_15",
+       "a": 0.0,
+       "b": 3.0,
+       "crop": [
+        0.0,
+        0.1,
+        0.85,
+        0.85
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#4 \u00b7 JYNXZI",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "jynxzi_15",
+      0.0,
+      15.0
+     ],
+     "tx": "/home/claude/gtaday/tx/jynxzi_15.fixed_long.json",
+     "audio": 1.25,
+     "label": "JYNXZI",
+     "crop": [
+      0.0,
+      0.1,
+      0.85,
+      0.85
+     ],
+     "replay": [
+      4.5,
+      8.5
+     ]
+    },
+    {
+     "line": "r5",
+     "shots": [
+      {
+       "clip": "jynxzi_15",
+       "a": 10.5,
+       "b": 14.5,
+       "crop": [
+        0.0,
+        0.1,
+        0.85,
+        0.85
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a6",
+     "shots": [
+      {
+       "clip": "cohhcarnage_30",
+       "a": 0.0,
+       "b": 6.0,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#3 \u00b7 COHHCARNAGE",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "cohhcarnage_30",
+      0.0,
+      21.5
+     ],
+     "tx": "/home/claude/gtaday/tx/cohhcarnage_30.fixed_long.json",
+     "audio": 1.25,
+     "label": "COHHCARNAGE",
+     "crop": [
+      0.05,
+      0.0,
+      0.9,
+      0.9
+     ],
+     "replay": [
+      11.0,
+      16.0
+     ]
+    },
+    {
+     "line": "r6",
+     "shots": [
+      {
+       "clip": "cohhcarnage_30",
+       "a": 39.0,
+       "b": 45.0,
+       "crop": [
+        0.05,
+        0.0,
+        0.9,
+        0.9
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a7",
+     "shots": [
+      {
+       "clip": "caseoh__08",
+       "a": 3.0,
+       "b": 6.0,
+       "crop": [
+        0.0,
+        0.09,
+        0.86,
+        0.86
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#2 \u00b7 CASEOH",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "yellow",
+      "sfx": "ting"
+     }
+    },
+    {
+     "moment": [
+      "caseoh__08",
+      3.0,
+      34.8
+     ],
+     "tx": "/home/claude/gtaday/tx/caseoh__08.fixed_long.json",
+     "audio": 1.25,
+     "label": "CASEOH",
+     "crop": [
+      0.0,
+      0.09,
+      0.86,
+      0.86
+     ],
+     "replay": [
+      6.0,
+      10.0
+     ]
+    },
+    {
+     "line": "r7",
+     "shots": [
+      {
+       "clip": "caseoh__08",
+       "a": 26.0,
+       "b": 30.0,
+       "crop": [
+        0.0,
+        0.09,
+        0.86,
+        0.86
+       ]
+      }
+     ]
+    },
+    {
+     "line": "a8",
+     "shots": [
+      {
+       "clip": "kaicenat_14",
+       "a": 0.0,
+       "b": 4.0,
+       "crop": [
+        0.17,
+        0.02,
+        0.83,
+        0.83
+       ]
+      },
+      {
+       "clip": "kaicenat_14",
+       "a": 4.0,
+       "b": 8.0,
+       "crop": [
+        0.17,
+        0.02,
+        0.83,
+        0.83
+       ]
+      }
+     ],
+     "stamp": {
+      "text": "#1 \u00b7 KAI CENAT",
+      "at": 0.15,
+      "dur": 2.2,
+      "color": "red",
+      "sfx": "drum_roll"
+     }
+    },
+    {
+     "moment": [
+      "kaicenat_14",
+      0.0,
+      23.0
+     ],
+     "tx": "/home/claude/gtaday/tx/kaicenat_14.fixed_long.json",
+     "audio": 1.25,
+     "label": "KAI CENAT",
+     "crop": [
+      0.17,
+      0.02,
+      0.83,
+      0.83
+     ],
+     "replay": [
+      12.0,
+      17.0
+     ]
+    },
+    {
+     "line": "z0",
+     "shots": [
+      {
+       "clip": "caseoh__08",
+       "a": 7.0,
+       "b": 10.0,
+       "crop": [
+        0.0,
+        0.09,
+        0.86,
+        0.86
+       ]
+      },
+      {
+       "clip": "kaicenat_14",
+       "a": 14.0,
+       "b": 17.0,
+       "crop": [
+        0.17,
+        0.02,
+        0.83,
+        0.83
+       ]
+      }
+     ],
+     "hold": 1.0
+    }
+   ]
+  }
+ ]
+}
