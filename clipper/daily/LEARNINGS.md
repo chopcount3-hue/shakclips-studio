@@ -31,6 +31,7 @@ Ideas queue (pick the top one when no experiment is running):
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-24 (owner feedback, 2nd): split panel also "not catchy": two small busy panels, no GTA 6 cue, no clear photo. New default thumb_hero.py: one sharp bright frame full-bleed + GTA 6 badge + ring + 2 huge words (long_v4).
 - 2026-11-24 (owner feedback): "thumbnails are not catchy". The single dark night frame (Kai skunk ape, KAI FOUND BIGFOOT?!) read
   as a brown blob at small size. New default: thumb_split.py, two bright moments side by side (biggest name + most-viewed clip),
   huge 2-word hook at the bottom. Always compare 4 nearby frames and take the sharpest, brightest one.
