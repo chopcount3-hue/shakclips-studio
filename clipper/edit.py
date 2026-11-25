@@ -68,9 +68,19 @@ def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
     """one segment in the vertical layout at 30 fps; zoom = punch-in; fx = [(t_rel, type)]; slow = 2 for half speed."""
     p = json.loads(sh(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', src]).stdout)['streams'][0]
     shakes = [t for t, k in fx if k == 'shake']; flashes = [t for t, k in fx if k == 'flash']; punches = [t for t, k in fx if k == 'punch']
+    zooms = [(t, *map(float, k.split(':')[1:])) for t, k in fx if k.startswith('zoomto:')]   # (t, x, y, z, dur): x, y = 0-1 of the source
     def zchain(w, h):
         """zoom / punch-in / shake for a w x h picture"""
         c = []
+        if zooms and plan.get('layout', 'blur') == 'blur':   # push into a point (a streamer's face) and ease back out
+            fw, fh, yc = R.blur_geom(plan, p['width'], p['height'])
+            S, CX, CY = [], [], []
+            for t0, x, y, z, dur in zooms:   # zoompan: its window can move and change size every frame (scale+crop can't)
+                xc = (x * fw - (fw - w) / 2) if fw > w else ((w - fw) / 2 + x * fw); ycn = yc + y * fh; t1 = t0 + dur
+                e0 = f"clip(min((it-{t0:.2f})/0.28,({t1:.2f}-it)/0.35),0,1)"; e = f"({e0}*{e0}*(3-2*{e0}))"
+                S.append(f"{z - 1:.3f}*{e}"); CX.append(f"{xc - w / 2:.1f}*{e}"); CY.append(f"{ycn - h / 2:.1f}*{e}")
+            c.append(f"zoompan=z='1+{'+'.join(S)}':x='clip({w / 2}+{'+'.join(CX)}-iw/zoom/2,0,iw-iw/zoom)'"
+                     f":y='clip({h / 2}+{'+'.join(CY)}-ih/zoom/2,0,ih-ih/zoom)':d=1:s={w}x{h}:fps={FPS}")
         if zoom != 1.0: c.append(f"scale={int(w * zoom) // 2 * 2}:{int(h * zoom) // 2 * 2},crop={w}:{h}")
         if punches:
             z = '+'.join(f"0.15*exp(-(t-{t:.2f})*7)*gte(t,{t:.2f})*lt(t,{t + 0.9:.2f})" for t in punches)
@@ -101,7 +111,10 @@ def seg_video(plan, src, a, b, out, zoom=1.0, slow=1.0, fx=(), tag=None):
         chain.append(f"drawtext=fontfile={os.path.expanduser('~/.fonts/Anton-Regular.ttf')}:text='{tag}':fontsize=70:fontcolor=white:borderw=6:bordercolor=black:"
                      f"x=(w-text_w)/2:y=300:enable='lt(mod(t,0.8),0.55)'")
     af = 'aformat=sample_rates=48000:channel_layouts=stereo' + (f',atempo={1 / slow:.3f},asetrate=48000*0.9,aresample=48000' if slow != 1.0 else '')
-    fc = f"{vf.replace('[v]', '[v0]')};[v0]{','.join(chain)},format=yuv420p[vo];[0:a]{af}[ao]"
+    if plan.get('title_png'):   # fixed title box (stream mode): drawn AFTER zooms/punches so it never moves
+        fc = f"{vf.replace('[v]', '[v0]')};[v0]{','.join(chain)}[vz];movie={plan['title_png']},format=rgba[tt];[vz][tt]overlay=0:0,format=yuv420p[vo];[0:a]{af}[ao]"
+    else:
+        fc = f"{vf.replace('[v]', '[v0]')};[v0]{','.join(chain)},format=yuv420p[vo];[0:a]{af}[ao]"
     sh(['ffmpeg', '-v', 'error', '-y', '-ss', f'{a:.3f}', '-t', f'{b - a:.3f}', '-i', src, '-filter_complex', fc, '-map', '[vo]', '-map', '[ao]', '-map_metadata', '-1', '-map_chapters', '-1', '-dn', 
         '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-r', str(FPS), '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', out])
     return float(sh(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out]).stdout)

@@ -14,6 +14,13 @@ for d in ('clips', 'sheets', 'tx'): os.makedirs(os.path.join(WORK, d), exist_ok=
 def dl(name):
     out = os.path.join(WORK, 'clips', name + '.mp4')
     if os.path.exists(out): return name, 'exists'
+    c = C[name]
+    if c.get('vod'):   # a stream-moment window (streams.py): cut it straight from the VOD
+        for q in ('1080p60', '1080p', '720p60', '720p'):
+            p = subprocess.run([TD, 'videodownload', '--id', c['vod'], '-b', str(int(c['a'])), '-e', str(int(c['b'])), '-q', q, '-o', out,
+                                '--collision', 'Overwrite', '-t', '6'], capture_output=True, text=True)
+            if p.returncode == 0 and os.path.exists(out) and os.path.getsize(out) > 100000: return name, 'vod ' + q
+        return name, 'FAILED ' + (p.stdout + p.stderr)[-160:].replace('\n', ' ')
     for q in ('1080p60', '1080p', '720p60', '720p'):
         p = subprocess.run([TD, 'clipdownload', '--id', C[name]['slug'], '-q', q, '-o', out, '--collision', 'Overwrite'], capture_output=True, text=True)
         if p.returncode == 0 and os.path.exists(out) and os.path.getsize(out) > 100000: return name, q
@@ -48,7 +55,7 @@ for name in names:
     pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', src, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
     x = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768
     segs, _ = wm.transcribe(x, beam_size=5, word_timestamps=True, condition_on_previous_text=False, vad_filter=True,
-                            initial_prompt='Twitch streamer playing GTA 6. Chat, bro, Rockstar, NPC, Jason, Lucia, Vice City, Leonida.')
+                            initial_prompt=f"Twitch streamer {C[name]['broadcaster'].get('displayName', '')} live with chat. Kai Cenat, IShowSpeed, Speed, Fanum, Agent, Duke, AMP, chat, bro, bruh.")
     words, text = [], []
     for s in segs:
         text.append(f'[{s.start:.1f}] {s.text.strip()}')

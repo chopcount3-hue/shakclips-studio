@@ -1,8 +1,18 @@
-# Shak Replay daily run – GTA 6 streamer clips (2 Shorts + 1 long video, US audience)
+# Shak Replay daily run – STREAM MOMENTS of Kai Cenat, IShowSpeed & AMP (2 Shorts + 1 long video, US audience)
+
+**25 Nov change (owner: "don't only post GTA6 videos ... clip the videos from Kai Cenat and IShowSpeed marathon type,
+mafia[thon] type, AMP type streams. See the chat hypes and best moments ... make long form and short form videos", "fuck
+gta 6", "don't edit videos in that frame ... fit it ... keep the background as motion blur type").** The channel is now
+about the STREAMERS, not a game. Sources = the recent marathon / Mafiathon / collab / AMP streams of `stream_creators.txt`
+(Twitch VODs), moments found from the chat replay + community clips (`streams.py`). Shorts use the 'fit' style: the whole
+stream picture fit to the width on a blurred copy of itself, a fixed white title box above it, captions below, and fast
+pushes into the streamers' faces on reactions (no branded frame). Never make "GTA 6" the topic of a title or thumbnail;
+the game is just what they happened to be playing.
 
 **Upload limit:** vidIQ's FREE plan allows **3 YouTube uploads per day**, and the count resets at 08:00 UTC. So every day
 is **2 Shorts + 1 long video** (owner's choice, 21 Nov). **Backlog first:** any row in posts.csv whose url starts
-"NOT UPLOADED" is a finished vidIQ draft (postId in the row). Publish those first: at most 2 Shorts + 1 long per day
+"NOT UPLOADED" is a finished vidIQ draft (postId in the row); a row whose url starts "READY " is a finished file at the URL
+after it (upload it with its row's title; description per step 7). Publish those first: at most 2 Shorts + 1 long per day
 in total, oldest first. Make new videos only for the slots the backlog leaves empty (for example, a backlog of 2 Shorts
 means make only the long video today). If a publish still fails with the daily-limit error, leave the row as NOT UPLOADED
 for tomorrow and say so in the report.
@@ -38,75 +48,66 @@ If it is missing, still make the videos, skip posting, and report it (step 10).
    Promote a pattern to Current rules only after 3+ videos support it; delete rules the numbers contradict.
    Pick ONE experiment for today (from the ideas queue or from what you just learned) and log it in the table.
 
-## 2. Find and pull today's clips
+## 2. Pick today's stream and find its best moments
 ```bash
-python3 $D/find.py --hours 30 --top 40          # -> $WORK/cands.json: shorts_creators.txt clips first (7 days, shorts_ok), then popular (30 h); NSFW titles filtered, used.json excluded
-$PY $D/pull.py $(python3 -c "import json;print(' '.join(c['name'] for c in json.load(open('$WORK/cands.json'))[:18]))")
+python3 $D/streams.py pick --days 4            # ranked recent VODs (marathons/collabs/AMP first, Kai & Speed bonus, non-GTA bonus)
+python3 $D/streams.py moments <vod_id> --top 16   # full chat replay (~3 min for 5 h) + community clips -> $WORK/streams/<vod>/moments.md
 ```
-If fewer than 8 clips survive, re-run find.py with `--hours 48`.
+Take the top-ranked VOD that still has unused moments (`streams_done.json` lists used ones; a stream can feed several days).
+If two strong streams exist (e.g. a Kai vs Speed collab + a Fanum marathon), run `moments` on both. Read moments.md: each
+window (90 s) shows its chat laugh/hype scores, chat samples and the community clip titles there (= what happened).
+```bash
+$PY $D/pull.py <the 8-10 best window names>     # downloads ONLY those 90 s windows from the VOD at 1080p60 + sheets + transcripts
+```
+Speed streams mostly on YouTube (can't be downloaded here); use his Twitch VODs when they exist, and the many streams where
+he's on call with Kai. Rakai and Duke Dennis aren't on Twitch. Fallback if no VOD in 4 days has moments: `find.py` clips of
+`shorts_creators.txt` (7-day lookback), any game or IRL.
 
-## 3. Choose (look at every sheet – Read `$WORK/sheets/<name>.jpg` – and read `$WORK/tx/<name>.txt`)
-Pick as many new Shorts as today's empty Short slots (2 minus the backlog) plus 1-2 spares, and 6-9 moments for the long video (if the long slot is empty).
-- Reject: blood/gore, shooting civilians up close, sexual content, slurs, long silence, menus/loading, chat spam with slurs on screen,
-  Cristiano Ronaldo content (the streamer StableRonaldo is fine). Prefer: a clear payoff (crash, glitch, scare, fail, big reaction),
-  English talking, webcam visible. Different streamers across the day's Shorts.
-- The long video may reuse today's Short clips (longer cuts) plus other good ones. Never use a slug already in used.json.
-- **SHORTS: only the creators in `shorts_creators.txt`** (owner, 23 Nov: Kai Cenat, IShowSpeed, Fanum + "3-4 more
-  popular"). Today that's Kai Cenat, IShowSpeed, Fanum, Agent00, ChrisNxtDoor, CaseOh and Jynxzi. Use only candidates
-  with `"shorts_ok": true` (marked `S` in find.py's table; 7-day lookback). Put the creator's name in the title and the
-  context line. If no shorts_ok clip passes the checks, post fewer Shorts that day; never fill a Short with another
-  creator. Rakai and Duke Dennis aren't on Twitch, so they can't be clipped here.
-- **Popular creators only (owner, 22 Nov: "no one watches low popular creators").** find.py keeps clips from
-  `popular.txt` (big, well-known streamers) and ranks them English-first by views. Put the streamer's name in the title
-  and the frame's context line; the name is what people search and click.
-- **Still avoid copies (owner, 21 Nov: "not ... high competition").** Before locking a Short, run vidiq_youtube_search for
-  "<streamer> gta 6" plus 2-3 key words of the moment, and look at uploads from the last 3 days. If 3 or more channels
-  already posted this same moment, or one copy already has 100k+ views, take a DIFFERENT moment from a popular streamer
-  (they have many clips a day). Log the check in `days/<date>/competition.md`.
-- Angle: when a popular streamer's top clip is crowded, take his less-clipped moments: a glitch, an NPC or police-AI
-  reaction, a physics fail, a rage moment from later in the stream.
-- Long video title: run vidiq_keyword_research on 3-5 candidate phrases ("gta 6 funny moments", "gta 6 streamer
-  fails", "gta 6 glitches today", ...) and build the title around a phrase with real volume and LOW competition.
+## 3. Choose (Read every `$WORK/sheets/<name>.jpg` AND `$WORK/tx/<name>.txt`)
+Pick the 2 Short moments + 6-9 long-video moments.
+- Best moments are funny or dramatic for PEOPLE: rage, roasts, arguments, a streamer losing it, fails, wins, pranks, a
+  guest saying something wild, chat going crazy. Prefer back-and-forth between two creators (Kai vs Speed) and clear
+  payoffs. The transcript must make sense without seeing the whole stream.
+- Reject: sexual content/nudity (in-game or IRL), slurs on screen or unbleepable, real violence, someone's private info,
+  minors in a compromising spot, Cristiano Ronaldo content, long silence, menus/loading.
+- **Copy check:** vidiq_youtube_search "<streamer> <2-3 key words>" (last 3 days). If 3+ channels or one 100k+ copy already
+  posted this moment, take another. (If vidIQ has no credits, note "copy check skipped" and favour less-clipped moments:
+  windows with high chat scores but few community clips.)
+- Long video title: vidiq_keyword_research on 3-5 phrases ("kai cenat funniest moments", "kai cenat and speed", "kai cenat
+  mafiathon highlights", "speed rage", ...) when credits allow; build the title around real search phrases + names.
 
-## 4. Webcam boxes
-`$PY $D/frame.py <name> <t>` saves `$WORK/frames/<name>_<t>.jpg` with a 100 px grid (1920x1080 coords). Read it and write
-`$WORK/boxes.json`: `{"<key>": {"top": [x,y,w,h] webcam, "bottom": [x,y,w,h] game}}`. Shorts use the branded Shak Replay
-frame (`frame_style.py`; owner's design request 21 Nov): the webcam window is 1020x680, so aim the top box at aspect ≈ 1.5
-(face centred, head not cut). The gameplay window is 1020x796, so aim the bottom box at ≈ 1.28. Other aspects get centre-cropped.
-Keep the top box inside the cam (no chat/game) and the bottom box above y=1000 (Twitch caption pill) and off chat overlays,
-centred on the action. No cam -> leave the key out (blur layout).
+## 4. Face positions (for the face zooms)
+`$PY $D/frame.py <name> <t>` saves a frame with a 100 px grid (1920x1080). Note each streamer's webcam FACE centre as
+fractions (x/1920, y/1080), e.g. Kai's stream 24 Nov: KAI = (0.060, 0.398) top-left cam, SPEED = (0.921, 0.319) right cam.
+Layouts change between streams and segments: check a frame from EACH window you use.
 
-## 5. Plan and render the Shorts
-Write `$WORK/make_day.py` like `$D/days/2026-11-21/make_framed.py` (see lib.py for note/gif/emo/fx/short). Per Short:
-- `context="..."`: the frame's title bar, on screen for the whole video (owner: "a text context that gives idea [what]
-  each video is about"). 4-9 words, says what's going on WITHOUT giving away the punchline, and puts the streamer's name
-  first when it helps. `*stars*` turn a word yellow, e.g. `"Squeex said watch this *cool trick* at full speed..."`.
-- **SFX = the owner's own pack** (owner, 21 Nov: "you are not using the sfx i gave you"). lib.py puts its 148 safe sounds
-  first (`$WORK/sfx_user_safe`) and maps old synthetic names to his (`own()`). Pick by job: impact `punch`, `bamboo_hit`,
-  `bone_crack`; fail `bruh`, `wah_wah_wah`, `fail_titanic`, `wrong`, `dissapointed`; shock `what`, `nani`, `wow_1`, `scream`;
-  suspense `dun_dun_dunnn`, `drum_roll`, `ticking_clock`, `heartbeat`, `mystery`; win `tadaa`, `correct`, `cash_register`,
-  `celebration`; funny `audience_laughing`, `ba_dum_tss`, `bike_horn`, `quack`, `cartoon_bounce`, `slide_whistle`;
-  moves `whoosh_transition`, `fast_swish_transition`, `goofy_cartoon_dash_1`, `cartoon_flying_in`; notes `poink`, `bloop`,
-  `ting`, `lphone_ding`; rewind `tape_rewind`, `dj_scratch`. Never use a sound marked "avoid" in sfx/user/index.md.
-teaser of the payoff first (2-2.5 s), ranges that cut dead time (18-40 s total), a note/sticker/fx at least every 3 s,
-music from `clipper/bgm/<mood>/` (`funny`, `action_epic`, `vice_city_80s`, `trap_hiphop`, `mystery`, `chill`) at gain 0.06-0.10.
-Stickers: `clipper/stickers/*.gif` (index.md). SFX names: `ls clipper/sfx/made clipper/sfx/drive clipper/sfx/cc0`.
+## 5. Plan and render the Shorts ('fit' style; no frame)
+Write `$WORK/make_day.py` like `$D/days/2026-11-25/make_m02.py` (lib.short defaults to the fit style now). Per Short:
+- `context="..."` = the fixed white title box above the video for the whole Short: what's going on in 5-10 words, names
+  first, no punchline, `*word*` = red (e.g. `"Speed *LOST IT* on Kai in their race to $1,000,000"`).
+- `zoomto(t, *FACE, z=2.2-3.0, dur=2-3)` on the reaction lines: push into whoever is talking/reacting. The core move of
+  this style; 3-6 per Short. Use `zoom=1.0` (whole picture, both cams visible) unless the cams are inside the middle.
+- Teaser of the payoff first (2.5-3 s), then the story in ranges cut tight to the dialogue (lines from the transcript), 20-35 s
+  total. Notes (they sit over the video), emojis, punch/shake on the loudest moments: something new at least every 3 s.
+- **SFX = the owner's own pack** (lib.py puts its 148 safe sounds first and maps old names via `own()`). By job: impact
+  `punch`, `bamboo_hit`; fail `bruh`, `wah_wah_wah`, `fail_titanic`, `wrong`; shock `what`, `nani`, `oh_no`; laugh
+  `audience_laughing`, `funny_laugh_2`, `ba_dum_tss`; suspense `dun_dun_dunnn`, `drum_roll`; win `tadaa`, `cash_register`;
+  moves `whoosh_transition`, `fast_swish_transition`; notes `poink`, `bloop`. Never a sound marked "avoid" in sfx/user/index.md.
+- Music bed from `clipper/bgm/<mood>/` at gain 0.05-0.08 (dialogue must stay clear). Strong swears are bleeped automatically
+  from the transcript (lib.bleeps); check the transcript for any slur and add it to `extra_bleep`.
 ```bash
 python3 $WORK/make_day.py && bash $D/render_shorts.sh k1 k2      # every line must end "-> PASS"
 for k in k1 k2; do f=$(ls $WORK/shorts/$k/*.mp4 | head -1); ffmpeg -v error -y -i "$f" -vf "fps=8/$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f"),scale=270:-1,tile=8x1" -frames:v 1 $WORK/review_$k.jpg; done
 ```
-Read every review sheet. Check: the frame's context title reads well (2 lines max, no punchline), cam framed (face not
-cut by the window), action visible in the gameplay window, captions readable in the lane between the windows and not
-covering faces, no chat/slur text, the teaser makes sense, nothing gory. Fix and re-render anything wrong, and write each
-defect + fix into LEARNINGS.md "Craft notes".
+Read every review sheet: the title box reads well, the zooms land on the right face (not chat or a corner), captions
+readable, no slur text on screen, nothing sexual. Fix and re-render; write each defect + fix into LEARNINGS.md "Craft notes".
 
-## 6. Long video (5-7 min, "GTA 6 Streamer Moments of the Day" style)
+## 6. Long video (6-9 min, "<Names>' Funniest Moments from <stream>" style)
 First `python3 $D/bleep_clips.py <the long video's clips>` (longform.py does not bleep moment audio) and use the *_bl.mp4 copies.
-Follow `$D/long_example.py` (its sfx_dirs put the owner's pack first): Kokoro narration (am_michael, speed 1.08) for a cold-open hook, a 1-sentence setup before
-each moment (who, what to watch for – never describe the punchline), short reactions between, and an outro (subscribe +
-tomorrow tease). Commentary share must be ≥ 25 % (longform prints it). Order moments so the best one is last and tease it
-in the cold open. Then `bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94` (must be < 100 MB).
-Spot-check 6 frames of long_fit.mp4 the same way as step 5. Write the scripts in English for a US viewer.
+Follow `$D/long_example.py`: Kokoro narration (am_michael, speed 1.08) for a cold-open hook, a 1-sentence setup before each
+moment (who, what's at stake – never the punchline), short reactions between, and an outro (subscribe + next stream tease).
+Commentary share ≥ 25 % (longform prints it). Best moment last, teased in the cold open. Then
+`bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94` (must be < 100 MB). Spot-check 6 frames. US English.
 
 ## 6b. Thumbnails (owner, 22 Nov: "make also thumbnails professional level and interesting")
 **DEFAULT STYLE since 24 Nov, v2 (owner: "not catchy... no GTA 6 logo, no clear photo"):** `$D/thumb_hero.py spec.json out.jpg`
@@ -156,14 +157,16 @@ vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUr
 - Long video thumbnail (Shorts: none): before drafting, call vidiq_upload_image(image=<the thumbnail's raw URL>) and put the returned imageId in
   the YouTube destination's `thumbnailImageId`. YouTube accepts custom thumbnails only from phone-verified channels. A
   refused thumbnail does not fail the upload: note it in the report ("verify the channel at youtube.com/verify").
-- Short title: < 60 chars, curiosity + "GTA 6" + 1 emoji + `#gta6 #shorts`. Long title: < 70 chars, US-search friendly
-  ("GTA 6 Streamers' Funniest Moments Today (Squeex, CaseOh...)" style).
-- Description (always): 1 hook line; "🎮 Streamer: <Name> – https://twitch.tv/<login>" for EVERY streamer shown; "✂️ Edited by
-  Shak Replay – new GTA 6 streamer moments every day"; "GTA VI © Rockstar Games. Clips used with credit for commentary and
-  entertainment."; the music credit from clipper/bgm/CREDITS.md: `🎵 Music: "<Track>" by Kevin MacLeod (incompetech.com),
+- Short title: < 60 chars, NAMES first + curiosity + 1 emoji, then hashtags of the streamers + `#shorts`
+  ("Speed Lost It on Kai During Their $1M Race 😭 #kaicenat #ishowspeed #shorts"). Never "GTA 6" as the topic.
+  Long title: < 70 chars, names + what happened ("Kai Cenat & Speed's Race to $1M Got OUT OF HAND" style).
+- Description (always): 1 hook line; "🎮 Streamer: <Name> – https://twitch.tv/<login>" for EVERY streamer shown (a guest on
+  call too); "📺 From: <stream title> (<date>)"; "✂️ Edited by Shak Replay – the best Kai Cenat, IShowSpeed & AMP moments
+  every day"; "Clips used with credit for commentary and entertainment." (+ "<Game> © <publisher>" if a game is on screen);
+  the music credit from clipper/bgm/CREDITS.md: `🎵 Music: "<Track>" by Kevin MacLeod (incompetech.com),
   licensed under CC BY 4.0 – https://creativecommons.org/licenses/by/4.0/`; 4-6 hashtags. Long video: add chapters
   (00:00 + each moment's start from long.json timeline) after the hook line.
-- Tags: gta 6, gta vi, gta 6 gameplay, gta 6 funny moments, <streamer>, gta 6 clips, grand theft auto 6, twitch clips (+ shorts).
+- Tags: <each streamer>, <streamer> funny moments, <streamer> highlights, kai cenat, ishowspeed, amp, twitch clips, stream highlights, funny moments (+ shorts).
 - Standing approval (owner, 21 Nov): every draft that passes the checks is published right away with vidiq_social_post_publish,
   including on unattended runs. Never leave a passing video as a draft waiting for approval.
 - If publish returns `youtube_mfa` / verification required: copy the verification link, send it with PushNotification
@@ -172,7 +175,8 @@ vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUr
 
 ## 8. Record
 - Append each post to `$D/posts.csv` (columns in the header; experiment = which variant this video is).
-- Add every used clip slug to `$D/used.json`.
+- Add every used clip slug to `$D/used.json`, and every used stream window to `$D/streams_done.json` (`{vod_id: [window start seconds]}`, the `a` of each window;
+  streams.py pick skips fully used VODs, and moments are never posted twice).
 - Save the day's plan scripts and plan JSONs to `$D/days/<YYYY-MM-DD>/` (small text files only, no video).
 
 ## 9. Self-review and commit

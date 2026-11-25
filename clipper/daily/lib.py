@@ -70,25 +70,39 @@ def streamer_name(f):
     except Exception: pass
     return f.rsplit('_', 1)[0]
 
-def short(f, title, hook, ranges, notes, stickers, fxs, box=None, teaser=None, music=None, sfx=(), extra_bleep=(), rep=None, frame=True, context=None, **k):
+def zoomto(t, x, y, z=1.9, dur=2.2):
+    """push into a point of the SOURCE picture (x, y = 0-1, e.g. a streamer's webcam face) at source time t, hold, ease out"""
+    return {'src_t': t, 'type': f'zoomto:{x:.3f}:{y:.3f}:{z:.2f}:{dur:.2f}'}
+
+def short(f, title, hook, ranges, notes, stickers, fxs, box=None, teaser=None, music=None, sfx=(), extra_bleep=(), rep=None, frame=False, context=None, zoom=1.0, **k):
     """one Short from clip f. box = key in $WORK/boxes.json ({"top": [x,y,w,h] webcam, "bottom": [x,y,w,h] game, 1920x1080
     coords, bottom box kept above y=1000 because Twitch burns a caption pill there}); box=None -> 'blur' layout (no webcam).
     With a box the Short uses the branded frame (frame_style.py): aim the top box at aspect ~1.5 (cam window 1020x680)
     and the bottom box at ~1.28 (game window 1020x796); other aspects are centre-cropped. frame=False -> plain split.
     context = the frame's title bar, on screen the whole video: what the clip is about in 4-9 words, no punchline,
-    *stars* make a word yellow, e.g. "SQUEEX SAID WATCH THIS *COOL TRICK*...". Default: the title without hashtags."""
+    *stars* make a word yellow, e.g. "SQUEEX SAID WATCH THIS *COOL TRICK*...". Default: the title without hashtags.
+    DEFAULT NOW (owner, 25 Nov: no frame): the 'fit' style. The whole stream picture is fit to the width (zoom > 1 trims
+    the sides) on a blurred copy of itself, with a fixed white title box above it (context = its text, *word* = red).
+    Use zoomto(...) fxs to push into a streamer's face on reactions. frame=True brings the old branded frame back
+    (needs box); frame='split' gives the plain cam/game split."""
     b = boxes().get(box) if box else None
     p = {'source': HQ + f + '.mp4', 'transcript': fixed(f, rep), 'asr': '', 'min_word_prob': 0.5, 'min_narration': 0,
          'cap_mode': 'single', 'cap_size': 132, 'cap_colors': COLS, 'hook_size': 80, 'note_size': 92,
          'sfx_dirs': SFX_DIRS,
          'cut_sfx': {'name': 'swipe_swoosh_transition', 'gain': 0.22, 'every': 3}}
-    if b and frame:   # branded Shak Replay frame (default when the streamer has a webcam)
+    if b and frame is True:   # old branded Shak Replay frame (only when asked)
         import frame_style as FS
         login = f.rsplit('_', 1)[0]; name = streamer_name(f)
         p.update(layout='framed', top=b['top'], bottom=b['bottom'],
                  frame={'png': FS.make(login, name, context if context is not None else re.sub(r'#\S+', '', title).strip()), 'cam': list(FS.CAM), 'game': list(FS.GAME), 'cap_y': FS.CAP_Y})
-    elif b: p.update(layout='split', top=b['top'], bottom=b['bottom'])
-    else: p.update(layout='blur')
+    elif b and frame == 'split': p.update(layout='split', top=b['top'], bottom=b['bottom'])
+    else:                     # fit + blurred background + fixed title box
+        import titlebox as TB
+        p.update(layout='blur', zoom=zoom)
+        fh = int(int(1080 * zoom) // 2 * 2 * 9 / 16) // 2 * 2; yc = (1920 - fh) // 2 - 60
+        tb = context if context is not None else re.sub(r'#\S+', '', title).strip()
+        if tb: p['title_png'] = TB.make(tb, bottom=yc - 26); hook = ''
+        notes = [dict(n, y=0.37) if abs(n.get('y', 0.12) - 0.12) < 1e-6 else n for n in notes]   # notes over the video, not the title
     if music: p['music'] = {'file': BGM + music[0], 'gain': music[1], 'from': music[2]}
     c = dict(title=title, hook=hook, ranges=ranges, notes=notes, stickers=stickers, fx=fxs, sfx=[dict(x, name=own(x['name'])) if isinstance(x, dict) and 'name' in x else x for x in sfx],
              bleep=bleeps(f, ranges) + list(extra_bleep), max_len=59, min_len=6, max_untouched=4.0, jump_cuts=False, **k)

@@ -88,6 +88,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             ev.append(f"Dialogue: 1,{ass_t(t0)},{ass_t(t1)},Cap,,0,0,0,,{{\\pos({W // 2},{cap_y}){pop}}}{txt}")
     open(path, 'w').write(head + '\n'.join(ev) + '\n')
 
+def blur_geom(plan, src_w, src_h):
+    """'blur' (fit) layout: the whole stream picture fit to the width (zoom > 1 trims the sides) on a blurred copy of itself"""
+    z = float(plan.get('zoom', 1.0)); fw = int(W * z) // 2 * 2; fh = int(fw * src_h / src_w) // 2 * 2
+    return fw, fh, (H - fh) // 2 + int(plan.get('fg_dy', -60))
+
 def video_filter(plan, src_w, src_h, win_fx=None):
     """win_fx(w, h) -> [filters]: zoom/punch/shake applied inside each window of the 'framed' layout (frame stays still)"""
     lay = plan.get('layout', 'blur')
@@ -113,9 +118,8 @@ def video_filter(plan, src_w, src_h, win_fx=None):
         return (f"[0:v]split=3[a][b][c];[a]crop={w}:{h}:{x}:{y},scale={W}:{cam_h}[cam];"
                 f"[b]scale=-2:{game_h},crop={W}:{game_h}:(iw-{W})/2:0,gblur=sigma=26,eq=brightness=-0.12[gb];"
                 f"[c]scale=-2:{gh},crop={W}:{gh}:(iw-{W})/2:0[gf];[gb][gf]overlay=0:({game_h}-{gh})/2[g];[cam][g]vstack,setsar=1[v]"), cam_h + int(game_h * 0.62)
-    z = float(plan.get('zoom', 1.0)); fw = int(W * z) // 2 * 2; fh = int(fw * src_h / src_w) // 2 * 2
+    fw, fh, yc = blur_geom(plan, src_w, src_h)
     crop = f",crop={W}:{fh}:(iw-{W})/2:0" if fw > W else ''
-    yc = (H - fh) // 2 - 60
     return (f"[0:v]split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},gblur=sigma=28,eq=brightness=-0.10:saturation=1.1[bg];"
             f"[b]scale={fw}:{fh}{crop}[fg];[bg][fg]overlay=(W-w)/2:{yc},setsar=1[v]"), yc + fh + 150
 

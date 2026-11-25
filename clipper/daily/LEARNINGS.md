@@ -6,15 +6,17 @@ supporting. Everything not proven yet is an experiment.
 
 ## Current rules (apply every day)
 1. English streamers first (US audience pays the highest RPM). Non-English only if the moment needs no words.
-2. Payoff first: open every Short with a 2-2.5 s teaser of the best moment (crash, scare, glitch, reaction), then rewind.
-3. Cut dead driving or walking: keep ranges where something is said or happens; a Short lands at 15-24 s (24 Nov: Speed 18 s 3,044,
-   Jshrobz 24 s 1,072, DarkViper 20 s 972 vs Dunc 33 s 634, ohnePixel 31 s 9).
-4. Something new on screen at least every 3 s (note, sticker, punch, shake, cut): the originality check allows 4 s max.
-5. Split layout (webcam top, game bottom) whenever the streamer has a cam; blur layout only for no-cam clips.
-6. Title = streamer name FIRST + curiosity + "GTA 6" + 1 emoji, under 60 characters, then #gta6 #shorts. Never put the punchline
-   in the title. (Name test closed 23 Nov: named Speed 1506 vs unnamed pixel 9 at ~39 h; named jshrobz 1029 and dunc 416 also got feed pushes.)
-7. Popular creators only (owner, 22 Nov); skip a moment that 3+ channels (or one 100k+ copy) already posted and take another moment from a popular streamer.
-8. Ad-safe only: no blood, gore, sexual content or slurs; bleep strong swears (lib.bleeps does it from the transcript).
+2. Payoff first: open every Short with a 2.5-3 s teaser of the best moment (the rage line, the fail, the reaction), then rewind.
+3. Cut to the dialogue: keep the lines that tell the story; land at 15-30 s (24 Nov: Speed 18 s 3,044 views and 88.8% viewed;
+   Jshrobz 24 s 1,072, DarkViper 20 s 972 vs Dunc 33 s 634, ohnePixel 31 s 9). Longer only when the back-and-forth needs it.
+4. Something new on screen at least every 3 s (note, emoji, face zoom, punch, shake, cut): the originality check allows 4 s max.
+5. 'Fit' style since 25 Nov (owner): whole stream picture on its blurred copy, fixed white title box, captions below,
+   fast face zooms (zoomto) on reactions. No branded frame.
+6. Title = streamer NAMES first + what happened + 1 emoji, under 60 characters, then #<streamer> hashtags + #shorts. Never put
+   the punchline in the title, never make a game the topic. (Name test 23 Nov: named Shorts got feed pushes, the unnamed one 9 views.)
+7. Kai Cenat / IShowSpeed / AMP stream moments (owner, 25 Nov), found from chat laugh/hype spikes + community clips
+   (streams.py). Skip a moment that 3+ channels (or one 100k+ copy) already posted.
+8. Ad-safe only: no sexual content or nudity, real violence or slurs; bleep strong swears (lib.bleeps does it from the transcript).
 
 ## Experiments (one new variable per day; record the result here)
 | started | variable | variants | how judged | result |
@@ -71,6 +73,12 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-25 (owner chat, 23:40 IST)
+- Owner: stop GTA-only; clip Kai Cenat / Speed marathon, Mafiathon and AMP streams by chat hype; no frame, 'fit' + blurred
+  background. Built streams.py (chat replay + community clips -> 90 s windows), VOD-window pull, titlebox.py, zoomto.
+- First stream: Kai vs Speed "first to make a million" (VOD 2939504732): 16 moments. Made kai_speed_rage (Speed raging
+  "shut up bro", Kai "you don't have any money bro"), 29 s, PASS, staged as READY in posts.csv for 26 Nov.
+- 2-day review (24 Nov): MIXED. Shorts ~1k feed test, Speed 3k breakout; long videos 1-2 views; +1 sub.
 ### 2026-11-25 (08:12 UTC daily run)
 - Stats: vidIQ credits 0 (until 18 Dec) and yt-dlp video pages hit the bot wall, but the yt-dlp FLAT channel listing (/channel/<id>/shorts, /videos) still gives view counts (rounded to ~1k above 999). Logged in stats.csv.
   Best: speed_save ~3,000 @87 h. Moist 924 @33 h, DarkViper ~1,000 @40 h, caseoh_plane 997 @16 h, jynxzi_logo 37 @9 h. Longs: 2, 1, 1 views (all dead).

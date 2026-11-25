@@ -1,0 +1,9 @@
+# Streams to clip (owner, 25 Nov: Kai Cenat + IShowSpeed marathon / Mafiathon / AMP-type streams; "fuck gta 6").
+# streams.py pick ranks their recent VODs: marathons and collabs first, Kai and Speed get a bonus.
+# Speed streams mostly on YouTube now (can't be downloaded here); his Twitch VODs are used when they exist.
+# Rakai and Duke Dennis aren't on Twitch.
+kaicenat
+ishowspeed
+fanum
+agent00
+chrisnxtdoor
