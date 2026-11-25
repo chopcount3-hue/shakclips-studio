@@ -17,3 +17,15 @@ date_checked_utc,video_id,kind,hours_live,views,likes,comments,avg_view_pct,avg_
 2026-11-24T06:42Z,lF0D7XGFWIA,short,14.7,972,10,0,,,,vidiq_get_videos_by_ids (949 @7h then flat)
 2026-11-24T06:42Z,AfYP7wzr1S8,long,10.7,1,0,0,,,,vidiq_get_videos_by_ids (custom thumb; CTR n/a)
 2026-11-24T06:42Z,7ztXHQU5P_8,short,7.7,545,4,0,,,,vidiq_get_videos_by_ids (early read <20h)
+2026-11-25T08:15Z,F8slF5RBDgQ,short,88.3,1000,,,,,,yt-dlp flat channel list (rounded to ~1k; vidIQ credits 0 until 18 Dec)
+2026-11-25T08:15Z,SliXXblB6N4,short,87.3,3000,,,,,,yt-dlp flat channel list (rounded)
+2026-11-25T08:15Z,N3u2G_4TOIU,short,86.3,9,,,,,,yt-dlp flat channel list
+2026-11-25T08:15Z,ENfy0l9ex7Y,short,64.3,1000,,,,,,yt-dlp flat channel list (rounded)
+2026-11-25T08:15Z,q7Wck99d2gc,long,60.3,2,,,,,,yt-dlp flat channel list
+2026-11-25T08:15Z,IC9wWhPVwqk,short,57.3,741,,,,,,yt-dlp flat channel list
+2026-11-25T08:15Z,lF0D7XGFWIA,short,40.3,1000,,,,,,yt-dlp flat channel list (rounded; was 972 @15h -> flat)
+2026-11-25T08:15Z,AfYP7wzr1S8,long,36.3,1,,,,,,yt-dlp flat channel list
+2026-11-25T08:15Z,7ztXHQU5P_8,short,33.3,924,,,,,,yt-dlp flat channel list
+2026-11-25T08:15Z,TUuMsKNKtp8,short,16.3,997,,,,,,yt-dlp flat channel list (early <20h)
+2026-11-25T08:15Z,IycsEF38kwI,long,12.3,1,,,,,,yt-dlp flat channel list (early <20h)
+2026-11-25T08:15Z,4McG7ZPu0hI,short,9.3,37,,,,,,yt-dlp flat channel list (early <20h)

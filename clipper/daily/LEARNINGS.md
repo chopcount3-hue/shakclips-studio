@@ -22,8 +22,9 @@ supporting. Everything not proven yet is an experiment.
 | 2026-11-21 | baseline | squeex_trick: crash teaser + 5 ranges, 26 s, funny music | views and avg % viewed at 48 h | 1073 views / 16 likes @40 h (avg % not available) |
 | 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | CLOSED 23 Nov (~39 h): A speed_save 1506 vs B pixel_crash 9 (squeex, no name, 1073). A wins -> rule 6 |
 | 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | CLOSED 24 Nov: A jshrobz 1072 @39 h vs B dunc 634 @32 h. A (18-25 s) wins |
-| 2026-11-23 | Short title form | A: question ("Why Did DarkViperAU Say 'It's My Bad'...?" 20 s) vs B: statement ("MoistCr1TiKaL Found the PERFECT Hiding Spot..." 27 s); both name-first, framed | views at 24/48 h | early (24 Nov 06:42): A 972 @15 h (flat after 7 h) vs B 545 @8 h (78 vph). Read again 25 Nov |
-| 2026-11-24 | music bed | A: funny/trap music at 0.07 vs B: no music (game audio + owner SFX); both 15-24 s, name-first, framed, shorts_creators | views + avg % at 24/48 h | pending |
+| 2026-11-23 | Short title form | A: question ("Why Did DarkViperAU Say 'It's My Bad'...?" 20 s) vs B: statement ("MoistCr1TiKaL Found the PERFECT Hiding Spot..." 27 s); both name-first, framed | views at 24/48 h | CLOSED 25 Nov: A ~1,000 @40 h (flat) vs B 924 @33 h. Tie: title form doesn't move the ~1k feed test; keep either |
+| 2026-11-24 | music bed | A: funny/trap music at 0.07 vs B: no music (game audio + owner SFX); both 15-24 s, name-first, framed, shorts_creators | views + avg % at 24/48 h | early 25 Nov: A caseoh_plane 997 @16 h vs B jynxzi_logo 37 @9 h (B also had a weaker clip). Leaning A; final read 26 Nov |
+| 2026-11-25 | Short length inside 15-24 s | A: 14-17 s (jynxzi_brake 17 s) vs B: 20-24 s (agent00_sf90 22 s); both music bed 0.07, name-first statement titles, framed | views at 24/48 h | pending |
 
 Ideas queue (pick the top one when no experiment is running):
 - long-video thumbnail words: emotion ("NOT READY") vs dare ("TRUST ME BRO") vs question ("WHY?!"); circle vs no circle
@@ -31,6 +32,11 @@ Ideas queue (pick the top one when no experiment is running):
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-25: note/sticker/fx times are SOURCE times (like ranges), not output times: 4 notes placed in cut gaps silently vanished. Place every note inside a range.
+- 2026-11-25: lib.fixed rep keys are round(start, 1): {7.86: ...} did nothing, {7.9: ...} works.
+- 2026-11-25: cut-out cams (Jynxzi, Agent00) need ~120 px headroom in the top box or the notes sit on the eyes; Jynxzi [1150,470,770,513], Agent00 [1110,640,540,360].
+- 2026-11-25 thumbnail: a night explosion frame (jynxzi_17 heli) read as a brown blur even at full size; a daytime near-miss crop (2.7x zoom, ring on the biker) read clearly at 160 px. Prefer daylight frames.
+- 2026-11-25: caseoh__11 dropped: chat + the clip show his chase ends by killing the woman in the other car (pole through the windshield). Read chat text on the grid frame before locking a clip.
 - 2026-11-24 (owner feedback, 2nd): split panel also "not catchy": two small busy panels, no GTA 6 cue, no clear photo. New default thumb_hero.py: one sharp bright frame full-bleed + GTA 6 badge + ring + 2 huge words (long_v4).
 - 2026-11-24 (owner feedback): "thumbnails are not catchy". The single dark night frame (Kai skunk ape, KAI FOUND BIGFOOT?!) read
   as a brown blob at small size. New default: thumb_split.py, two bright moments side by side (biggest name + most-viewed clip),
@@ -65,6 +71,14 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-25 (08:12 UTC daily run)
+- Stats: vidIQ credits 0 (until 18 Dec) and yt-dlp video pages hit the bot wall, but the yt-dlp FLAT channel listing (/channel/<id>/shorts, /videos) still gives view counts (rounded to ~1k above 999). Logged in stats.csv.
+  Best: speed_save ~3,000 @87 h. Moist 924 @33 h, DarkViper ~1,000 @40 h, caseoh_plane 997 @16 h, jynxzi_logo 37 @9 h. Longs: 2, 1, 1 views (all dead).
+  Main lesson: every named Short gets the same ~1k feed test regardless of title form; only Speed-tier names + a clear payoff break past it. Long-form gets no reach at all yet.
+- Clip pool: 7-day shorts_creators clips are again mostly sexual/nudity cutscenes (Speed 00/02/03/04/05, Kai 01/07/08/10/12, Nickmercs, Ironmouse rejected), Fanum = podcast only, Agent00 25 = gore finale.
+- Posted (all published via vidIQ, scheduled): jynxzi_brake Sl-2pJZ5fmo (A 17 s, 11:00 ET), long WacC1Iy7l-I "GTA 6 Funny Moments Today (Jynxzi, Agent00, Hasan, NickEh30)" (7 moments, 5:01, 34% narration, thumb JYNXZI ALMOST HIT HIM?!, 15:00 ET), agent00_sf90 stwyw0lMdk8 (B 22 s, 18:00 ET).
+- Competition check: yt-dlp YouTube search page (sorted by date) still works for titles; 0 Short copies for all three picks (days/2026-11-25/competition.md).
+- Experiment: Short length 14-17 s vs 20-24 s (both with the music bed). Tomorrow: final music read (caseoh vs jynxzi_logo) + first length read.
 ### 2026-11-24 (08:15 UTC daily run)
 - Stats: reused the 06:42 UTC read (stats.csv); vidIQ credits are 0 until 18 Dec, so no stats/search/keyword calls today (uploads + publish are free).
   Best: speed_save 3,044 @62 h (18 s, 88.8% viewed, 2nd wave). Worst Short: dunc_bike 634 @32 h (33 s). Longs 2 and 1 views.

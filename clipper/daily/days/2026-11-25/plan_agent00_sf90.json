@@ -1,0 +1,379 @@
+{
+ "source": "/home/claude/gtaday/clips/agent00_28.mp4",
+ "transcript": "/home/claude/gtaday/tx/agent00_28.fixed.json",
+ "asr": "",
+ "min_word_prob": 0.5,
+ "min_narration": 0,
+ "cap_mode": "single",
+ "cap_size": 132,
+ "cap_colors": {
+  "OH": "yellow",
+  "MY": "yellow",
+  "GOSH": "yellow",
+  "GOD": "yellow",
+  "WOW": "yellow",
+  "BRO": "yellow",
+  "CHAT": "yellow",
+  "WAIT": "yellow",
+  "WHAT": "yellow",
+  "YO": "yellow",
+  "HOLY": "yellow",
+  "BRUH": "yellow",
+  "HUH": "yellow",
+  "GTA": "green",
+  "SIX": "green",
+  "6": "green",
+  "VI": "green",
+  "GOOD": "green",
+  "INSANE": "green",
+  "CRAZY": "green",
+  "PLAYING": "green",
+  "GAME": "green",
+  "FINALLY": "green",
+  "YES": "green",
+  "GRAPHICS": "green",
+  "BEAUTIFUL": "green",
+  "GO": "green",
+  "FIRE": "green",
+  "REAL": "green",
+  "WE": "green",
+  "W": "green",
+  "NO": "red",
+  "NAH": "red",
+  "CAN'T": "red",
+  "PLEASE": "red",
+  "STOP": "red",
+  "RUN": "red",
+  "COPS": "red",
+  "POLICE": "red",
+  "DEAD": "red",
+  "DIED": "red"
+ },
+ "hook_size": 80,
+ "note_size": 92,
+ "sfx_dirs": [
+  "/home/claude/gtaday/sfx_user_safe",
+  "/home/claude/studio/clipper/sfx/made",
+  "/home/claude/studio/clipper/sfx/drive",
+  "/home/claude/studio/clipper/sfx/cc0"
+ ],
+ "cut_sfx": {
+  "name": "swipe_swoosh_transition",
+  "gain": 0.22,
+  "every": 3
+ },
+ "layout": "framed",
+ "top": [
+  1110,
+  640,
+  540,
+  360
+ ],
+ "bottom": [
+  330,
+  190,
+  900,
+  703
+ ],
+ "frame": {
+  "png": "/home/claude/gtaday/frames_style/agent00_8b8ed35b27.png",
+  "cam": [
+   30,
+   206,
+   1020,
+   680
+  ],
+  "game": [
+   30,
+   1006,
+   1020,
+   796
+  ],
+  "cap_y": 946
+ },
+ "music": {
+  "file": "/home/claude/studio/clipper/bgm/funny/run_amok.mp3",
+  "gain": 0.07,
+  "from": 0
+ },
+ "clips": [
+  {
+   "title": "Agent00 Bought a Brand New Supercar in GTA 6 🏎️ #gta6 #shorts",
+   "hook": "BRAND NEW 🏎️",
+   "ranges": [
+    [
+     0.0,
+     4.2
+    ],
+    [
+     7.4,
+     11.0
+    ],
+    [
+     14.2,
+     26.2
+    ]
+   ],
+   "notes": [
+    {
+     "src_t": 0.1,
+     "text": "NEW CAR DAY 🏎️",
+     "color": "yellow",
+     "sfx": "cash_register",
+     "gain": 0.4,
+     "dur": 1.5,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 2.0,
+     "text": "FULL CUSTOM",
+     "color": "white",
+     "sfx": "poink",
+     "gain": 0.35,
+     "dur": 1.4,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 7.5,
+     "text": "THE SF90 😍",
+     "color": "green",
+     "sfx": "wow_1",
+     "gain": 0.4,
+     "dur": 1.4,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 9.2,
+     "text": "FIRST DRIVE",
+     "color": "yellow",
+     "sfx": "whoosh_transition",
+     "gain": 0.35,
+     "dur": 1.0,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 14.3,
+     "text": "NOT A SCRATCH...",
+     "color": "white",
+     "sfx": "ting",
+     "gain": 0.35,
+     "dur": 1.4,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 16.0,
+     "text": "YET",
+     "color": "red",
+     "sfx": "dun_dun_dunnn",
+     "gain": 0.45,
+     "dur": 1.0,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 17.2,
+     "text": "A LITTLE FAST 😬",
+     "color": "yellow",
+     "sfx": "ticking_clock",
+     "gain": 0.35,
+     "dur": 1.3,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 18.6,
+     "text": "TAXI!!",
+     "color": "red",
+     "sfx": "what",
+     "gain": 0.45,
+     "dur": 1.0,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 19.8,
+     "text": "BRAND NEW 💀",
+     "color": "red",
+     "sfx": "bone_crack",
+     "gain": 0.45,
+     "dur": 1.3,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 21.6,
+     "text": "INTO THE BUSHES",
+     "color": "yellow",
+     "sfx": "slide_whistle",
+     "gain": 0.35,
+     "dur": 1.4,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 23.5,
+     "text": "ENGINE DAMAGED",
+     "color": "red",
+     "sfx": "wah_wah_wah",
+     "gain": 0.35,
+     "dur": 1.4,
+     "y": 0.175,
+     "rot": -3
+    },
+    {
+     "src_t": 25.2,
+     "text": "STILL DRIVES 😭",
+     "color": "green",
+     "sfx": "audience_laughing",
+     "gain": 0.3,
+     "dur": 0.9,
+     "y": 0.175,
+     "rot": -3
+    }
+   ],
+   "stickers": [
+    {
+     "src_t": 1.0,
+     "emoji": "🏎️",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 3.0,
+     "gif": "/home/claude/studio/clipper/stickers/aura.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 8.2,
+     "emoji": "✨",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 15.0,
+     "gif": "/home/claude/studio/clipper/stickers/look_at_this.gif",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 20.2,
+     "emoji": "💀",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 22.2,
+     "gif": "/home/claude/studio/clipper/stickers/cheems_cry.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 1.6
+    },
+    {
+     "src_t": 24.2,
+     "emoji": "😭",
+     "pos": [
+      0.03,
+      0.33
+     ],
+     "size": 210,
+     "dur": 1.4
+    },
+    {
+     "src_t": 25.4,
+     "gif": "/home/claude/studio/clipper/stickers/troll1.gif",
+     "pos": [
+      0.74,
+      0.33
+     ],
+     "size": 250,
+     "dur": 0.8
+    }
+   ],
+   "fx": [
+    {
+     "src_t": 0.1,
+     "type": "punch"
+    },
+    {
+     "src_t": 2.0,
+     "type": "punch"
+    },
+    {
+     "src_t": 7.5,
+     "type": "flash"
+    },
+    {
+     "src_t": 9.2,
+     "type": "punch"
+    },
+    {
+     "src_t": 14.3,
+     "type": "punch"
+    },
+    {
+     "src_t": 16.0,
+     "type": "tint"
+    },
+    {
+     "src_t": 18.6,
+     "type": "punch"
+    },
+    {
+     "src_t": 19.8,
+     "type": "shake"
+    },
+    {
+     "src_t": 21.6,
+     "type": "punch"
+    },
+    {
+     "src_t": 23.5,
+     "type": "tint_r"
+    },
+    {
+     "src_t": 25.2,
+     "type": "punch"
+    }
+   ],
+   "sfx": [],
+   "bleep": [],
+   "max_len": 59,
+   "min_len": 6,
+   "max_untouched": 4.0,
+   "jump_cuts": false,
+   "teaser": [
+    18.3,
+    20.6
+   ]
+  }
+ ]
+}
