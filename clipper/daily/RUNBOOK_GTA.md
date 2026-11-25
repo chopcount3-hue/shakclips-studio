@@ -70,7 +70,10 @@ Pick the 2 Short moments + 6-9 long-video moments.
   payoffs. The transcript must make sense without seeing the whole stream.
 - Reject: sexual content/nudity (in-game or IRL), slurs on screen or unbleepable, real violence, someone's private info,
   minors in a compromising spot, Cristiano Ronaldo content, long silence, menus/loading.
-- **Copy check:** vidiq_youtube_search "<streamer> <2-3 key words>" (last 3 days). If 3+ channels or one 100k+ copy already
+- **vidIQ credits are 0 until 18 Dec** (uploads/publish are free). Free fallbacks the 24-25 Nov runs proved: view counts from
+  the yt-dlp FLAT channel listing (`yt-dlp --flat-playlist -J https://www.youtube.com/channel/UCgOUG3BF0gV_RBMX8pb3ceQ/shorts`
+  and `/videos`); copy checks from `yt-dlp --flat-playlist -J "ytsearch20:<query>"` (titles, no counts).
+- **Copy check:** vidiq_youtube_search (or the yt-dlp search above) "<streamer> <2-3 key words>" (last 3 days). If 3+ channels or one 100k+ copy already
   posted this moment, take another. (If vidIQ has no credits, note "copy check skipped" and favour less-clipped moments:
   windows with high chat scores but few community clips.)
 - Long video title: vidiq_keyword_research on 3-5 phrases ("kai cenat funniest moments", "kai cenat and speed", "kai cenat
