@@ -1,0 +1,23 @@
+{
+ "src": "$WORK/clips/kaicenat_m13.mp4",
+ "t": 44.75,
+ "crop": [
+  400,
+  150,
+  1150,
+  647
+ ],
+ "arrow": {
+  "to": [
+   1290,
+   400
+  ],
+  "from": [
+   1500,
+   185
+  ]
+ },
+ "face": "photos/ishowspeed-rage.jpg",
+ "face_side": "left",
+ "face_h": 0.92
+}

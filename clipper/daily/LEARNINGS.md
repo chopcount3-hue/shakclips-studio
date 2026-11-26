@@ -17,6 +17,8 @@ supporting. Everything not proven yet is an experiment.
 7. Kai Cenat / IShowSpeed / AMP stream moments (owner, 25 Nov), found from chat laugh/hype spikes + community clips
    (streams.py). Skip a moment that 3+ channels (or one 100k+ copy) already posted.
 8. Ad-safe only: no sexual content or nudity, real violence or slurs; bleep strong swears (lib.bleeps does it from the transcript).
+9. Long videos (owner, 26 Nov): NO voiceover. Silent title card before every moment + captions, labels, slow-mo replays,
+   flash/shake, owner SFX, music bed (RUNBOOK step 6). Thumbnails: 'scene' style in 4K (thumb_scene.py --4k, step 6b).
 
 ## Experiments (one new variable per day; record the result here)
 | started | variable | variants | how judged | result |
@@ -35,6 +37,9 @@ Ideas queue (pick the top one when no experiment is running):
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-26: owner photo cutout (ishowspeed-rage): the stream's timer box sat on his shoulder; removing it left a step that
+  showed as a white box in the thumbnail corner. Crop the cutout flat at the bottom instead of notching it. A silent line in
+  longform made the whole mix NaN (loudness of silence = -inf): fixed, silent cards now skip the voice stem and the music duck.
 - 2026-11-26: Kai's stream goes BLACK/WHITE for ~10 s after "wasted" (respawn): in the fit style that is a black screen with tiny cams. Keep those ranges
   <= 2 s each and push zoomto z=3.0 into the reacting face. Re-running streams.py moments renumbers windows (m04 moved to 1:27): always take `a` from cands.json.
 - 2026-11-26: speaker attribution: Whisper mixes Kai + Speed (call audio). Read the race-tracker HUD (top-left: SPEED $xK / KAI $yK) to know who is ahead before writing who-said-what narration.

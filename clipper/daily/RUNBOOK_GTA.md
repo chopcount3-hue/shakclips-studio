@@ -105,52 +105,55 @@ for k in k1 k2; do f=$(ls $WORK/shorts/$k/*.mp4 | head -1); ffmpeg -v error -y -
 Read every review sheet: the title box reads well, the zooms land on the right face (not chat or a corner), captions
 readable, no slur text on screen, nothing sexual. Fix and re-render; write each defect + fix into LEARNINGS.md "Craft notes".
 
-## 6. Long video (6-9 min, "<Names>' Funniest Moments from <stream>" style)
+## 6. Long video (6-9 min, "Top 10" countdown, NO voiceover)
+**Owner, 26 Nov: "skip the voice over to make the videos feel good and real, but make it so we don't get copyright or
+reused content".** No Kokoro narration. The video stays transformative through editing: a title card before every moment,
+captions, streamer labels, slow-mo replays of each punchline, flash/shake hits, the owner's SFX and a music bed.
 First `python3 $D/bleep_clips.py <the long video's clips>` (longform.py does not bleep moment audio) and use the *_bl.mp4 copies.
-Follow `$D/long_example.py`: Kokoro narration (am_michael, speed 1.08) for a cold-open hook, a 1-sentence setup before each
-moment (who, what's at stake – never the punchline), short reactions between, and an outro (subscribe + next stream tease).
-Commentary share ≥ 25 % (longform prints it). Best moment last, teased in the cold open. Then
-`bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94` (must be < 100 MB). Spot-check 6 frames. US English.
+1. Pick 8-12 moments (8-40 s each) from the day's stream(s); order them weakest -> best, best LAST. Skip any moment with
+   copyrighted music audible (stream music, in-game radio "now playing" widgets, a song on Discord).
+2. Write `$WORK/long/cards.json`: a cold-open card `h0` (2.4 s, over 3 s of the best moment as a tease: "KAI vs SPEED:
+   RACE TO $1,000,000"), one card per moment `a1..aN` (1.6-2.0 s: "#7 · KAI IS ALREADY BROKE" = rank + who + the setup,
+   never the punchline) and an outro card `z0` (2.0 s: "SUBSCRIBE FOR PART 2" / tomorrow's stream tease).
+   `python3 $D/silent_lines.py $WORK/long/cards.json $WORK/long/narr` (silent lines: music stays full, no duck).
+3. Copy `$D/long_example.py` to `$WORK/long/make_long.py` and fill it in. Per moment: a `line` item (its card id, 1-2 s
+   `shots` previewing the moment, `stamp` with the card text, color yellow/red, sfx `ting` or a whoosh from the owner's
+   pack) then a `moment` item with `tx` captions, `label` (streamer name), `audio` 1.25, the crop that hides chat and
+   Twitch pills, `fx` [["flash", t], ["shake", t]] on the hit, and `replay` [a, b] of the punchline (slow-mo, 2-4 s).
+4. `$PY clipper/longform.py $WORK/long/plan.json $WORK/long/long.mp4` (FFMPEG=master build). "commentary 0 %" is
+   expected now; check instead: every moment has a card before it, ≥ 1 replay per moment, mix about -14 LUFS, no NaN.
+5. `bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94` (must be < 100 MB). Spot-check 6 frames. US English.
 
-## 6b. Thumbnails (owner, 22 Nov: "make also thumbnails professional level and interesting")
-**DEFAULT STYLE since 24 Nov, v2 (owner: "not catchy... no GTA 6 logo, no clear photo"):** `$D/thumb_hero.py spec.json out.jpg`
-(example `days/2026-11-24/thumbs/long_v4.json`), following the skill anthropic-skills:youtube-thumbnail-design.
-ONE big, bright, SHARP gameplay frame of the most visual moment (prefer the biggest name's moment if it is bright; else
-the most-viewed clip): grab 6-8 timestamps around the peak, score edge variance + brightness, Read a contact sheet, take
-the clearest. Then a red ring on the action, a big pink->orange "GTA 6" badge (our own typography: never paste Rockstar's
-logo artwork), the streamer pill under it, and 1-2 HUGE words at the bottom ("NO *WAY?!*", "HOW?!", "IT'S *REAL?!*").
-Max 3 elements, glance test at 160 px (Read out_qa). Streamer faces (owner wants Speed / Kai etc. on thumbnails): use a reaction photo the OWNER supplied in the repo's photos/
-folder, named after the Twitch login (photos/ishowspeed-*.jpg, photos/kaicenat-*.jpg...). If one exists for a streamer in
-the video, set "face": "photos/<file>" in the spec: thumb_hero.py cuts it out unedited and puts it on the right. Never grab
-a face from the clips or the web; if no photo is there, build without a face and say so in the report.
-
-- **Frame:** the funniest or most visual instant (the crash, the glitch, the moment just before it). Gameplay only: never a
-  streamer's face or a photo of a real person. Get the source-pixel `crop` (leave out webcam, chat, minimap) and the
-  `circle` [cx, cy, r] around the key detail from a `frame.py <name> <t>` grid frame.
-- **Clickbait is allowed** (owner, 22 Nov: "you are allowed to make clickbait so that people must watch our video"). Go
-  hard: shock, mystery, a dare or a question. Pick the single most unbelievable instant in the video, ring it, magnify it
-  with `zoom` if it's small, and ask about it ("WHY IS IT *FLYING?!*", "THE GAME *BROKE*", "DON'T *LOOK*", "HE LOST
-  *90 HOURS?!*"). The one hard line: what the thumbnail shows or claims must really happen in the video. YouTube removes
-  misleading thumbnails and holds back their reach, and a viewer who feels tricked leaves in seconds and kills
-  retention. So exaggerate the reaction, never invent the event.
-- **Lead with the biggest name** (owner, 23 Nov: "add i showspeed in the thumbnail so that it gets more views"). If
-  IShowSpeed (or another top name: Kai Cenat, xQc, Jynxzi, CaseOh) is in the video, build the thumbnail on HIS moment, put
-  his name in the words (`"*SPEED* FOUND", "AN *ALIEN?!*"`), and make his badge the first one. Names only, never his
-  face or photo.
-- **Words:** 1-2 lines, 1-3 words each, curiosity and emotion. Never repeat the title's words, and never answer the
-  question the thumbnail asks. `*word*` = accent colour (red for danger or shock, yellow for hype).
-- **Examples:** 23 Nov long AfYP7wzr1S8 (`days/2026-11-23/thumbs/AfYP7wzr1S8_speed.json`): the alien on the table
-  with a ring on its eye, "*SPEED* FOUND / AN *ALIEN?!*", badges ISHOWSPEED / XQC / JERMA. 22 Nov long q7Wck99d2gc, `days/2026-11-22/thumbs/q7Wck99d2gc.json`: a binocular
-  frame of a person floating in the sky, ring + zoom bubble (spec coordinates are always 1920x1080: thumb.py scales 720p clips up), "WHY IS IT *FLYING?!*", badges JERMA / LIRIK / LACY.
-- **Badges:** up to 3 of the biggest streamer names in the video (popular names are what people click).
-- Read `out.jpg` AND `out_qa.jpg` (small sizes on white and dark backgrounds, greyscale). Fix it if the words are hard
-  to read at the smallest size, the circle covers the words, or the subject is cut off. Then add any lesson to LEARNINGS.md.
-- Host the thumbnail in the SAME host.sh call as the videos.
+## 6b. Thumbnails (long videos only)
+**DEFAULT STYLE since 26 Nov, "scene" (owner sent the viral "Top 10 FUNNIEST IShowSpeed Moments" thumbnails: "make
+thumbnails like this"):** one huge cinematic action frame + a big red arrow on the action + the streamer's real shocked
+face cut out on the side, no text. 4K (YouTube recommends 3840x2160):
+```bash
+mkdir -p $WORK/thumb && $PY $D/thumb_scene.py $WORK/thumb/thumb.json $WORK/thumb/sr_<date>_long_thumb.jpg --4k   # writes ..._thumb.jpg (4K), ..._thumb_phone.jpg (< 2 MB), ..._qa.jpg
+```
+Example spec: `days/2026-11-26/thumbs/SptxAKRE5Pk.json` (live video SptxAKRE5Pk). Spec coordinates are 1920x1080.
+- **Frame:** the most visual instant of the video's best moment (crash, explosion, police standoff, the stunt): grab 6-8
+  timestamps around the peak, Read a contact sheet, take the sharpest and brightest. `crop` = 16:9 box with NO webcam,
+  chat, HUD or Twitch overlay. `arrow.to` = the action, `arrow.from` = up-right of it, never over the face.
+- **4K:** `--4k` AI-upscales the GAME frame with `$D/upscale.py` (Real-ESRGAN general-x4v3, free, weights auto-download
+  from GitHub, ~20 s on CPU). Never run upscale.py on a person's photo.
+- **Face:** ONLY an owner-supplied photo from the repo's photos/ folder, and ONLY of a streamer who is really in the
+  video (Speed's face on a Speed video). `"face": "photos/ishowspeed-rage.jpg", "face_side": "left", "face_h": 0.92`
+  uses its ready cutout `photos/ishowspeed-rage_cut.png`. A new owner photo needs a cutout once (thumb/cutout.py GrabCut,
+  then check it on magenta: no background islands, no overlays such as timers; crop flat at the bottom). The face is never
+  edited, AI-upscaled or generated (cutout + uniform scale only). Never take a face from the clips or the web. No owner
+  photo for the video's streamers -> no face: set `"name": "KAI CENAT"` (small chip) instead and say so in the report.
+- **Clickbait is allowed** (owner, 22 Nov), with one hard line: what the thumbnail shows must really happen in the video.
+- **AI scenes (later):** when the owner enables Gemini billing (gem_image.py; today every image model returns 429) or
+  Higgsfield credits exist, an AI-made scene of a REAL moment can replace the frame (`"image": path`); never a real
+  person's face in a generated image.
+- Read the 4K `out.jpg` AND `out_qa.jpg` (160-360 px on white/dark + greyscale). Fallback style: `$D/thumb_hero.py`.
+- Host `..._thumb_phone.jpg` (< 2 MB, safe for the API) in the SAME host.sh call as the videos.
 
 ## 7. Post (vidIQ) – US peak times
 ```bash
 python3 $D/slots.py        # 2 Short slots (11:00, 18:00 ET) + 1 long slot (15:00 ET) -> UTC; past slots roll to tomorrow
-cp today's new Shorts, long_fit.mp4 and the long video's thumbnail (sr_<date>_long_thumb.jpg) to $WORK/up/ with simple names (sr_<date>_s1.mp4 ... sr_<date>_long.mp4)
+cp today's new Shorts, long_fit.mp4 and the long video's thumbnail (sr_<date>_long_thumb_phone.jpg) to $WORK/up/ with simple names (sr_<date>_s1.mp4 ... sr_<date>_long.mp4)
 bash $D/host.sh $WORK/up/*      # ONE call with ALL files (videos + long thumbnail) (each call force-replaces the branch) -> public URLs
 ```
 For each file, in slot order: vidiq_video_upload(url) and wait until it's ready -> vidiq_social_post_draft_create with one

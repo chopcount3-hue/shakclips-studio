@@ -249,7 +249,7 @@ class Builder:
 
     def line(self, it, pool):
         L = self.lines[str(it['line'])]; t0 = self.t
-        self.narr.append((t0, L['dur'], L['file']))
+        if not L.get('silent'): self.narr.append((t0, L['dur'], L['file']))   # silent title cards: no voice, no music duck
         self.words += [dict(w, s=t0 + w['s'], e=t0 + w['e']) for w in align(L['text'], L.get('words', []))]
         specs = it.get('shots') or self.pool_specs(pool)
         self.shots(specs, L['dur'] + GAP + it.get('hold', 0))
@@ -347,7 +347,9 @@ class Builder:
             y, sr = sf.read(f, dtype='float32')
             if y.ndim > 1: y = y.mean(1)
             if sr != SR: y = resample_poly(y, SR, sr).astype(np.float32)
-            g = 10 ** ((-18 - meter.integrated_loudness(np.pad(y, (0, max(0, SR // 2 - len(y)))))) / 20); y = y * g
+            lu = meter.integrated_loudness(np.pad(y, (0, max(0, SR // 2 - len(y)))))
+            if not np.isfinite(lu): continue              # a silent line would turn the whole mix into NaN
+            y = y * 10 ** ((-18 - lu) / 20)
             i = int(t0 * SR); nst[i:i + len(y)] += y[:n - i]
         raw = os.path.join(self.work, 'narr_raw.wav'); sf.write(raw, nst, SR, subtype='FLOAT')
         eq = os.path.join(self.work, 'narr_eq.wav')
