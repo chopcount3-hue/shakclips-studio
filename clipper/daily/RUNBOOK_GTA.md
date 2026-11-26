@@ -143,6 +143,9 @@ Example spec: `days/2026-11-26/thumbs/SptxAKRE5Pk.json` (live video SptxAKRE5Pk)
   then check it on magenta: no background islands, no overlays such as timers; crop flat at the bottom). The face is never
   edited, AI-upscaled or generated (cutout + uniform scale only). Never take a face from the clips or the web. No owner
   photo for the video's streamers -> no face: set `"name": "KAI CENAT"` (small chip) instead and say so in the report.
+- **GTA VI title** (owner, 26 Nov: "add gta 6 logo"): when the stream really is GTA 6 (its title says so), add
+  `"logo": {"at": [1085, 215], "h": 340}` (output px): our own white GTA over a sunset-gradient VI, top-centre between
+  the face and the arrow, over a dark or busy area. Never paste Rockstar's logo artwork. Not on non-GTA streams.
 - **Clickbait is allowed** (owner, 22 Nov), with one hard line: what the thumbnail shows must really happen in the video.
 - **AI scenes (later):** when the owner enables Gemini billing (gem_image.py; today every image model returns 429) or
   Higgsfield credits exist, an AI-made scene of a REAL moment can replace the frame (`"image": path`); never a real

@@ -13,6 +13,7 @@ spec = {"src": "$WORK/clips/x.mp4", "t": 9.0,            # or "image": an AI sce
         "arrow": {"to": [x, y], "from": [x, y]},          # source px; "from" optional (default: up-right of "to")
         "face": "photos/ishowspeed-shock.jpg", "face_side": "left",   # optional owner photo
         "name": "KAI CENAT",                              # optional small name chip (top-left; use when no face)
+        "logo": {"at": [cx, cy], "h": 280},               # optional "GTA VI" title, OUTPUT px (1920x1080), GTA 6 streams only
         "words": ["HE DID *WHAT?!*"]}                     # optional, 0-1 line; the examples use none"""
 import json, math, os, sys
 from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageOps
@@ -72,6 +73,31 @@ def add_person(img, path, side='left', hfrac=0.9):
     for layer, dx in ((shadow, 14 * K), (sticker, 0), (cut, 0)): img.alpha_composite(layer, (x0 + dx, y0)) if x0 + dx >= 0 else img.alpha_composite(layer.crop((-(x0 + dx), 0, fw, fh)), (0, y0))
     return img
 
+def gta_logo(img, cx, cy, h):
+    """"GTA VI" title in the game's sunset look (owner, 26 Nov: "add gta 6 logo"): white GTA over a big pink->orange->gold VI,
+    dark outline + shadow. OUR OWN lettering (Anton, OFL), never Rockstar's logo artwork. Only on videos whose stream
+    really is GTA 6 (the stream title says so). cx, cy, h in output px (1920x1080 space; K is applied here)."""
+    cx, cy, h = cx * K, cy * K, h * K
+    big = T.font('Anton-Regular.ttf', int(h * 0.80)); small = T.font('Anton-Regular.ttf', int(h * 0.34))
+    lay = Image.new('RGBA', img.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); sw = max(4, int(h * 0.045))
+    def place(txt, f, top):
+        l, t, r, b = d.textbbox((0, 0), txt, font=f); return (cx - (r - l) / 2 - l, top - t), (r - l, b - t)
+    (gx, gy), (gw, gh) = place('GTA', small, cy - h / 2)
+    (vx, vy), (vw, vh) = place('VI', big, cy - h / 2 + gh + h * 0.05)
+    d.text((gx, gy), 'GTA', font=small, fill=(255, 255, 255, 255), stroke_width=sw, stroke_fill=(35, 0, 45, 255))
+    d.text((vx, vy), 'VI', font=big, fill=(35, 0, 45, 255), stroke_width=sw, stroke_fill=(35, 0, 45, 255))
+    m = Image.new('L', img.size, 0); ImageDraw.Draw(m).text((vx, vy), 'VI', font=big, fill=255)
+    y0, y1 = int(vy + big.getbbox('VI')[1]), int(vy + big.getbbox('VI')[3])
+    grad = Image.new('RGBA', img.size, (0, 0, 0, 0)); gd = ImageDraw.Draw(grad)
+    stops = [(0.0, (255, 62, 160)), (0.5, (255, 112, 84)), (1.0, (255, 196, 64))]
+    for y in range(max(0, y0), min(img.height, y1 + 1)):
+        k = (y - y0) / max(1, y1 - y0); i = 0 if k < 0.5 else 1; (k0, c0), (k1, c1) = stops[i], stops[i + 1]; u = (k - k0) / (k1 - k0)
+        gd.line([(0, y), (img.width, y)], fill=tuple(int(c0[j] + (c1[j] - c0[j]) * u) for j in range(3)) + (255,))
+    lay.paste(grad, (0, 0), m)
+    sh = Image.new('RGBA', img.size, (0, 0, 0, 0)); sh.putalpha(lay.getchannel('A').point(lambda v: int(v * 0.6)))
+    img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(14 * K)), (int(8 * K), int(10 * K)))
+    img.alpha_composite(lay); return img
+
 def make(spec, out, k=1):
     global W, H, K
     K = k; W, H = 1920 * K, 1080 * K
@@ -86,6 +112,8 @@ def make(spec, out, k=1):
     if spec.get('arrow'):
         a = spec['arrow']; p1 = P(a['to']); p0 = P(a['from']) if a.get('from') else (p1[0] + 230 * K, p1[1] - 260 * K)
         red_arrow(img, p0, p1, 34 * K)
+    if spec.get('logo'):
+        lg = spec['logo']; gta_logo(img, lg['at'][0], lg['at'][1], lg.get('h', 280))
     if spec.get('words'):
         T.text_lines(img, spec['words'][:1], (110 * K, 70 * K, 1100 * K, 260 * K), (255, 214, 0), 210 * K)
     if spec.get('name') and not spec.get('face'): T.pill(img, 60 * K, 50 * K, [spec['name'].upper()], 56 * K)

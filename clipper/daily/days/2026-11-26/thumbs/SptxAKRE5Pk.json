@@ -19,5 +19,12 @@
  },
  "face": "photos/ishowspeed-rage.jpg",
  "face_side": "left",
- "face_h": 0.92
+ "face_h": 0.92,
+ "logo": {
+  "at": [
+   1085,
+   215
+  ],
+  "h": 340
+ }
 }
