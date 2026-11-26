@@ -28,7 +28,13 @@ The run is unattended: never stop to ask; take the sensible choice, note it in t
 cd /home/claude && [ -d studio ] || git clone -q -b gta-clipper https://github.com/chopcount3-hue/shakclips-studio.git studio
 cd studio && git pull -q --rebase origin gta-clipper && bash clipper/daily/setup_gta.sh && source /home/claude/gtaday/env.sh
 D=clipper/daily      # all commands below run from /home/claude/studio
+mkdir -p ~/.claude/youtube && cp $D/voice.md ~/.claude/youtube/voice.md; Y=$D/yt_agent/skills   # YouTube agent skill pack
 ```
+**yt-agent (owner, 26 Nov: "install this skill and use all things from it from now on"):** `$D/yt_agent/` is a reviewed copy
+of github.com/Jakeschincariol/youtube-agent-skill (11 skills, 6 tools, see yt_agent/SOURCE.md). Read each skill's SKILL.md
+where a step below names it, and run its tool. Its rule "nothing publishes until the user does" does NOT apply to this
+run: the owner's standing publish approval (21 Nov, step 7) does. Its "ask for three videos" voice step is done:
+`$D/voice.md` is the channel's voice file.
 Load the vidIQ tools once with ToolSearch: vidiq_social_account_list, vidiq_video_upload, vidiq_social_post_draft_create,
 vidiq_social_post_draft_get, vidiq_social_post_draft_update, vidiq_social_post_publish, vidiq_social_post_status,
 vidiq_video_stats, vidiq_get_videos_by_ids, vidiq_channel_analytics, vidiq_channel_analytics_extended, vidiq_trending_videos,
@@ -44,6 +50,12 @@ If it is missing, still make the videos, skip posting, and report it (step 10).
    (streamer, first 2 seconds, hook words, length, layout, music, title, slot). Check today's top GTA 6 Shorts on YouTube
    with vidiq_trending_videos / vidiq_outliers / vidiq_youtube_search ("gta 6", "gta 6 funny", "gta 6 streamer"):
    note 1-2 title or hook patterns that are working right now.
+   **yt-agent /yt-viral:** `python3 $D/viral_collect.py $WORK/viral.json` (clip channels in our niche, last 25 Shorts each,
+   free yt-dlp) then `python3 $Y/yt-viral/swipe.py $WORK/viral.json --min 2.0`: write the top 5 outliers (multiple over
+   their OWN channel's median) and the ONE structure they share into the daily log. (26 Nov: famous guest's name + one
+   all-caps verb + 😭, e.g. "Kevin Hart COOKED Kai Cenat, Druski & AMP 😭" 6.9x.)
+   **Sundays:** also run /yt-audit (ends in ONE fix) and /yt-plan for the week, both into LEARNINGS.md.
+   If the owner ever sends a Studio retention export: `python3 $Y/yt-retention/retention.py <csv>` (/yt-retention).
 4. Write today's entry at the top of the Daily log in LEARNINGS.md (3-6 lines). Close a finished experiment (result row).
    Promote a pattern to Current rules only after 3+ videos support it; delete rules the numbers contradict.
    Pick ONE experiment for today (from the ideas queue or from what you just learned) and log it in the table.
@@ -88,6 +100,10 @@ Layouts change between streams and segments: check a frame from EACH window you 
 Write `$WORK/make_day.py` like `$D/days/2026-11-25/make_m02.py` (lib.short defaults to the fit style now). Per Short:
 - `context="..."` = the fixed white title box above the video for the whole Short: what's going on in 5-10 words, names
   first, no punchline, `*word*` = red (e.g. `"Speed *LOST IT* on Kai in their race to $1,000,000"`).
+  **yt-agent /yt-script + /yt-shorts:** the title box is the hook. Write 5 options into `$WORK/hooks_<k>.txt` and rank them
+  with `python3 $Y/yt-script/hookscore.py $WORK/hooks_<k>.txt`; use the best one that still puts names first (a heuristic:
+  a WEAK verdict means rewrite once, a high score is no promise). Pick moments per /yt-shorts: the span opens on a
+  complete thought, has a turn, ends on a line (not a trail-off), and the last line loops into the first.
 - `zoomto(t, *FACE, z=2.2-3.0, dur=2-3)` on the reaction lines: push into whoever is talking/reacting. The core move of
   this style; 3-6 per Short. Use `zoom=1.0` (whole picture, both cams visible) unless the cams are inside the middle.
 - Teaser of the payoff first (2.5-3 s), then the story in ranges cut tight to the dialogue (lines from the transcript), 20-35 s
@@ -123,6 +139,8 @@ First `python3 $D/bleep_clips.py <the long video's clips>` (longform.py does not
 4. `$PY clipper/longform.py $WORK/long/plan.json $WORK/long/long.mp4` (FFMPEG=master build). "commentary 0 %" is
    expected now; check instead: every moment has a card before it, ≥ 1 replay per moment, mix about -14 LUFS, no NaN.
 5. `bash $D/fit100.sh $WORK/long/long.mp4 $WORK/long/long_fit.mp4 94` (must be < 100 MB). Spot-check 6 frames. US English.
+6. **yt-agent /yt-chapters:** chapters from the card times in the timeline: first 00:00, at least 3, each at least 10 s (or
+   YouTube ignores the whole list). Title each as the promise of that section in 3-5 words ("#1 · Kai Loses $524K").
 
 ## 6b. Thumbnails (long videos only)
 **DEFAULT STYLE since 26 Nov, "scene" (owner sent the viral "Top 10 FUNNIEST IShowSpeed Moments" thumbnails: "make
@@ -172,13 +190,19 @@ vidiq_social_post_publish -> poll vidiq_social_post_status until it has a postUr
   refused thumbnail does not fail the upload: note it in the report ("verify the channel at youtube.com/verify").
 - Short title: < 60 chars, NAMES first + curiosity + 1 emoji, then hashtags of the streamers + `#shorts`
   ("Speed Lost It on Kai During Their $1M Race 😭 #kaicenat #ishowspeed #shorts"). Never "GTA 6" as the topic.
-  Long title: < 70 chars, names + what happened ("Kai Cenat & Speed's Race to $1M Got OUT OF HAND" style).
+  Long title: ≤ 60 chars, names + what happened ("Kai Cenat & Speed's $1M Race Got Out of Hand" style).
+  **yt-agent /yt-package:** write 10 titles per video into `$WORK/titles_<k>.txt`, run
+  `python3 $Y/yt-package/title.py $WORK/titles_<k>.txt` (long: add `--thumb "<thumbnail words, e.g. GTA VI>"`; Shorts: the
+  title box words), fix every x it prints (≤ 60 chars and the subject inside the first 40, max 2 all-caps words, a name,
+  number or date, no vague words like best/insane/crazy, thumbnail words never repeat the title), post the top scorer.
 - Description (always): 1 hook line; "🎮 Streamer: <Name> – https://twitch.tv/<login>" for EVERY streamer shown (a guest on
   call too); "📺 From: <stream title> (<date>)"; "✂️ Edited by Shak Replay – the best Kai Cenat, IShowSpeed & AMP moments
   every day"; "Clips used with credit for commentary and entertainment." (+ "<Game> © <publisher>" if a game is on screen);
   the music credit from clipper/bgm/CREDITS.md: `🎵 Music: "<Track>" by Kevin MacLeod (incompetech.com),
   licensed under CC BY 4.0 – https://creativecommons.org/licenses/by/4.0/`; 4-6 hashtags. Long video: add chapters
   (00:00 + each moment's start from long.json timeline) after the hook line.
+- **yt-agent /yt-seo:** write the 3 searches this video should win; the title and the first 2 description lines must contain
+  their words. Tags are weak: ≤ 15, for names and spellings people type.
 - Tags: <each streamer>, <streamer> funny moments, <streamer> highlights, kai cenat, ishowspeed, amp, twitch clips, stream highlights, funny moments (+ shorts).
 - Standing approval (owner, 21 Nov): every draft that passes the checks is published right away with vidiq_social_post_publish,
   including on unattended runs. Never leave a passing video as a draft waiting for approval.
@@ -202,3 +226,6 @@ Commit messages end with the attribution lines your session's system reminder gi
 ## 10. Report
 Finish with a short summary: what was posted (titles, slots in ET and IST, URLs), the experiment, the top lesson from
 yesterday's numbers, and anything that failed. Use PushNotification for one short message if a tool for it exists.
+**yt-agent /yt-comment:** if our videos have comments (`yt-dlp --skip-download --write-comments`), triage them into
+questions / corrections / praise / bait, and put in the report the ONE comment to pin and draft replies (< 30 words, in
+voice.md's voice). Do not post replies: the owner posts them (replying is speaking for him).
