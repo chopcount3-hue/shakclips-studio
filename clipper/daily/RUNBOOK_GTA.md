@@ -147,9 +147,13 @@ Example spec: `days/2026-11-26/thumbs/SptxAKRE5Pk.json` (live video SptxAKRE5Pk)
   `"logo": {"at": [1085, 215], "h": 340}` (output px): our own white GTA over a sunset-gradient VI, top-centre between
   the face and the arrow, over a dark or busy area. Never paste Rockstar's logo artwork. Not on non-GTA streams.
 - **Clickbait is allowed** (owner, 22 Nov), with one hard line: what the thumbnail shows must really happen in the video.
-- **AI scenes (later):** when the owner enables Gemini billing (gem_image.py; today every image model returns 429) or
-  Higgsfield credits exist, an AI-made scene of a REAL moment can replace the frame (`"image": path`); never a real
-  person's face in a generated image.
+- **AI scenes (owner, 26 Nov: "use any free ai for creating gta 6 clickbait gameplay screenshot"):** if HF_TOKEN is set
+  (environment, or ~/.config/watch/.env), make the scene with `python3 $D/ai_image.py "<prompt>" $WORK/thumb/scene.png --n 3`
+  (FLUX.1-schnell, free; falls back to Gemini, then Pollinations) and use the best one as `"image"` in the spec (no `crop`;
+  arrow coordinates in the image's own pixels). The prompt re-imagines the video's REAL top moment as a hyper-real GTA 6
+  screenshot (what, where, time of day, police/cars/explosion, "hyper-realistic next-gen game graphics, cinematic, no text").
+  Never a real person or a streamer's likeness in the prompt, never a logo. Read all 3 and reject any with garbled people,
+  text or hands. No token or every backend fails -> use the real frame as above and say so in the report.
 - Read the 4K `out.jpg` AND `out_qa.jpg` (160-360 px on white/dark + greyscale). Fallback style: `$D/thumb_hero.py`.
 - Host `..._thumb_phone.jpg` (< 2 MB, safe for the API) in the SAME host.sh call as the videos.
 
