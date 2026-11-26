@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flag Wars preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: loud, playful live-stream game, a stadium scoreboard at night
+   IDEA: a glowing drop machine where every ball is a country
+   PICTURE: the running machine itself, a 9:16 frame ready for a vertical live
+   COLOUR and TYPE: midnight blue cabinet with blue and red stadium glows, cyan structure, gold score text, green +1 and red OUT gates; Bungee + Rubik
+   LAYOUT: the 1080x1920 stream frame fills the page height; a slim title and control row above it */
+:root{color-scheme:dark;--bg:#070914;--ink:#eef1ff;--mut:#9aa6d6;--gold:#ffd23f}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Rubik,system-ui,sans-serif}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px;padding:10px 12px}
+h1{font:400 20px/1.1 Bungee,Impact,sans-serif;margin:0}
+.note{color:var(--mut);font-size:14px;margin:0}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+button{font:600 15px Rubik,sans-serif;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid #2c3463;background:#121733;color:var(--ink);cursor:pointer}
+button[aria-pressed=true]{background:var(--gold);color:#1b1500;border-color:var(--gold)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#stage{width:min(calc(100vw - 16px),calc((100vh - 140px)*0.5625));margin:0 auto 16px}
+#stage canvas{display:block;width:100%;height:auto;aspect-ratio:9/16;border-radius:14px;background:#0b1026}
+body.stream .top{display:none}body.stream #stage{width:min(100vw,100vh*0.5625);margin:0 auto}body.stream canvas{border-radius:0}
+</style></head><body>
+<div class="top"><h1>Flag Wars</h1><p class="note">Live preview: 64 countries, fully random, survive the drop = +1 point. Chat is simulated here (DEMO CHAT).</p>
+<div class="ctl"><button data-speed="1" aria-pressed="true">Normal</button><button data-speed="4" aria-pressed="false">4× speed</button><button data-speed="12" aria-pressed="false">12× speed</button><button id="vo" aria-pressed="false">Turn on commentary</button><button id="fin">Show the winner</button><button id="rst">Restart</button></div></div>
+<div id="stage"><canvas id="cv" width="1080" height="1920" aria-label="Flag Wars: country flags drop through an obstacle course into plus-one or out gates, with a live points leaderboard"></canvas></div>
+<script>/*MATTER*/</script>
+<script>
+{
+const SVG = /*FLAGS*/;
+const AUD = /*AUDIO*/, TXT = /*TEXT*/;
+const CODES = Object.keys(SVG), NAME = c => SVG[c][0];
+const W = 1080, H = 1920, AX = 40, AY = 420, AW = 1000, AH = 1010, R = 24, SW = AW / 6;
+const ROUND_MAX = 40, BREAK = 4, HOURS = 10;
+const GOLD = '#ffd23f', CYAN = '#3ee0ff', GREEN = '#2ee07a', RED = '#ff3b5c', MUT = '#9aa6d6', TEAL = '#4be3b0', PINK = '#ff6fa5', VIOLET = '#b49bff';
+const SHIELD_AT = 20, REVIVE_AT = 40, POWERS = 30, SIM_CHAT = location.hash !== '#stream';   // demo chat only in the preview, never on the real stream
+const cv = document.getElementById('cv'), g = cv.getContext('2d');
+const { Engine, Bodies, Body, Composite, Events } = Matter;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const canvas = n => { const c = document.createElement('canvas'); c.width = c.height = n; return c; };
+
+// ---------- sprites: each flag as a round ball, plus one shared gloss layer ----------
+const SPR = {}, BIG = {};
+function roundFlag(img, n) { const c = canvas(n), x = c.getContext('2d'); x.beginPath(); x.arc(n / 2, n / 2, n / 2 - 1, 0, 7); x.clip(); x.drawImage(img, 0, 0, n, n); return c; }
+const loads = CODES.map(c => new Promise(res => {
+  const i = new Image(); i.onload = () => { SPR[c] = roundFlag(i, 4 * R); SPR[c].img = i; res(); }; i.onerror = res;
+  i.src = URL.createObjectURL(new Blob([SVG[c][1]], { type: 'image/svg+xml' }));
+}));
+const GLOSS = (() => {
+  const n = 4 * R, h = n / 2, c = canvas(n), x = c.getContext('2d');
+  let gr = x.createRadialGradient(h, h, h * 0.55, h, h, h); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,10,.5)');
+  x.fillStyle = gr; x.beginPath(); x.arc(h, h, h - 1, 0, 7); x.fill();
+  gr = x.createRadialGradient(n * .36, n * .3, 0, n * .36, n * .3, n * .42); gr.addColorStop(0, 'rgba(255,255,255,.6)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = gr; x.beginPath(); x.arc(h, h, h - 1, 0, 7); x.fill();
+  x.lineWidth = n * 0.04; x.strokeStyle = 'rgba(255,255,255,.9)'; x.beginPath(); x.arc(h, h, h - n * 0.02, 0, 7); x.stroke();
+  return c;
+})();
+function ball(c, x, y, r, ang = 0, a = 1) {
+  g.save(); g.globalAlpha = a; g.translate(x, y);
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.arc(r * .12, r * .2, r, 0, 7); g.fill();
+  g.rotate(ang);
+  if (SPR[c]) g.drawImage(r > 60 ? big(c) : SPR[c], -r, -r, 2 * r, 2 * r); else { g.fillStyle = '#556'; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill(); }
+  g.rotate(-ang); g.drawImage(GLOSS, -r, -r, 2 * r, 2 * r); g.restore();
+}
+const big = c => BIG[c] || (BIG[c] = roundFlag(SPR[c].img, 360));
+
+// ---------- text helpers ----------
+function txt(s, x, y, font, col, al = 'left', a = 1) { g.globalAlpha = a; g.font = font; g.fillStyle = col; g.textAlign = al; g.textBaseline = 'alphabetic'; g.fillText(s, x, y); g.globalAlpha = 1; }
+function fit(s, font, max) { g.font = font; while (g.measureText(s).width > max && s.length > 3) s = s.slice(0, -2) + '…'; return s; }
+function rr(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+const hms = t => { t = Math.max(0, Math.ceil(t)); const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60; return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; };
+
+// ---------- the machine ----------
+let E, pegs, bumps, spins, saws, slots, divs, flags, queue, parts, S, BG;
+function machine() {
+  E = Engine.create({ positionIterations: 8, velocityIterations: 6 }); E.gravity.scale = 0.0009;
+  const add = b => (Composite.add(E.world, b), b), st = o => Object.assign({ isStatic: true, restitution: .4, friction: .01 }, o);
+  add(Bodies.rectangle(AX - 25, AY + 300, 50, AH + 1000, st({ label: 'wall' })));
+  add(Bodies.rectangle(AX + AW + 25, AY + 300, 50, AH + 1000, st({ label: 'wall' })));
+  add(Bodies.rectangle(AX + AW / 2, AY + AH + 25, AW, 50, st({ label: 'wall' })));
+  pegs = [];
+  for (let r = 0; r < 4; r++) for (let x = AX + (r % 2 ? 100 : 150); x < AX + AW - (r % 2 ? 60 : 110); x += 100) pegs.push(add(Bodies.circle(x, AY + 110 + r * 62, 9, st({ label: 'peg', restitution: .5 }))));
+  for (let x = AX + 100; x < AX + AW - 30; x += 200) pegs.push(add(Bodies.circle(x, AY + 700, 9, st({ label: 'peg', restitution: .5 }))));
+  spins = [.2, .5, .8].map((f, i) => { const b = add(Bodies.rectangle(AX + AW * f, AY + 430, 200, 18, st({ label: 'spin', chamfer: { radius: 9 } }))); b.w = (i % 2 ? -1.7 : 1.7); b.a0 = Math.random() * 3; return b; });
+  saws = [.2, .5, .8].map((f, i) => { const b = add(Bodies.circle(AX + AW * f, AY + 600, 30, st({ label: 'saw' }))); b.cx = AX + AW * f; b.amp = 115; b.w = .9 + i * .17; b.ph = i * 2.1; return b; });
+  bumps = [0, 1, 2, 3].map(k => add(Bodies.circle(AX + 200 + k * 200, AY + 790, 22, st({ label: 'bump', restitution: 1.05 }))));
+  divs = [];
+  for (let k = 1; k < 6; k++) { const x = AX + k * SW; divs.push(x); add(Bodies.rectangle(x, AY + AH - 65, 12, 130, st({ label: 'wall' }))); add(Bodies.circle(x, AY + AH - 130, 8, st({ label: 'peg' }))); }
+  slots = [0, 1, 2, 3, 4, 5].map(i => add(Bodies.rectangle(AX + (i + .5) * SW, AY + AH - 30, SW - 16, 60, st({ label: 'slot', isSensor: true }))));
+  Events.on(E, 'collisionStart', e => {
+    for (const p of e.pairs) {
+      const a = p.bodyA, b = p.bodyB, f = a.label === 'flag' ? a : b.label === 'flag' ? b : null;
+      if (!f || f.done) continue; const o = f === a ? b : a;
+      if (o.label === 'saw') hit(f, 'saw'); else if (o.label === 'slot') o.kind === 'win' ? win(f) : hit(f, 'gate'); else if (o.label === 'bump') o.hit = S.t;
+    }
+  });
+  BG = background();
+}
+
+function background() {
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  let gr = x.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0b1230'); gr.addColorStop(1, '#12081c'); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  for (const [cx, cy, col] of [[-80, 520, 'rgba(40,110,255,.42)'], [W + 80, 1420, 'rgba(255,45,85,.34)'], [W * .5, -150, 'rgba(120,80,255,.25)']]) {
+    gr = x.createRadialGradient(cx, cy, 0, cx, cy, 900); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  }
+  for (let i = 0; i < 220; i++) { x.globalAlpha = rnd(.15, .7); x.fillStyle = '#fff'; x.fillRect(rnd(0, W), rnd(0, H), rnd(1, 2.6), rnd(1, 2.6)); }
+  x.globalAlpha = 1;
+  x.fillStyle = 'rgba(6,9,26,.78)'; x.beginPath(); x.roundRect(AX - 12, AY - 12, AW + 24, AH + 24, 30); x.fill();
+  x.save(); x.shadowColor = CYAN; x.shadowBlur = 28; x.lineWidth = 5; x.strokeStyle = CYAN; x.stroke(); x.restore();
+  x.lineWidth = 2; x.strokeStyle = 'rgba(255,255,255,.55)'; x.stroke();
+  x.strokeStyle = 'rgba(62,224,255,.06)'; x.lineWidth = 1;
+  for (let y = AY + 40; y < AY + AH; y += 40) { x.beginPath(); x.moveTo(AX, y); x.lineTo(AX + AW, y); x.stroke(); }
+  for (const p of pegs) {
+    const { x: px, y: py } = p.position; gr = x.createRadialGradient(px - 3, py - 3, 1, px, py, 10);
+    gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#9fb4ff'); x.fillStyle = 'rgba(0,0,0,.4)'; x.beginPath(); x.arc(px + 2, py + 3, 9, 0, 7); x.fill();
+    x.fillStyle = gr; x.beginPath(); x.arc(px, py, 9, 0, 7); x.fill();
+  }
+  for (const dx of divs) { gr = x.createLinearGradient(dx - 6, 0, dx + 6, 0); gr.addColorStop(0, '#8fa2e8'); gr.addColorStop(.5, '#ffffff'); gr.addColorStop(1, '#8fa2e8'); x.fillStyle = gr; x.beginPath(); x.roundRect(dx - 6, AY + AH - 130, 12, 130, 6); x.fill(); }
+  return c;
+}
+
+// ---------- game state ----------
+function reset() {
+  if (E) { Events.off(E); Composite.clear(E.world, false); }
+  S = { t: 0, round: 0, phase: 'break', b0: -BREAK + 1.2, pts: {}, surv: {}, reach: {}, won: [], lost: [], spawn: [], toast: null, final: null, dropped: 0, speed: S ? S.speed : 1,
+        sup: {}, shielded: {}, revived: {}, left: POWERS, chatNext: 2, lastChat: null, leader: null, sawSaid: false, ctaAt: 0 };
+  for (const c of CODES) { S.pts[c] = 0; S.surv[c] = 0; S.reach[c] = 0; }
+  flags = []; queue = []; parts = [];
+  machine();
+}
+function startRound() {
+  S.round++; S.phase = 'play'; S.r0 = S.t; S.won = []; S.lost = []; S.sup = {}; S.shielded = {}; S.revived = {}; S.left = POWERS; S.sawSaid = false;
+  say([pick('start')], 3);
+  const kinds = shuffle(['win', 'win', 'win', 'out', 'out', 'out']); slots.forEach((s, i) => s.kind = kinds[i]);
+  S.spawn = shuffle(CODES.slice()).map((c, i) => ({ c, at: S.t + .3 + i * .065, x: rnd(AX + 40, AX + AW - 40) }));
+}
+function addFlag(c, x, rev) {
+  const f = Bodies.circle(x, AY - 40, R, { restitution: .45, friction: .004, frictionAir: .006, density: .002, label: 'flag' });
+  f.code = c; f.shield = !!S.shielded[c]; f.rev = !!rev; Body.setVelocity(f, { x: rnd(-2, 2), y: rnd(0, 2) }); Body.setAngularVelocity(f, rnd(-.08, .08));
+  Composite.add(E.world, f); flags.push(f); S.dropped++;
+}
+function hit(f, why) {
+  if (f.shield) {                                   // a shield pops instead of the flag: bounce it back up
+    f.shield = false; Body.setVelocity(f, { x: rnd(-6, 6), y: -11 }); burst(f.position, CYAN, 20);
+    S.toast = { c: f.code, ok: true, t: S.t, label: 'SHIELD SAVED' }; say(['n_' + f.code, 'p_saved0'], 4); return;
+  }
+  out(f, why);
+}
+function out(f, why) {
+  f.done = true; queue.push(f); S.lost.push(f.code); S.toast = { c: f.code, ok: false, t: S.t }; burst(f.position, RED, 16);
+  if (why === 'saw' && !S.sawSaid) { if (say(['n_' + f.code, pick('saw')], 2)) S.sawSaid = true; }
+  else if (why && Math.random() < .2) say(['n_' + f.code, pick(why === 'saw' ? 'saw' : 'out')], 1);
+}
+function win(f) {
+  f.done = true; queue.push(f); S.won.push(f.code); S.pts[f.code]++; S.surv[f.code]++; S.reach[f.code] = S.t; S.toast = { c: f.code, ok: true, t: S.t };
+  burst(f.position, GREEN, 18); parts.push({ x: f.position.x, y: f.position.y - 30, vx: 0, vy: -140, life: 1.1, txt: '+1' });
+  const top = board()[0];
+  if (top !== S.leader && S.pts[top] > 1) { S.leader = top; say(['n_' + top, pick('lead')], 4); }
+  else if (Math.random() < .2) say(['n_' + f.code, pick('win')], 1);
+}
+// ---------- chat support (the 'SAVE YOUR COUNTRY' rules). onChat() is the hook a real YouTube live-chat reader calls ----------
+const ALIAS = {}; for (const c of CODES) { ALIAS[c] = c; ALIAS[NAME(c).toLowerCase()] = c; }
+Object.assign(ALIAS, { usa: 'us', america: 'us', 'united states': 'us', 'united kingdom': 'gb', england: 'gb', britain: 'gb', korea: 'kr', 'saudi': 'sa', emirates: 'ae', turkiye: 'tr', czech: 'cz', holland: 'nl', bharat: 'in' });
+function onChat(user, text) {
+  const t = String(text).toLowerCase().replace(/[^a-z ]/g, ' ').trim(), c = ALIAS[t] || t.split(/\s+/).map(w => ALIAS[w]).find(Boolean);
+  if (!c || S.final) return; S.sup[c] = (S.sup[c] || 0) + 1; S.lastChat = { user, c, t: S.t };
+  if (S.phase !== 'play') return;
+  if (S.sup[c] === SHIELD_AT && S.left > 0 && !S.lost.includes(c) && !S.won.includes(c)) {
+    S.left--; S.shielded[c] = true; const f = flags.find(f => f.code === c); if (f) f.shield = true;
+    S.toast = { c, ok: true, t: S.t, label: 'SHIELD UP' }; say(['n_' + c, 'p_shield0'], 4);
+  }
+  if (S.sup[c] >= REVIVE_AT && S.lost.includes(c) && !S.revived[c] && S.left > 0) {
+    S.left--; S.revived[c] = true; S.lost = S.lost.filter(x => x !== c); addFlag(c, rnd(AX + 80, AX + AW - 80), true);
+    S.toast = { c, ok: true, t: S.t, label: 'REVIVED' }; say(['n_' + c, 'p_revive0'], 5);
+  }
+}
+const FANS = ['in','in','in','pk','pk','bd','br','br','us','id','ph','eg','ng','mx','ma','tr','vn','ar','co','sa'];
+function demoChat() { if (!SIM_CHAT || S.t < S.chatNext) return; S.chatNext = S.t + rnd(.05, .3);
+  if (S.hotRound !== S.round) { S.hotRound = S.round; S.hot = FANS[Math.floor(Math.random() * FANS.length)]; }   // each round one country's fans 'raid' the chat
+  if (S.rescueRound !== S.round && S.lost.length > 8) { S.rescueRound = S.round; S.rescue = S.lost[Math.floor(Math.random() * S.lost.length)]; }   // fans rally to revive a fallen flag
+  const r = Math.random(), c = r < .4 ? S.hot : (r < .8 && S.rescueRound === S.round) ? S.rescue : r < .9 ? FANS[Math.floor(Math.random() * FANS.length)] : CODES[Math.floor(Math.random() * CODES.length)];
+  onChat('demo', Math.random() < .5 ? NAME(c) : c); }
+function burst(p, col, n) { for (let i = 0; i < n; i++) { const a = rnd(0, 6.28), v = rnd(120, 420); parts.push({ x: p.x, y: p.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, life: rnd(.5, .9), col, s: rnd(4, 8) }); } }
+const board = () => CODES.slice().sort((a, b) => S.pts[b] - S.pts[a] || S.reach[a] - S.reach[b] || NAME(a).localeCompare(NAME(b)));   // a tie goes to whoever got there first
+
+function step() {
+  const dt = 1 / 60; S.t += dt;
+  while (S.spawn.length && S.spawn[0].at <= S.t) { const s = S.spawn.shift(); addFlag(s.c, s.x); }
+  demoChat();
+  for (const b of spins) Body.setAngle(b, b.a0 + b.w * S.t, true);
+  for (const b of saws) Body.setPosition(b, { x: b.cx + b.amp * Math.sin(S.t * b.w + b.ph), y: b.position.y }, true);
+  Engine.update(E, 1000 / 60);
+  for (const f of flags) {
+    if (f.done) continue; if (f.position.y > AY + AH + 60) { out(f); continue; }
+    f.still = f.speed < .35 && f.position.y > AY ? (f.still || 0) + dt : 0;   // never let a flag sit still: nudge it
+    if (f.still > 1.2) { Body.setVelocity(f, { x: rnd(-5, 5), y: -rnd(2, 5) }); f.still = 0; }
+  }
+  for (const f of queue) Composite.remove(E.world, f);
+  if (queue.length) { queue = []; flags = flags.filter(f => !f.done); }
+  if (S.phase === 'play') {
+    if ((!S.spawn.length && !flags.length) || S.t - S.r0 > ROUND_MAX) {
+      for (const f of flags) out(f); S.phase = 'break'; S.b0 = S.t;
+      const n = S.won.length; say([pick(n <= 12 ? 'few' : n >= 34 ? 'many' : 'end')], 3);
+    }
+  } else if (S.t - S.b0 > BREAK) startRound();
+  for (const p of parts) { p.x += p.vx * dt; p.y += p.vy * dt; if (!p.txt) p.vy += 700 * dt; p.life -= dt; }
+  parts = parts.filter(p => p.life > 0);
+  if (S.t >= HOURS * 3600) finale();
+}
+function finale() { if (S.final) return; for (const f of flags) Composite.remove(E.world, f); flags = []; S.spawn = []; S.final = { top: board().slice(0, 3), t: S.t };
+  say(['p_champ0', 'n_' + S.final.top[0]], 9, true); }
+
+// ---------- the commentator: Prof. Flagenstein (pre-made voice clips, stitched live: "BRAZIL!" + "shredded by my saw!") ----------
+const nowS = () => performance.now() / 1000;
+const VO = { on: false, ctx: null, gain: null, buf: {}, srcs: [], until: 0, last: -99, pend: null, cap: '', capUntil: 0, ctaAt: nowS() + 25 };
+function pick(pre) { const ks = Object.keys(TXT).filter(k => k.startsWith('p_' + pre) && /\d$/.test(k)); return ks[Math.floor(Math.random() * ks.length)]; }
+function say(keys, pri, force) {
+  keys = keys.filter(k => k && TXT[k]); if (!keys.length) return false;
+  const t = nowS();
+  if (!force && (t < VO.until || (pri < 2 && t - VO.last < 5))) { if (pri >= 3 && (!VO.pend || pri >= VO.pend.pri)) VO.pend = { keys, pri, t }; return false; }
+  const dur = keys.reduce((a, k) => a + (AUD[k] ? AUD[k][0] : 1.3) + .1, 0);
+  VO.until = t + dur + .6; VO.last = t + dur; VO.cap = keys.map(k => TXT[k]).join(' '); VO.capUntil = t + dur + 1;
+  if (window.SAYLOG) window.SAYLOG.push({ t: performance.now(), keys });   // test harness: lets a recording add the voice track
+  if (VO.on && VO.ctx) {
+    if (force) VO.stop(); let at = VO.ctx.currentTime + .05;
+    for (const k of keys) { const b = VO.buf[k]; if (!b) continue; const s = VO.ctx.createBufferSource(); s.buffer = b; s.connect(VO.gain); s.start(at); VO.srcs.push(s); at += b.duration + .1; }
+  }
+  return true;
+}
+VO.stop = () => { for (const s of VO.srcs) { try { s.stop(); } catch (e) {} } VO.srcs = []; };
+function voTick() {        // every frame: a waiting important line, then the call to action, then idle chatter
+  const t = nowS(); if (S.final || t < VO.until) return;
+  if (VO.pend) { const p = VO.pend; VO.pend = null; if (t - p.t < 4) { say(p.keys, p.pri); return; } }
+  if (t > VO.ctaAt) { VO.ctaAt = t + 45; say([pick('cta')], 2); return; }
+  if (t - VO.last > 11) say([pick('idle')], 2);
+}
+async function voOn() {
+  if (!VO.ctx) {
+    VO.ctx = new (window.AudioContext || window.webkitAudioContext)(); VO.gain = VO.ctx.createGain(); VO.gain.connect(VO.ctx.destination);
+    await Promise.all(Object.keys(AUD).map(async k => {
+      const bin = Uint8Array.from(atob(AUD[k][1]), ch => ch.charCodeAt(0));
+      try { VO.buf[k] = await VO.ctx.decodeAudioData(bin.buffer); } catch (e) {}
+    }));
+  }
+  await VO.ctx.resume(); VO.on = true;
+}
+
+// ---------- drawing ----------
+function draw() {
+  const now = performance.now() / 1000;
+  g.drawImage(BG, 0, 0);
+  // gates
+  slots.forEach((s, i) => {
+    const x = AX + i * SW, ok = s.kind === 'win', col = s.kind ? (ok ? GREEN : RED) : '#55608f';
+    const gr = g.createLinearGradient(0, AY + AH - 130, 0, AY + AH); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, ok ? 'rgba(46,224,122,.38)' : s.kind ? 'rgba(255,59,92,.38)' : 'rgba(85,96,143,.3)');
+    g.fillStyle = gr; g.fillRect(x + 6, AY + AH - 130, SW - 12, 130);
+    g.fillStyle = col; rr(x + 10, AY + AH - 16, SW - 20, 10, 5); g.fill();
+    txt(s.kind ? (ok ? '+1' : 'OUT') : '?', x + SW / 2, AY + AH - 52, '400 40px Bungee', col, 'center', .95);
+  });
+  // bumpers
+  for (const b of bumps) {
+    const k = Math.max(0, 1 - (S.t - (b.hit || -9)) * 4), r = 22 + k * 5, { x, y } = b.position;
+    g.fillStyle = `rgba(62,224,255,${.18 + k * .3})`; g.beginPath(); g.arc(x, y, r + 12, 0, 7); g.fill();
+    const gr = g.createRadialGradient(x - 6, y - 6, 2, x, y, r); gr.addColorStop(0, '#d9fbff'); gr.addColorStop(1, '#16a6c9');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.lineWidth = 4; g.strokeStyle = '#fff'; g.stroke();
+  }
+  // spinners
+  for (const b of spins) {
+    g.save(); g.translate(b.position.x, b.position.y); g.rotate(b.angle);
+    g.fillStyle = 'rgba(150,110,255,.25)'; rr(-110, -17, 220, 34, 17); g.fill();
+    const gr = g.createLinearGradient(0, -9, 0, 9); gr.addColorStop(0, '#c9b6ff'); gr.addColorStop(1, '#7b5cff'); g.fillStyle = gr; rr(-100, -9, 200, 18, 9); g.fill();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(0, 0, 7, 0, 7); g.fill(); g.restore();
+  }
+  // saws
+  for (const b of saws) {
+    const { x, y } = b.position; g.save(); g.translate(x, y);
+    const gl = g.createRadialGradient(0, 0, 20, 0, 0, 62); gl.addColorStop(0, 'rgba(255,59,92,.55)'); gl.addColorStop(1, 'rgba(255,59,92,0)'); g.fillStyle = gl; g.beginPath(); g.arc(0, 0, 62, 0, 7); g.fill();
+    g.rotate(S.t * 9); g.fillStyle = '#ff3b5c'; g.beginPath();
+    for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12, rr2 = i % 2 ? 30 : 40; g.lineTo(Math.cos(a) * rr2, Math.sin(a) * rr2); } g.fill();
+    g.fillStyle = '#2a0b14'; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill(); g.fillStyle = '#ffb3c1'; g.beginPath(); g.arc(0, 0, 5, 0, 7); g.fill(); g.restore();
+  }
+  // flags (clipped to the cabinet so they appear from the top edge)
+  g.save(); rr(AX - 6, AY - 6, AW + 12, AH + 12, 26); g.clip();
+  for (const f of flags) {
+    ball(f.code, f.position.x, f.position.y, R, f.angle);
+    if (f.shield || f.rev) { g.lineWidth = 4; g.strokeStyle = f.shield ? CYAN : GOLD; g.globalAlpha = .6 + .4 * Math.sin(now * 8);
+      g.beginPath(); g.arc(f.position.x, f.position.y, R + 7, 0, 7); g.stroke(); g.globalAlpha = 1; }
+  }
+  g.restore();
+  for (const p of parts) {
+    if (p.txt) txt(p.txt, p.x, p.y, '400 46px Bungee', GREEN, 'center', Math.min(1, p.life * 2));
+    else { g.globalAlpha = Math.min(1, p.life * 2); g.fillStyle = p.col; g.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s); g.globalAlpha = 1; }
+  }
+  if (S.phase === 'break' && S.round && !S.final) roundCard();
+  caption(); header(now); footer();
+  if (S.final) finalCard(now);
+}
+
+function box(x, y, w, h) { g.fillStyle = 'rgba(8,12,34,.84)'; rr(x, y, w, h, 14); g.fill(); g.lineWidth = 1.5; g.strokeStyle = 'rgba(120,150,255,.25)'; g.stroke(); }
+function brackets(x, y, w, h, c1, c2) {                    // HUD corner brackets
+  const L = 34; g.lineWidth = 5; g.lineCap = 'square';
+  for (const [cx, cy, dx, dy, col] of [[x, y, 1, 1, c1], [x + w, y, -1, 1, c2], [x, y + h, 1, -1, c2], [x + w, y + h, -1, -1, c1]]) {
+    g.strokeStyle = col; g.beginPath(); g.moveTo(cx, cy + dy * L); g.lineTo(cx, cy); g.lineTo(cx + dx * L, cy); g.stroke();
+  }
+  g.lineCap = 'butt';
+}
+function chip(x, y, w, h, label, val, col) { box(x, y, w, h); txt(label, x + w / 2, y + 40, '800 22px Rubik', MUT, 'center'); txt(val, x + w / 2, y + h - 24, '400 52px Bungee', col, 'center'); }
+function header(now) {
+  txt('FLAG', 30, 84, '400 70px Bungee', '#fff'); g.font = '400 70px Bungee'; txt('WARS', 30 + g.measureText('FLAG ').width, 84, '400 70px Bungee', GOLD);
+  g.fillStyle = RED; rr(30, 104, 118, 40, 20); g.fill();
+  g.fillStyle = `rgba(255,255,255,${.55 + .45 * Math.sin(now * 5)})`; g.beginPath(); g.arc(52, 124, 7, 0, 7); g.fill();
+  txt('LIVE', 136, 135, '400 24px Bungee', '#fff', 'right'); txt('64 COUNTRIES', 164, 134, '800 24px Rubik', MUT);
+  chip(470, 20, 220, 128, 'IN PLAY', String(S.final ? 0 : flags.length + S.spawn.length), GOLD);
+  chip(706, 20, 344, 128, S.final ? 'WINNER CROWNED' : 'WINNER IN', hms(HOURS * 3600 - S.t), S.final ? GOLD : CYAN);
+  // the support panel: chat support | where are you from | save your country
+  const y = 166, h = 228;
+  box(30, y, 300, h); brackets(30, y, 300, h, GOLD, TEAL);
+  txt('CHAT SUPPORT', 168, y + 46, '400 26px Bungee', GOLD, 'center'); g.fillStyle = RED; g.beginPath(); g.arc(300, y + 37, 6, 0, 7); g.fill();
+  txt('Type your country', 180, y + 102, '800 27px Rubik', '#fff', 'center'); txt('in chat to support it!', 180, y + 136, '800 27px Rubik', '#fff', 'center');
+  txt('name · flag · short form', 180, y + 172, '600 19px Rubik', MUT, 'center');
+  const L = S.lastChat; if (L && S.t - L.t < 3) txt(fit(`${SIM_CHAT ? 'DEMO CHAT' : L.user} · ${NAME(L.c)} +1`, '800 19px Rubik', 270), 180, y + 207, '800 19px Rubik', CYAN, 'center');
+  txt(`ROUND ${Math.max(1, S.round)}  ·  LIVE`, 540, y + 44, '800 26px Rubik', MUT, 'center');
+  txt('WHERE ARE', 540, y + 122, '400 58px Bungee', '#fff', 'center'); txt('YOU FROM?', 540, y + 194, '400 58px Bungee', GOLD, 'center');
+  box(750, y, 300, h); brackets(750, y, 300, h, TEAL, GOLD);
+  txt('SAVE YOUR COUNTRY', 900, y + 44, '400 22px Bungee', TEAL, 'center');
+  [[CYAN, `${SHIELD_AT} chats`, 'SHIELD', TEAL], [CYAN, `${REVIVE_AT} if out`, 'REVIVE', PINK], [GOLD, 'Super Chat', 'SHIELD / REVIVE', GOLD],
+   [GOLD, 'Subscribe', 'FREE POWER', VIOLET], [CYAN, '50 Jewels', 'SHIELD / REVIVE', CYAN]].forEach(([ic, a, b, col], i) => {
+    const yy = y + 80 + i * 28; g.fillStyle = ic; g.beginPath(); g.arc(772, yy - 7, 6, 0, 7); g.fill();
+    txt(a, 786, yy, '800 18px Rubik', '#fff'); txt(b, 1036, yy, '800 15px Rubik', col, 'right');
+  });
+  txt(`no limit  ·  left ${S.left}/${POWERS}`, 900, y + 216, '800 18px Rubik', MUT, 'center');
+}
+function caption() {
+  const t = nowS(); if (!VO.cap || t > VO.capUntil) return; const a = Math.min(1, (VO.capUntil - t) * 2);
+  g.globalAlpha = a; g.fillStyle = 'rgba(6,9,26,.9)'; rr(AX + 14, AY + 12, AW - 28, 76, 18); g.fill(); g.lineWidth = 2; g.strokeStyle = GOLD; g.stroke(); g.globalAlpha = 1;
+  txt('PROF. FLAGENSTEIN', AX + 36, AY + 40, '800 18px Rubik', GOLD, 'left', a);
+  txt(fit(VO.cap, '800 28px Rubik', AW - 72), AX + 36, AY + 74, '800 28px Rubik', '#fff', 'left', a);
+}
+function roundCard() {
+  const left = Math.max(0, Math.ceil(BREAK - (S.t - S.b0)));
+  g.fillStyle = 'rgba(6,9,26,.86)'; rr(150, AY + 330, 780, 300, 30); g.fill(); g.lineWidth = 3; g.strokeStyle = GOLD; g.stroke();
+  txt(`ROUND ${S.round} DONE`, W / 2, AY + 410, '400 56px Bungee', GOLD, 'center');
+  txt(`${S.won.length} MADE IT  ·  ${S.lost.length} OUT`, W / 2, AY + 470, '800 36px Rubik', '#fff', 'center');
+  const top = S.won.slice(0, 9); top.forEach((c, i) => ball(c, W / 2 + (i - (top.length - 1) / 2) * 62, AY + 530, 24));
+  txt(`NEXT DROP IN ${left}`, W / 2, AY + 605, '800 26px Rubik', MUT, 'center');
+}
+function footer() {
+  const y0 = AY + AH + 16, T = S.toast, fresh = T && S.t - T.t < 2.2;
+  g.fillStyle = 'rgba(8,12,34,.85)'; rr(40, y0, 1000, 76, 20); g.fill(); g.lineWidth = 3;
+  g.strokeStyle = fresh ? (T.label ? CYAN : T.ok ? GREEN : RED) : 'rgba(120,150,255,.3)'; g.stroke();
+  if (T) { ball(T.c, 86, y0 + 38, 28); txt(T.label || (T.ok ? '+1 POINT' : 'ELIMINATED'), 128, y0 + 30, '800 21px Rubik', T.label ? CYAN : T.ok ? GREEN : RED);
+    txt(fit(NAME(T.c).toUpperCase(), '400 36px Bungee', 600), 128, y0 + 66, '400 36px Bungee', '#fff'); }
+  else txt('DROPPING…', 540, y0 + 50, '400 34px Bungee', MUT, 'center');
+  txt(`${S.won.length} MADE IT`, 1018, y0 + 33, '800 23px Rubik', GREEN, 'right'); txt(`${S.lost.length} OUT`, 1018, y0 + 64, '800 23px Rubik', RED, 'right');
+  const y1 = y0 + 92, n = CODES.length;
+  g.fillStyle = 'rgba(255,255,255,.1)'; rr(40, y1, 1000, 14, 7); g.fill();
+  if (S.won.length) { g.fillStyle = GREEN; rr(40, y1, 1000 * S.won.length / n, 14, 7); g.fill(); }
+  if (S.lost.length) { g.fillStyle = RED; rr(40 + 1000 * S.won.length / n, y1, 1000 * S.lost.length / n, 14, 7); g.fill(); }
+  txt(`${S.won.length + S.lost.length} / ${n} FINISHED THIS ROUND`, 540, y1 + 42, '800 23px Rubik', MUT, 'center');
+  const y2 = y1 + 76, b = board();
+  txt('TOP 5 · TOTAL POINTS', 40, y2, '800 23px Rubik', GOLD);
+  b.slice(0, 5).forEach((c, i) => {
+    const y = y2 + 12 + i * 40, med = ['#ffd23f', '#d9e2f2', '#e39a5b'][i] || '#5b6594';
+    g.fillStyle = med; g.beginPath(); g.arc(58, y + 16, 15, 0, 7); g.fill(); txt(String(i + 1), 58, y + 24, '400 19px Bungee', '#10132a', 'center');
+    ball(c, 102, y + 16, 17); txt(fit(NAME(c), '800 27px Rubik', 300), 130, y + 26, '800 27px Rubik', '#fff');
+    txt(String(S.pts[c]), 560, y + 27, '400 29px Bungee', i ? '#fff' : GOLD, 'right');
+  });
+  txt('OUT THIS ROUND', 600, y2, '800 23px Rubik', RED);
+  S.lost.slice(-56).forEach((c, i) => ball(c, 616 + (i % 14) * 30.5, y2 + 28 + Math.floor(i / 14) * 31, 13, 0, .9));
+  const y3 = H - 64; g.fillStyle = 'rgba(8,12,34,.85)'; rr(40, y3, 1000, 50, 25); g.fill(); g.lineWidth = 2; g.strokeStyle = 'rgba(255,255,255,.22)'; g.stroke();
+  heart(250, y3 + 25); txt('LIKE IF YOU SEE YOUR COUNTRY FLAG', 560, y3 + 35, '800 27px Rubik', '#fff', 'center');
+}
+function heart(x, y) { g.save(); g.translate(x, y); g.fillStyle = RED; g.beginPath(); g.moveTo(0, 10); g.bezierCurveTo(-22, -6, -12, -22, 0, -10); g.bezierCurveTo(12, -22, 22, -6, 0, 10); g.fill(); g.restore(); }
+function finalCard(now) {
+  g.fillStyle = 'rgba(4,6,18,.9)'; g.fillRect(0, 0, W, H);
+  const [c1, c2, c3] = S.final.top, k = Math.min(1, .3 + (S.t - S.final.t) * 1.5);
+  for (let i = 0; i < 3; i++) parts.push({ x: rnd(0, W), y: -10, vx: rnd(-60, 60), vy: rnd(120, 300), life: 6, col: [GOLD, CYAN, GREEN, RED][i % 4], s: rnd(6, 12), conf: 1 });
+  for (const p of parts) if (p.conf) { p.x += p.vx / 60; p.y += p.vy / 60; p.life -= 1 / 60; g.fillStyle = p.col; g.fillRect(p.x, p.y, p.s, p.s * .6); }
+  parts = parts.filter(p => p.life > 0 && p.y < H + 20);
+  txt('CHAMPION', W / 2, 330, '400 120px Bungee', GOLD, 'center');
+  txt(`AFTER ${S.round} ROUNDS`, W / 2, 392, '800 32px Rubik', MUT, 'center');
+  const gl = g.createRadialGradient(W / 2, 700, 100, W / 2, 700, 330); gl.addColorStop(0, 'rgba(255,210,63,.45)'); gl.addColorStop(1, 'rgba(255,210,63,0)'); g.fillStyle = gl; g.fillRect(0, 300, W, 800);
+  ball(c1, W / 2, 700, 210 * k, Math.sin(now) * .06);
+  txt(fit(NAME(c1).toUpperCase(), '400 96px Bungee', 1000), W / 2, 1030, '400 96px Bungee', '#fff', 'center');
+  txt(`${S.pts[c1]} POINTS`, W / 2, 1100, '400 52px Bungee', GOLD, 'center');
+  [[c2, '2ND', 270], [c3, '3RD', 810]].forEach(([c, l, x]) => { ball(c, x, 1330, 90); txt(l, x, 1210, '400 40px Bungee', MUT, 'center');
+    txt(fit(NAME(c), '800 40px Rubik', 440), x, 1470, '800 40px Rubik', '#fff', 'center'); txt(`${S.pts[c]} POINTS`, x, 1520, '400 32px Bungee', GOLD, 'center'); });
+  txt('NEW BATTLE STARTS SOON', W / 2, 1720, '400 44px Bungee', CYAN, 'center');
+  txt('LIKE IF YOUR COUNTRY MADE THE TOP 3', W / 2, 1790, '800 32px Rubik', '#fff', 'center');
+}
+
+// ---------- loop and controls ----------
+let last = performance.now(), acc = 0;
+function frame(now) {
+  acc += Math.min(now - last, 100) * S.speed; last = now; let n = 0;
+  voTick();
+  while (acc >= 1000 / 60 && n < 16) { if (!S.final) step(); else S.t += 1 / 60; acc -= 1000 / 60; n++; }
+  if (n === 16) acc = 0;
+  draw(); requestAnimationFrame(frame);
+}
+for (const b of document.querySelectorAll('[data-speed]')) b.addEventListener('click', () => {
+  S.speed = +b.dataset.speed; for (const o of document.querySelectorAll('[data-speed]')) o.setAttribute('aria-pressed', o === b);
+});
+document.getElementById('fin').addEventListener('click', () => { let i = 0; while (S.round < 4 && i++ < 20000) step(); finale(); });
+document.getElementById('rst').addEventListener('click', reset);
+const vob = document.getElementById('vo');
+vob.addEventListener('click', async () => {
+  if (VO.on) { VO.on = false; VO.stop(); vob.textContent = 'Turn on commentary'; vob.setAttribute('aria-pressed', 'false'); return; }
+  vob.textContent = 'Loading voice…';
+  try { await voOn(); vob.textContent = 'Mute commentary'; vob.setAttribute('aria-pressed', 'true'); } catch (e) { vob.textContent = 'Sound blocked by browser'; }
+});
+if (location.hash === '#stream') voOn().catch(() => {});   // the stream machine runs Chrome with autoplay allowed
+const mode = () => document.body.classList.toggle('stream', location.hash === '#stream');
+addEventListener('hashchange', mode); mode();
+S = null; reset();
+const fonts = Promise.all([document.fonts.load('400 40px Bungee'), document.fonts.load('800 24px Rubik')]).catch(() => {});
+Promise.race([Promise.all([fonts, ...loads]), new Promise(r => setTimeout(r, 3000))]).then(() => { last = performance.now(); requestAnimationFrame(frame); });
+window.FW = { get S() { return S; }, step, finale, onChat, VO };
+}
+</script></body></html>

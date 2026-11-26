@@ -1,0 +1,63 @@
+{
+ "start": [
+  "Release the flags! Mwahahaha!",
+  "New experiment! Sixty four specimens... drop them!",
+  "Into the machine, my little flags!",
+  "Activate the drop! For science!",
+  "Let gravity do the science!"
+ ],
+ "out": [
+  "is eliminated!",
+  "is out! Fascinating...",
+  "falls into the red gate! Tragic!",
+  "is gone! Another failed specimen!"
+ ],
+ "saw": [
+  "shredded by my saw! Mwahaha!",
+  "meets the saw blade! Delicious!",
+  "sliced to pieces!"
+ ],
+ "win": [
+  "survives! Plus one point!",
+  "makes it through! Excellent!",
+  "escapes my machine! Impossible!"
+ ],
+ "lead": [
+  "takes the lead!",
+  "is now number one!"
+ ],
+ "end": [
+  "Experiment complete! Every survivor gets a point!",
+  "Round over! Write it in the lab notes!",
+  "What a massacre! Next round!"
+ ],
+ "few": [
+  "Almost nobody survived! Magnificent!"
+ ],
+ "many": [
+  "So many survivors! My machine is too kind!"
+ ],
+ "shield": [
+  "gets a shield! The chat protects them!"
+ ],
+ "saved": [
+  "the shield holds! Saved!"
+ ],
+ "revive": [
+  "rises from the dead! It's alive! IT'S ALIVE!"
+ ],
+ "cta": [
+  "Type your country in the chat to support it!",
+  "Where are you from? Tell me in the chat!",
+  "Like the stream if you see your flag!",
+  "Twenty chats give your country a shield!"
+ ],
+ "champ": [
+  "We have a champion! The experiment is complete! Mwahahahaha!"
+ ],
+ "idle": [
+  "Mwahahahaha!",
+  "Science is beautiful!",
+  "Who will survive my machine?"
+ ]
+}
