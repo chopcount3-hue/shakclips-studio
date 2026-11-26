@@ -25,8 +25,9 @@ supporting. Everything not proven yet is an experiment.
 | 2026-11-21 (run 2) | streamer name in Short title | A: name first ("Speed...", "CaseOh...") vs B: no name ("This streamer...") | views at 24/48 h, A vs B average | CLOSED 23 Nov (~39 h): A speed_save 1506 vs B pixel_crash 9 (squeex, no name, 1073). A wins -> rule 6 |
 | 2026-11-22 | Short length | A: 18-25 s (jshrobz_crash 23 s) vs B: 32-40 s (dunc_bike 32 s); both name-first titles, both framed | views + avg % viewed at 24/48 h | CLOSED 24 Nov: A jshrobz 1072 @39 h vs B dunc 634 @32 h. A (18-25 s) wins |
 | 2026-11-23 | Short title form | A: question ("Why Did DarkViperAU Say 'It's My Bad'...?" 20 s) vs B: statement ("MoistCr1TiKaL Found the PERFECT Hiding Spot..." 27 s); both name-first, framed | views at 24/48 h | CLOSED 25 Nov: A ~1,000 @40 h (flat) vs B 924 @33 h. Tie: title form doesn't move the ~1k feed test; keep either |
-| 2026-11-24 | music bed | A: funny/trap music at 0.07 vs B: no music (game audio + owner SFX); both 15-24 s, name-first, framed, shorts_creators | views + avg % at 24/48 h | early 25 Nov: A caseoh_plane 997 @16 h vs B jynxzi_logo 37 @9 h (B also had a weaker clip). Leaning A; final read 26 Nov |
-| 2026-11-25 | Short length inside 15-24 s | A: 14-17 s (jynxzi_brake 17 s) vs B: 20-24 s (agent00_sf90 22 s); both music bed 0.07, name-first statement titles, framed | views at 24/48 h | pending |
+| 2026-11-24 | music bed | A: funny/trap music at 0.07 vs B: no music (game audio + owner SFX); both 15-24 s, name-first, framed, shorts_creators | views + avg % at 24/48 h | CLOSED 26 Nov: A caseoh_plane ~1,000 @40 h vs B jynxzi_logo 43 @33 h (never got the feed test). A wins: keep the music bed at 0.05-0.08 |
+| 2026-11-25 | Short length inside 15-24 s | A: 14-17 s (jynxzi_brake 17 s) vs B: 20-24 s (agent00_sf90 22 s); both music bed 0.07, name-first statement titles, framed | views at 24/48 h | early 26 Nov: A jynxzi_brake 968 @16 h vs B agent00_sf90 190 @9 h; final read 27 Nov |
+| 2026-11-26 | 'fit' style (stream moments, blurred bg + title box + face zooms) vs the old framed GTA Shorts | kai_speed_rage (29 s, Kai+Speed $1M race) + 2nd fit Short; baseline = framed Shorts' ~1k @24 h | views at 24/48 h vs ~1k baseline | pending |
 
 Ideas queue (pick the top one when no experiment is running):
 - long-video thumbnail words: emotion ("NOT READY") vs dare ("TRUST ME BRO") vs question ("WHY?!"); circle vs no circle
@@ -34,6 +35,10 @@ Ideas queue (pick the top one when no experiment is running):
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-26: Kai's stream goes BLACK/WHITE for ~10 s after "wasted" (respawn): in the fit style that is a black screen with tiny cams. Keep those ranges
+  <= 2 s each and push zoomto z=3.0 into the reacting face. Re-running streams.py moments renumbers windows (m04 moved to 1:27): always take `a` from cands.json.
+- 2026-11-26: speaker attribution: Whisper mixes Kai + Speed (call audio). Read the race-tracker HUD (top-left: SPEED $xK / KAI $yK) to know who is ahead before writing who-said-what narration.
+- 2026-11-26: thumbnail on a red 'wasted' frame: red accent words vanished; yellow accent reads at 160 px. host.sh needs ABSOLUTE paths.
 - 2026-11-25: note/sticker/fx times are SOURCE times (like ranges), not output times: 4 notes placed in cut gaps silently vanished. Place every note inside a range.
 - 2026-11-25: lib.fixed rep keys are round(start, 1): {7.86: ...} did nothing, {7.9: ...} works.
 - 2026-11-25: cut-out cams (Jynxzi, Agent00) need ~120 px headroom in the top box or the notes sit on the eyes; Jynxzi [1150,470,770,513], Agent00 [1110,640,540,360].
@@ -73,6 +78,16 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-26 (08:13 UTC daily run)
+- Stats (yt-dlp flat list): jynxzi_brake 968 @16 h (got the feed test), agent00_sf90 190 @9 h, jynxzi_logo 43 @33 h (dead, no music), caseoh_plane ~1k @40 h.
+  Longs still 1-3 views (all 4 dead). Speed-named Shorts remain the only breakouts (speed_save 3k; the owner's older Speed uploads 25k-30k).
+- Closed music test: music bed wins (caseoh ~1k vs no-music 43). Length test 14-17 s vs 20-24 s: early lead for 17 s; final read 27 Nov.
+- Trend check (yt-dlp search): Kai+Speed winners are "Everytime Speed and Kai Arguing" (1.3M), "Kai Cenat BEATS iShowSpeed ... (Minecraft Marathon)" (62k):
+  both names + a conflict verb + the stream in brackets. Kai's own "I Raced IShowSpeed To $1,000,000" has 1.8M: that stream is well known.
+- Posted (all published via vidIQ, scheduled): kai_speed_rage 6OemWYp-1lM (backlog, 29 s, 11:00 ET), long SptxAKRE5Pk "Kai Cenat & IShowSpeed's $1M Race
+  Got OUT OF HAND (Best Moments)" (7 ranked moments from ONE stream, 6:37, 27% narration, thumb KAI LOST $524K?!, 15:00 ET), kai_wasted r2kBvPc57h4 (16 s, 18:00 ET).
+- Experiment: fit style vs the framed ~1k baseline. First single-stream long video (story arc: broke -> $186K -> abducted -> $524K -> wasted -> dies again).
+- Tomorrow: 24 h read of both fit Shorts vs ~1k; 2939504732 still has m00/m03/m08/m09/m10/m11/m15 unused, but try a fresh stream (Fanum/Agent00 AMP) first.
 ### 2026-11-25 (owner chat, 23:40 IST)
 - Owner: stop GTA-only; clip Kai Cenat / Speed marathon, Mafiathon and AMP streams by chat hype; no frame, 'fit' + blurred
   background. Built streams.py (chat replay + community clips -> 90 s windows), VOD-window pull, titlebox.py, zoomto.
