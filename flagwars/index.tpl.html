@@ -163,10 +163,25 @@ function win(f) {
   else if (Math.random() < .2) say(['n_' + f.code, pick('win')], 1);
 }
 // ---------- chat support (the 'SAVE YOUR COUNTRY' rules). onChat() is the hook a real YouTube live-chat reader calls ----------
-const ALIAS = {}; for (const c of CODES) { ALIAS[c] = c; ALIAS[NAME(c).toLowerCase()] = c; }
-Object.assign(ALIAS, { usa: 'us', america: 'us', 'united states': 'us', 'united kingdom': 'gb', england: 'gb', britain: 'gb', korea: 'kr', 'saudi': 'sa', emirates: 'ae', turkiye: 'tr', czech: 'cz', holland: 'nl', bharat: 'in' });
+const ALIAS = {}; for (const c of CODES) ALIAS[NAME(c).toLowerCase()] = c;
+Object.assign(ALIAS, { usa: 'us', america: 'us', 'united states': 'us', uk: 'gb', 'united kingdom': 'gb', england: 'gb', britain: 'gb', korea: 'kr',
+  saudi: 'sa', ksa: 'sa', uae: 'ae', emirates: 'ae', turkiye: 'tr', 't\u00fcrkiye': 'tr', czech: 'cz', czechia: 'cz', holland: 'nl', bharat: 'in', hindustan: 'in', rsa: 'za',
+  srilanka: 'lk', brasil: 'br', 'méxico': 'mx', 'españa': 'es', deutschland: 'de', naija: 'ng', pinoy: 'ph', philippine: 'ph', 'viet nam': 'vn' });
+const WORDS = new Set(['in', 'no', 'my', 'it', 'at', 'be', 'us', 'id', 'de', 'es', 'ma', 'ie', 'np', 'et', 'eg', 'hr', 'gr', 'ca', 'my', 'th', 'ph', 'ng']);
+function country(text) {        // 'India' / 'i love india' / a flag emoji / a short code in capitals ('IN'); lowercase 'in', 'no', 'my' never count
+  const s = String(text), m = s.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
+  if (m) { const cc = [...m[0]].map(ch => String.fromCharCode(ch.codePointAt(0) - 0x1F1E6 + 97)).join(''); if (SVG[cc]) return cc; }
+  const one = s.trim(), lo = one.toLowerCase();
+  if (/^[A-Za-z]{2,3}$/.test(one)) {                     // a short code on its own; lowercase only if it is not also a common word
+    if (lo.length === 2 && SVG[lo] && (one === one.toUpperCase() || !WORDS.has(lo))) return lo;
+    if (ALIAS[lo]) return ALIAS[lo];
+  }
+  const w = s.toLowerCase().replace(/[^a-z\u00e0-\u00ff ]/g, ' ').split(/\s+/).filter(Boolean);
+  for (let n = 3; n >= 1; n--) for (let i = 0; i + n <= w.length; i++) { const k = w.slice(i, i + n).join(' '); if (ALIAS[k]) return ALIAS[k]; }
+  return null;
+}
 function onChat(user, text) {
-  const t = String(text).toLowerCase().replace(/[^a-z ]/g, ' ').trim(), c = ALIAS[t] || t.split(/\s+/).map(w => ALIAS[w]).find(Boolean);
+  const c = country(text);
   if (!c || S.final) return; S.sup[c] = (S.sup[c] || 0) + 1; S.lastChat = { user, c, t: S.t };
   if (S.phase !== 'play') return;
   if (S.sup[c] === SHIELD_AT && S.left > 0 && !S.lost.includes(c) && !S.won.includes(c)) {
@@ -178,6 +193,13 @@ function onChat(user, text) {
     S.toast = { c, ok: true, t: S.t, label: 'REVIVED' }; say(['n_' + c, 'p_revive0'], 5);
   }
 }
+let chatId = -1;
+async function pollChat() {
+  try { const r = await fetch('chat.json?' + Date.now(), { cache: 'no-store' }); if (!r.ok) return; const d = await r.json(), ms = d.msgs || [];
+    if (chatId < 0) { chatId = ms.length ? ms[ms.length - 1].id : 0; return; }
+    for (const m of ms) if (m.id > chatId) { chatId = m.id; onChat(m.user, m.text); } } catch (e) {}
+}
+if (!SIM_CHAT) setInterval(pollChat, 1500);
 const FANS = ['in','in','in','pk','pk','bd','br','br','us','id','ph','eg','ng','mx','ma','tr','vn','ar','co','sa'];
 function demoChat() { if (!SIM_CHAT || S.t < S.chatNext) return; S.chatNext = S.t + rnd(.05, .3);
   if (S.hotRound !== S.round) { S.hotRound = S.round; S.hot = FANS[Math.floor(Math.random() * FANS.length)]; }   // each round one country's fans 'raid' the chat
@@ -327,10 +349,9 @@ function header(now) {
   txt('WHERE ARE', 540, y + 122, '400 58px Bungee', '#fff', 'center'); txt('YOU FROM?', 540, y + 194, '400 58px Bungee', GOLD, 'center');
   box(750, y, 300, h); brackets(750, y, 300, h, TEAL, GOLD);
   txt('SAVE YOUR COUNTRY', 900, y + 44, '400 22px Bungee', TEAL, 'center');
-  [[CYAN, `${SHIELD_AT} chats`, 'SHIELD', TEAL], [CYAN, `${REVIVE_AT} if out`, 'REVIVE', PINK], [GOLD, 'Super Chat', 'SHIELD / REVIVE', GOLD],
-   [GOLD, 'Subscribe', 'FREE POWER', VIOLET], [CYAN, '50 Jewels', 'SHIELD / REVIVE', CYAN]].forEach(([ic, a, b, col], i) => {
-    const yy = y + 80 + i * 28; g.fillStyle = ic; g.beginPath(); g.arc(772, yy - 7, 6, 0, 7); g.fill();
-    txt(a, 786, yy, '800 18px Rubik', '#fff'); txt(b, 1036, yy, '800 15px Rubik', col, 'right');
+  [[CYAN, `${SHIELD_AT} chats`, 'SHIELD', TEAL], [CYAN, `${REVIVE_AT} if out`, 'REVIVE', PINK], [GOLD, 'Name, flag, IN', '1 CHAT', GOLD]].forEach(([ic, a, b, col], i) => {
+    const yy = y + 90 + i * 38; g.fillStyle = ic; g.beginPath(); g.arc(772, yy - 7, 6, 0, 7); g.fill();
+    txt(a, 786, yy, '800 21px Rubik', '#fff'); txt(b, 1036, yy, '800 19px Rubik', col, 'right');
   });
   txt(`no limit  ·  left ${S.left}/${POWERS}`, 900, y + 216, '800 18px Rubik', MUT, 'center');
 }
@@ -399,6 +420,7 @@ function frame(now) {
   acc += Math.min(now - last, 100) * S.speed; last = now; let n = 0;
   voTick();
   while (acc >= 1000 / 60 && n < 16) { if (!S.final) step(); else S.t += 1 / 60; acc -= 1000 / 60; n++; }
+  if (S.final && !SIM_CHAT && S.t - S.final.t > 120) reset();
   if (n === 16) acc = 0;
   draw(); requestAnimationFrame(frame);
 }
@@ -419,6 +441,6 @@ addEventListener('hashchange', mode); mode();
 S = null; reset();
 const fonts = Promise.all([document.fonts.load('400 40px Bungee'), document.fonts.load('800 24px Rubik')]).catch(() => {});
 Promise.race([Promise.all([fonts, ...loads]), new Promise(r => setTimeout(r, 3000))]).then(() => { last = performance.now(); requestAnimationFrame(frame); });
-window.FW = { get S() { return S; }, step, finale, onChat, VO };
+window.FW = { get S() { return S; }, step, finale, onChat, country, VO };
 }
 </script></body></html>

@@ -19,7 +19,17 @@ Paths in the scripts are /home/claude/flagwars; voice mp3s are not committed (bi
 `voice/kok_names.py` for the "Team <country>!" names, then `voice/process.py` (+5% pitch, lab echo, -15 LUFS) and
 `voice/qa.py` (Whisper check that each clip says its line).
 
-## Going live (not set up yet)
-Needs a machine that stays on for the whole stream (own PC, or a ~$5-10/month server): headless Chrome with
-`--autoplay-policy=no-user-gesture-required` opening `index.html#stream` at 1080x1920, captured by ffmpeg to the
-YouTube stream key; plus a small reader that polls the live chat and calls `FW.onChat(user, text)`.
+## Going live (Contabo Cloud VPS 20, Ubuntu 24.04)
+On the server, as root (Termius on the phone):
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/chopcount3-hue/shakclips-studio/flag-wars/flagwars/server/setup.sh)
+```
+It installs Chrome, Xvfb, PulseAudio and ffmpeg, downloads `dist/index.html` and `server/run.sh`, asks for the YouTube
+stream key on the server (saved in /etc/flagwars.env, root-only; never sent anywhere else) and starts the systemd service
+`flagwars`, which restarts itself if Chrome or ffmpeg stops. Running the command again updates the game.
+`dist/index.html` is the built page (voice clips inlined as base64); rebuild it with `python3 build.py` after changes.
+Tested 28 Nov: 1080x1920 at 30 fps with the voice in the audio used about 1.8 CPU cores.
+
+Live chat (the SAVE YOUR COUNTRY powers) is not connected yet: it should use the official YouTube Data API
+(liveChatMessages), not scraping. The page already reads `chat.json` ({"msgs": [{id, user, text}]}) every 1.5 s in
+`#stream` mode.
