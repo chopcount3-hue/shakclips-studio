@@ -29,8 +29,9 @@ supporting. Everything not proven yet is an experiment.
 | 2026-11-23 | Short title form | A: question ("Why Did DarkViperAU Say 'It's My Bad'...?" 20 s) vs B: statement ("MoistCr1TiKaL Found the PERFECT Hiding Spot..." 27 s); both name-first, framed | views at 24/48 h | CLOSED 25 Nov: A ~1,000 @40 h (flat) vs B 924 @33 h. Tie: title form doesn't move the ~1k feed test; keep either |
 | 2026-11-24 | music bed | A: funny/trap music at 0.07 vs B: no music (game audio + owner SFX); both 15-24 s, name-first, framed, shorts_creators | views + avg % at 24/48 h | CLOSED 26 Nov: A caseoh_plane ~1,000 @40 h vs B jynxzi_logo 43 @33 h (never got the feed test). A wins: keep the music bed at 0.05-0.08 |
 | 2026-11-25 | Short length inside 15-24 s | A: 14-17 s (jynxzi_brake 17 s) vs B: 20-24 s (agent00_sf90 22 s); both music bed 0.07, name-first statement titles, framed | views at 24/48 h | CLOSED 27 Nov: A jynxzi_brake 978 @40 h vs B agent00_sf90 229 @33 h. A (14-17 s) wins; kai_wasted (16 s) 920 @9 h agrees |
-| 2026-11-26 | 'fit' style (stream moments, blurred bg + title box + face zooms) vs the old framed GTA Shorts | kai_speed_rage (29 s, Kai+Speed $1M race) + 2nd fit Short; baseline = framed Shorts' ~1k @24 h | views at 24/48 h vs ~1k baseline | early 27 Nov: kai_speed_rage 1,100 @16 h, kai_wasted 920 @9 h (fastest 9 h read yet; framed B-side agent00 was 190 @9 h). Fit ≥ framed so far; final read 28 Nov |
-| 2026-11-27 | new stream / creator in the fit style | A: Kai+Speed interaction, both cams (speed_crash, 20.6 s) vs B: Kai solo win (kai_bag, 20.4 s); both fit, same stream | views at 24/48 h | pending |
+| 2026-11-26 | 'fit' style (stream moments, blurred bg + title box + face zooms) vs the old framed GTA Shorts | kai_speed_rage (29 s, Kai+Speed $1M race) + 2nd fit Short; baseline = framed Shorts' ~1k @24 h | views at 24/48 h vs ~1k baseline | early 27 Nov: kai_speed_rage 1,100 @16 h, kai_wasted 920 @9 h (fastest 9 h read yet; framed B-side agent00 was 190 @9 h). Fit ≥ framed so far; CLOSED 28 Nov: kai_speed_rage 1,200 @40 h, kai_wasted ~1,000 @33 h, speed_crash 4,100 @16 h, kai_bag 1,200 @9 h. Fit ≥ framed (4 of 4 got the feed test, one 4x breakout): keep fit (rule 5) |
+| 2026-11-27 | new stream / creator in the fit style | A: Kai+Speed interaction, both cams (speed_crash, 20.6 s) vs B: Kai solo win (kai_bag, 20.4 s); both fit, same stream | views at 24/48 h | early 28 Nov: A speed_crash 4,100 @16 h (channel's best 16 h read ever) vs B kai_bag 1,200 @9 h. A leads; final read 29 Nov |
+| 2026-11-28 | Short title wording (viral swipe structure) | A: two big names + one ALL-CAPS verb + 😭 ("Kai Cenat & Speed ...") vs B: one name + plain statement; both Kai+Speed both-cam interaction moments, fit, 15-20 s | views at 24/48 h | pending |
 
 Ideas queue (pick the top one when no experiment is running):
 - long-video thumbnail words: emotion ("NOT READY") vs dare ("TRUST ME BRO") vs question ("WHY?!"); circle vs no circle
@@ -38,6 +39,9 @@ Ideas queue (pick the top one when no experiment is running):
 - upload spacing: 3+ h between Shorts vs 1 h (pixel_crash went out 1 h after speed_save and got 9 views)
 
 ## Craft notes (defects found in review and how they were fixed)
+- 2026-11-28: Kai's VOD 2939504732 opens (0:18 h) on Kai watching the Avengers: Doomsday trailer (YouTube player, film audio) until ~7 s into window m03, and m02 is him watching Marvel content: copyrighted film on screen. Dropped m02 from the long and started m03 at 8.4 s. Check the first seconds of every just-chatting window for a video player.
+- 2026-11-28: a bleeped swear still showed as a CAPTION word ("FUCKIN'") in the fit Short: lib.bleeps mutes audio only. Fix: rep={round(start,1): ''} for every bleeped word; check the review sheet's caption words.
+- 2026-11-28: thumb_scene crop must start below the race HUD (y ≥ 330 on Kai's stream; the timer + $1M bar sit at y≈190-310, x<400).
 - 2026-11-27: longform 'fx' times are MOMENT-RELATIVE (seconds after the moment's start), not source times: make_long.py's M() now takes source times and subtracts a.
 - 2026-11-27: scene thumb crop at x=260 left the race HUD (timer + $1M bar) beside the face; Kai's stream HUD ends at x≈300, start the crop at x≥310.
 - 2026-11-27: running two streams.py moments in parallel is fine (cands.json merges), but a 3rd run on an older VOD RENUMBERS its windows: add hand-picked windows as unique names (kaiw_<a>) in cands.json.
@@ -88,6 +92,18 @@ Ideas queue (pick the top one when no experiment is running):
   The long render takes ~8 min and fit100 ~10 min, so run both with nohup and poll.
 
 ## Daily log (newest first; 3-6 lines per day: what was posted, top/bottom performer and why, what changes tomorrow)
+### 2026-11-28 (08:13 UTC daily run)
+- Stats (yt-dlp flat list): speed_crash FZMYAyY0RU4 4,100 @16 h = best 16 h read the channel has had (Speed's PlayStation dies mid-race, both cams, 20.6 s); kai_bag 1,200 @9 h;
+  kai_speed_rage 1,200 @40 h, kai_wasted ~1,000 @33 h. Longs still 1-3 views (YsXTldZpwyw 2 @12 h): no-voiceover changed nothing yet. Fit experiment closed (keep fit).
+- Main lesson: a Speed-centred FAIL with both cams reacting (Speed's misfortune + Kai laughing) beats a Kai-only win ~3x at the same age. Pick Speed-misfortune moments first.
+- /yt-viral worked again (viral_collect via channel listings): top outliers Zylok "Kai Cenat & IShowSpeed Got The Same GTA 6 Ending! 💔" 109x (13M), AMPYRG "Kai Cenat gave Davis $50,000+ 🎁😱" 17x,
+  "Duke Dennis is TOO CLEAN 😭" 13.6x, Zylok "Cameraman Forgot Duke Dennis From The Trench! 😭" 10x, Kai Live "Kai Cenat & Tyla Win..." 9x. Shared structure: big name(s) + one concrete event + 😭/💔.
+- No new Kai/Speed VOD in 4 days (pick: Fanum/Agent00 only; Kai's last VOD is the $1M race). Re-ran moments on 2939504732 with --top 30: 30 windows, none overlapping the 19 used. Today = Part 3 of the race.
+- Experiment: Short title wording, two names + ALL-CAPS verb + 😭 (A) vs one name + plain statement (B).
+- Posted (all published via vidIQ, scheduled): speed_early -LvSDgcI890 (A, 17.1 s, Kai full-cam pre-race, 11:00 ET), long hsqrftBQubs "Kai Cenat & IShowSpeed $1M Race Funny Moments Part 3"
+  (6:05, 8 ranked moments, no voiceover, -14.2 LUFS, 95 MB; 4K scene thumb = Kai's cop car flipping into a wall + Speed rage photo + GTA VI, 15:00 ET), kai_chase 532Es0v2MeU (B, 18.7 s, 18:00 ET).
+- Copy check (yt-dlp ytsearch works again): 0 copies of the "Speed started early" moment; 1 tiny copy (3 views) of the cop-car chase. The race now has 26 used windows: tomorrow needs a NEW stream.
+- Tomorrow: final read of speed_crash vs kai_bag + first read of A vs B; streams.py pick --days 4 for any new Kai/Speed VOD; else try Fanum/AMP with a strict slur check.
 ### 2026-11-27 (08:13 UTC daily run)
 - Stats (yt-dlp flat list): kai_speed_rage 1,100 @16 h, kai_wasted 920 @9 h (best 9 h read the channel has had), long SptxAKRE5Pk 2 views @12 h (5 longs, all ≤ 3 views).
   jynxzi_brake 978 @40 h vs agent00_sf90 229 @33 h -> length test closed, 14-17 s wins. Main lesson: Kai+Speed names in the fit style get the feed test fastest; long-form still gets no reach.

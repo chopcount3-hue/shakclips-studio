@@ -1,0 +1,4 @@
+{"src": "/home/claude/gtaday/clips/kaicenat_m27.mp4", "t": 50.4, "crop": [340, 330, 1260, 709],
+ "arrow": {"to": [960, 700], "from": [1500, 330]},
+ "face": "photos/ishowspeed-rage.jpg", "face_side": "left", "face_h": 0.92,
+ "logo": {"at": [1085, 215], "h": 340}}
